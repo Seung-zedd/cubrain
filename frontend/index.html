@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cubrain Prototype: Selection Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            padding: 50px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* The Floating Button (Initially Hidden) */
+        #cubrain-btn {
+            position: absolute;
+            display: none;
+            /* Hidden by default */
+            background-color: #3b82f6;
+            /* Blue */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(-50%);
+            /* Center align properly */
+        }
+
+        #cubrain-btn:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Highlight Experiment</h1>
+
+    <p>
+        1. Top of the page. Highlight me first to check the baseline.
+        The button should appear right above this text.
+    </p>
+
+    <div
+        style="height: 1500px; background: linear-gradient(to bottom, #f0f0f0, #e0e0e0); padding: 20px; border-left: 5px solid #ccc;">
+        <h3>⬇️ SCROLL DOWN ⬇️</h3>
+        <p>Keep scrolling... pretend this is a long article or documentation.</p>
+    </div>
+
+    <p>
+        2. 🎯 <strong>THE SCROLL TEST TARGET</strong> 🎯
+        <br>
+        Now that you have scrolled down 1500px, highlight this text.
+        <br><br>
+        <strong>The Math Check:</strong>
+        If we didn't add <code>window.scrollY</code>, the button would appear 1500px <em>above</em> this text
+        (off-screen).
+        If the button appears right here, the math is correct.
+    </p>
+
+    <button id="cubrain-btn">📥 Save to Deck</button>
+
+    <script>
+        const btn = document.getElementById('cubrain-btn');
+
+        // [Logic 1] The Listener: Show button on highlight
+        document.addEventListener('mouseup', (event) => {
+            const selection = window.getSelection();
+
+            if (selection.isCollapsed) {
+                hideButton();
+                return;
+            }
+
+            const text = selection.toString().trim();
+            if (!text) return;
+
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+
+            // Position: Centered above the text
+            showButton(rect.left + (rect.width / 2), rect.top + window.scrollY - 40);
+        });
+
+        // [Logic 2] The Reset: Hide when clicking away
+        document.addEventListener('mousedown', (event) => {
+            if (event.target === btn) return;
+            hideButton();
+        });
+
+        // [Logic 3] The Payload: Capture Text + Context
+        btn.addEventListener('click', async () => {
+            const selection = window.getSelection();
+            const text = selection.toString();
+            const range = selection.getRangeAt(0);
+
+            // --- CONTEXT CAPTURE MAGIC START ---
+            let container = range.commonAncestorContainer;
+            if (container.nodeType === 3) {
+                container = container.parentNode;
+            }
+            const fullContext = container.innerText;
+            // --- CONTEXT CAPTURE MAGIC END ---
+
+            // Verify the data
+            console.log("📦 PACKING DATA FOR API...");
+            console.log("Highlight:", text);
+            console.log("Context:", fullContext);
+
+            alert(`✅ Saved to Deck!\n\nWe captured the surrounding context too:\n"${fullContext.substring(0, 100)}..."`);
+
+            // Reset UI
+            selection.removeAllRanges(); // Clear the blue highlight
+            hideButton();
+        });
+
+        function showButton(x, y) {
+            btn.style.display = 'block';
+            btn.style.left = `${x}px`;
+            btn.style.top = `${y}px`;
+        }
+
+        function hideButton() {
+            btn.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
