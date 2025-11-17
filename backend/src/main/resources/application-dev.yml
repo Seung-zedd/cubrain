@@ -4,12 +4,16 @@ spring:
     activate:
       on-profile: dev
 
-  # JPA 설정 (dev: update로 데이터 유지)
+  # JPA 설정 (dev: Flyway가 스키마 관리)
   jpa:
     hibernate:
-      ddl-auto: update  # 기존 테이블 업데이트
+      ddl-auto: validate  # Flyway manages schema, Hibernate validates
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+
+  # Flyway 활성화 (dev 환경에서 스키마 관리)
+  flyway:
+    enabled: true
 
   # 데이터베이스 설정 (postgreSQL)
 

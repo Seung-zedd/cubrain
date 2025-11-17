@@ -1,0 +1,4 @@
+rootProject.name = 'cubrain'
+
+// Include backend as a subproject
+include 'backend'

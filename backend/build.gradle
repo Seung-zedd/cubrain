@@ -25,7 +25,7 @@ repositories {
 }
 
 ext {
-    set('springCloudVersion', '2024.0.0') // Spring Cloud 2024.0.x (Northfields) for Spring Boot 3.5.x
+    set('springCloudVersion', '2025.0.0') // Spring Cloud 2025.0.x (Northfields) for Spring Boot 3.5.x
 }
 
 dependencyManagement {

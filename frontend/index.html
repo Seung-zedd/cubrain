@@ -69,6 +69,95 @@
 
     <script>
         const btn = document.getElementById('cubrain-btn');
+        let currentContext = null; // Store context for saving
+
+        // ==================== HELPER FUNCTIONS ====================
+
+        // Find nearest element ancestor (handles text nodes)
+        function getNearestElement(node) {
+            return node.nodeType === Node.ELEMENT_NODE
+                ? node
+                : node.parentElement;
+        }
+
+        // Get semantic context (full paragraph/container)
+        function getSemanticContext(element) {
+            // Find nearest semantic container
+            const semanticTags = ['P', 'DIV', 'ARTICLE', 'SECTION', 'LI', 'TD', 'BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+            let current = element;
+
+            while (current && !semanticTags.includes(current.tagName)) {
+                current = current.parentElement;
+            }
+
+            return current || element;
+        }
+
+        // Capture context around selection (ROBUST VERSION)
+        function captureContext(range, selectedText) {
+            const commonAncestor = range.commonAncestorContainer;
+            const ancestorElement = getNearestElement(commonAncestor);
+
+            if (!ancestorElement) {
+                return {
+                    selectedText: selectedText,
+                    fullContext: selectedText,
+                    beforeContext: '',
+                    afterContext: '',
+                    containerTag: 'unknown'
+                };
+            }
+
+            // Get semantic container (paragraph, div, etc.)
+            const semanticContainer = getSemanticContext(ancestorElement);
+            const fullText = (semanticContainer.textContent || semanticContainer.innerText || '').trim();
+
+            // Find where the selection appears in the full context
+            const selectionIndex = fullText.indexOf(selectedText);
+
+            if (selectionIndex === -1) {
+                // Selection not found - use full text as fallback
+                return {
+                    selectedText: selectedText,
+                    fullContext: fullText.substring(0, 500),
+                    beforeContext: '',
+                    afterContext: '',
+                    containerTag: semanticContainer.tagName.toLowerCase()
+                };
+            }
+
+            // If context is too long, use window-based approach
+            if (fullText.length > 500) {
+                const contextWindow = 150; // characters before/after
+                const start = Math.max(0, selectionIndex - contextWindow);
+                const end = Math.min(fullText.length, selectionIndex + selectedText.length + contextWindow);
+
+                const beforeContext = fullText.substring(start, selectionIndex);
+                const afterContext = fullText.substring(selectionIndex + selectedText.length, end);
+
+                return {
+                    selectedText: selectedText,
+                    fullContext: beforeContext + selectedText + afterContext,
+                    beforeContext: beforeContext,
+                    afterContext: afterContext,
+                    containerTag: semanticContainer.tagName.toLowerCase()
+                };
+            }
+
+            // Short enough - use full semantic context
+            const beforeContext = fullText.substring(0, selectionIndex);
+            const afterContext = fullText.substring(selectionIndex + selectedText.length);
+
+            return {
+                selectedText: selectedText,
+                fullContext: fullText,
+                beforeContext: beforeContext,
+                afterContext: afterContext,
+                containerTag: semanticContainer.tagName.toLowerCase()
+            };
+        }
+
+        // ==================== EVENT HANDLERS ====================
 
         // [Logic 1] The Listener: Show button on highlight
         document.addEventListener('mouseup', (event) => {
@@ -85,6 +174,9 @@
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
 
+            // Capture context immediately when text is selected
+            currentContext = captureContext(range, text);
+
             // Position: Centered above the text
             showButton(rect.left + (rect.width / 2), rect.top + window.scrollY - 40);
         });
@@ -93,32 +185,55 @@
         document.addEventListener('mousedown', (event) => {
             if (event.target === btn) return;
             hideButton();
+            currentContext = null; // Clear context
         });
 
         // [Logic 3] The Payload: Capture Text + Context
         btn.addEventListener('click', async () => {
-            const selection = window.getSelection();
-            const text = selection.toString();
-            const range = selection.getRangeAt(0);
-
-            // --- CONTEXT CAPTURE MAGIC START ---
-            let container = range.commonAncestorContainer;
-            if (container.nodeType === 3) {
-                container = container.parentNode;
+            if (!currentContext) {
+                alert('⚠️ No text selected!');
+                return;
             }
-            const fullContext = container.innerText;
-            // --- CONTEXT CAPTURE MAGIC END ---
 
             // Verify the data
             console.log("📦 PACKING DATA FOR API...");
-            console.log("Highlight:", text);
-            console.log("Context:", fullContext);
+            console.log("Selected Text:", currentContext.selectedText);
+            console.log("Full Context:", currentContext.fullContext);
+            console.log("Before Context:", currentContext.beforeContext);
+            console.log("After Context:", currentContext.afterContext);
+            console.log("Container Tag:", currentContext.containerTag);
 
-            alert(`✅ Saved to Deck!\n\nWe captured the surrounding context too:\n"${fullContext.substring(0, 100)}..."`);
+            // Prepare payload for backend
+            const payload = {
+                selectedText: currentContext.selectedText,
+                fullContext: currentContext.fullContext,
+                beforeContext: currentContext.beforeContext,
+                afterContext: currentContext.afterContext,
+                url: window.location.href,
+                pageTitle: document.title,
+                timestamp: new Date().toISOString(),
+                containerTag: currentContext.containerTag
+            };
+
+            console.log("📤 Payload ready:", payload);
+
+            alert(`✅ Saved to Deck!\n\n` +
+                  `Selected: "${currentContext.selectedText}"\n\n` +
+                  `Context preview:\n"...${currentContext.fullContext.substring(0, 100)}..."\n\n` +
+                  `Container: <${currentContext.containerTag}>`);
+
+            // TODO: Send to backend
+            // await fetch('http://localhost:8080/api/decks/save', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload)
+            // });
 
             // Reset UI
+            const selection = window.getSelection();
             selection.removeAllRanges(); // Clear the blue highlight
             hideButton();
+            currentContext = null;
         });
 
         function showButton(x, y) {

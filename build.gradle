@@ -1,0 +1,44 @@
+// Root build configuration for Cubrain monorepo
+
+plugins {
+    id 'base' // Provides basic lifecycle tasks
+}
+
+// Description
+description = 'Cubrain - Full-stack monorepo with Spring Boot backend and Vite frontend'
+
+// Task to clean all subprojects
+task cleanAll {
+    group = 'build'
+    description = 'Clean all subprojects and root'
+    dependsOn subprojects*.tasks*.findByName('clean')
+}
+
+// Task to build all subprojects
+task buildAll {
+    group = 'build'
+    description = 'Build all subprojects'
+    dependsOn subprojects*.tasks*.findByName('build')
+}
+
+// Frontend tasks (npm-based)
+task frontendInstall(type: Exec) {
+    group = 'frontend'
+    description = 'Install frontend dependencies'
+    workingDir 'frontend'
+    commandLine 'cmd', '/c', 'npm', 'install'
+}
+
+task frontendDev(type: Exec) {
+    group = 'frontend'
+    description = 'Run frontend development server'
+    workingDir 'frontend'
+    commandLine 'cmd', '/c', 'npm', 'run', 'dev'
+}
+
+task frontendBuild(type: Exec) {
+    group = 'frontend'
+    description = 'Build frontend for production'
+    workingDir 'frontend'
+    commandLine 'cmd', '/c', 'npm', 'run', 'build'
+}
