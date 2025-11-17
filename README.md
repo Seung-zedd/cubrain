@@ -10,7 +10,7 @@
 Spring Boot 3.x, Java 21, JPA, PostgreSQL
 
 ## 📚API 문서화 규칙
-http://localhost:8080/v3/api-docs 에서 json 파일을 직접 복사해서 txt파일로 저장하고, Apidog로 직접 업로드합니다.(github-action으로 해결하려고 했으나 계속 실패해서 그냥 지웠음.)
+Apidog에서 http://localhost:8080/v3/api-docs을 import하면 깔끔하게 관리할 수 있습니다.
 
 ## 🚀 팀의 Git 워크플로우 (My Team Git Workflow)
 
