@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/auth/kakao")
@@ -36,22 +37,22 @@ public class AuthController {
         boolean cookieSecure = !isHttpEnv;  // local/dev: false, prod: true
 
         // 액세스 토큰 쿠키 (ResponseCookie 사용)
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", authResponse.getAccessToken())
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", Objects.requireNonNull(authResponse.getAccessToken()))
                 .httpOnly(true)          // JS 접근 불가
                 .secure(cookieSecure)    // local: false, dev, prod: true
                 .sameSite("Lax")         // Strict -> Lax로 변경 (리다이렉트 시 쿠키 전달 허용)
                 .path("/")               // 전체 경로
-                .maxAge(Duration.ofSeconds(3600))  // 1시간
+                .maxAge(Objects.requireNonNull(Duration.ofSeconds(3600)))  // 1시간
                 .build();
         response.addHeader("Set-Cookie", accessCookie.toString());  // 헤더로 추가
 
         // 리프레시 토큰 쿠키 (유사)
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Objects.requireNonNull(authResponse.getRefreshToken()))
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .sameSite("Lax")         // Strict -> Lax로 변경
                 .path("/")
-                .maxAge(Duration.ofSeconds(604800))  // 7일
+                .maxAge(Objects.requireNonNull(Duration.ofSeconds(604800)))  // 7일
                 .build();
         response.addHeader("Set-Cookie", refreshCookie.toString());
 

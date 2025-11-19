@@ -1,8 +1,6 @@
 package com.example.springboot_starter_auth.global.auth.user.controller;
 
-
 import com.example.springboot_starter_auth.global.auth.user.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

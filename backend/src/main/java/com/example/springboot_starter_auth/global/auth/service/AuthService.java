@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -95,7 +96,7 @@ public class AuthService {
 
         // 백엔드 서버가 클라이언트가 되서 카카오 서버로 사용자로부터 발급받은 1회용 코드를 POST 방식으로 전달해서 엑세스 토큰을 받아옴
         return webClient.post()
-                .uri(tokenUri)
+                .uri(Objects.requireNonNull(tokenUri))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 // 2. bodyValue 대신 body(BodyInserters.fromFormData(...)) 사용
                 .body(BodyInserters.fromFormData(formData))
@@ -112,7 +113,7 @@ public class AuthService {
     // 카카오에 사용자 정보 요청
     private KakaoUserInfoResponseDto getKakaoUserInfo(String accessToken) {
         return webClient.get()
-                .uri(userInfoUri)
+                .uri(Objects.requireNonNull(userInfoUri))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(KakaoUserInfoResponseDto.class)
@@ -135,7 +136,7 @@ public class AuthService {
                 .profileImageUrl(profile != null ? profile.getProfileImageUrl() : null)
                 .email(kakaoAccount != null ? kakaoAccount.getEmail() : null)
                 .build();
-        return userRepository.save(newUser);
+        return Objects.requireNonNull(userRepository.save(newUser));
     }
 
 }

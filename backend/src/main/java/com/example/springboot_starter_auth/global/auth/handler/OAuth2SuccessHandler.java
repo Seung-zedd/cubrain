@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -55,12 +56,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
             // Set refresh token as HTTP-only cookie
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Objects.requireNonNull(refreshToken))
                     .httpOnly(true)
                     .secure(false) // Set to true in production with HTTPS
                     .sameSite("Lax")
                     .path("/")
-                    .maxAge(Duration.ofSeconds(1209600)) // 14 days
+                    .maxAge(Objects.requireNonNull(Duration.ofSeconds(1209600))) // 14 days
                     .build();
             
             response.addHeader("Set-Cookie", refreshCookie.toString());
@@ -89,7 +90,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .nickname(nickname)
                 .build();
         
-        User savedUser = userRepository.save(newUser);
+        User savedUser = Objects.requireNonNull(userRepository.save(newUser));
         log.info("New user created: {} (Kakao ID: {})", nickname, kakaoId);
         return savedUser;
     }

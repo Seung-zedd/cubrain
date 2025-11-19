@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/test/auth")
@@ -32,7 +33,7 @@ public class TestAuthController {
                             .nickname("테스트사용자")
                             .email("test@example.com")
                             .build();
-                    return userRepository.save(newUser);
+                    return Objects.requireNonNull(userRepository.save(newUser));
                 });
 
         String accessToken = jwtTokenProvider.createAccessToken(testUser.getId());
