@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+    <!-- LOG_STYLE value 그대로 냅둘 것! -->
+        <Property name="LOG_STYLE">FATAL=red blink, ERROR=red bold, WARN=green bold, INFO=yellow bold, DEBUG=blue bold, TRACE=blue</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" noConsoleNoAnsi="false" 
+                pattern="%style{%d{MM-dd HH:mm:ss}}{magenta} %highlight{%5p}{${LOG_STYLE}} %style{[%c{1.1.1.*}]}{cyan} %m%n" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+        </Root>
+    </Loggers>
+</Configuration>

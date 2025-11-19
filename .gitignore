@@ -109,3 +109,7 @@ lerna-debug.log*
 
 ### [XML files] (경고: 핵심 설정 파일을 무시할 수 있음) ###
 # *.xml
+
+# 에이전트한테 word 파일을 읽게 하기 위한 설정 파일
+*.doc
+*.docx

@@ -1,6 +1,10 @@
-# CLAUDE.md
+# AGENT.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to the AI Agent when working with code in this repository.
+
+## Communication Style
+
+- **Concise Mode**: Answer concisely. Avoid verbose explanations unless specifically asked. Get straight to the point to prevent the user from getting lost.
 
 ## Project Overview
 
@@ -87,10 +91,12 @@ backend/src/main/java/com/example/springboot_starter_auth/
 #### Authentication Flow
 
 1. **Kakao OAuth2 Login** (`AuthController.java`):
+
    - GET `/auth/kakao/login-url` - Returns Kakao authorization URL
    - GET `/auth/kakao/callback` - Receives authorization code from Kakao
 
 2. **Token Exchange** (`AuthService.java`):
+
    - Exchanges authorization code for Kakao access token
    - Fetches user info from Kakao API
    - Registers new user or retrieves existing user
@@ -104,10 +110,12 @@ backend/src/main/java/com/example/springboot_starter_auth/
 #### Security Configuration
 
 - **Environment-based CORS** (`SecurityConfig.java:122-159`):
+
   - `local`/`dev`: Allows `http://localhost:*` via origin patterns
   - `prod`: HTTPS-only with explicit domain whitelist
 
 - **Public Endpoints**:
+
   - `/auth/kakao/**` - OAuth2 callback and login URL
   - `/` and `/main.html` - Landing page
   - `/test/auth/**` - Test endpoints (local profile only)
@@ -153,15 +161,19 @@ Default profile: `dev`
 ### Workflow
 
 1. **Resolve library ID** using `mcp__context7__resolve-library-id`:
+
    ```
    mcp__context7__resolve-library-id("library-name")
    ```
+
    Example: `mcp__context7__resolve-library-id("spring-boot")`
 
 2. **Fetch latest documentation** using `mcp__context7__get-library-docs`:
+
    ```
    mcp__context7__get-library-docs("/org/project", topic: "specific-topic")
    ```
+
    - Use the library ID from step 1
    - Specify relevant topic (e.g., "security", "oauth2", "jpa")
    - Adjust token limits based on complexity (default: 10000)
@@ -204,6 +216,7 @@ Test configuration uses H2 in-memory database (see `application-test.yml`).
 ## API Documentation
 
 When running locally (`local` profile):
+
 - OpenAPI JSON schema: `http://localhost:8080/v3/api-docs`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 

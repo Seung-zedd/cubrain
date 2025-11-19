@@ -6,3 +6,6 @@ spring:
       local: local, common
       dev: dev, common
       prod: prod, common
+  output:
+    ansi:
+      enabled: ALWAYS
