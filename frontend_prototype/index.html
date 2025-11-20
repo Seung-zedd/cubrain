@@ -46,6 +46,7 @@
     <p>
         1. Top of the page. Highlight me first to check the baseline.
         The button should appear right above this text.
+        "Test word. <strong>Another</strong> test word."
     </p>
 
     <div
@@ -218,9 +219,9 @@
             console.log("📤 Payload ready:", payload);
 
             alert(`✅ Saved to Deck!\n\n` +
-                  `Selected: "${currentContext.selectedText}"\n\n` +
-                  `Context preview:\n"...${currentContext.fullContext.substring(0, 100)}..."\n\n` +
-                  `Container: <${currentContext.containerTag}>`);
+                `Selected: "${currentContext.selectedText}"\n\n` +
+                `Context preview:\n"...${currentContext.fullContext.substring(0, 100)}..."\n\n` +
+                `Container: <${currentContext.containerTag}>`);
 
             // TODO: Send to backend
             // await fetch('http://localhost:8080/api/decks/save', {
