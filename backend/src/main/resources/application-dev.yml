@@ -1,4 +1,3 @@
-
 spring:
   config:
     activate:
@@ -7,7 +6,7 @@ spring:
   # JPA 설정 (dev: Flyway가 스키마 관리)
   jpa:
     hibernate:
-      ddl-auto: validate  # Flyway manages schema, Hibernate validates
+      ddl-auto: validate # Flyway manages schema, Hibernate validates
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
@@ -16,24 +15,6 @@ spring:
     enabled: true
 
   # 데이터베이스 설정 (postgreSQL)
-
-  # 카카오 로그인 설정 (통합 웹 서버 테스트용 HTTPS)
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            client-id: ""
-            client-secret: "" 
-            redirect-uri: https://yourdomain.com/auth/kakao/callback
-            authorization-grant-type: authorization_code
-            client-authentication-method: client_secret_post
-
-# JWT 설정
-jwt:
-  secret: ${DEV_JWT_SECRET}
-  access-token-expiration-in-seconds: 3600
-  refresh-token-expiration-in-seconds: 604800
 
 # Swagger 설정(운영 환경에서는 비활성화)
 springdoc:
@@ -45,8 +26,8 @@ springdoc:
 # Logging for debugging database connection
 logging:
   level:
-    com.zaxxer.hikari: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    org.springframework.core.env: DEBUG
-    org.springframework.boot.context.properties: DEBUG
+    "[com.zaxxer.hikari]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.springframework.jdbc.datasource]": DEBUG
+    "[org.springframework.core.env]": DEBUG
+    "[org.springframework.boot.context.properties]": DEBUG

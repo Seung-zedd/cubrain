@@ -1,4 +1,3 @@
-
 spring:
   config:
     activate:
@@ -6,7 +5,7 @@ spring:
 
   # 애플리케이션 이름 설정 (공통)
   application:
-    name: my-app-server  # 원하는 이름으로 변경 (예: MySpringBootApp)
+    name: my-app-server # 원하는 이름으로 변경 (예: MySpringBootApp)
 
   # 데이터베이스 드라이버 (공통)
   datasource:
@@ -21,30 +20,13 @@ spring:
   jpa:
     properties:
       hibernate:
-        format_sql: true
+        "[format_sql]": true
     hibernate:
       naming:
         physical-strategy: com.example.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
 
-  # kakao 설정
-  security:
-    oauth2:
-      client:
-        provider:
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id
-        registration:
-          kakao:
-            scope:
-              - profile_nickname
-              - profile_image
-              - account_email
-              -
   # Flyway 설정 (기본값: disabled, dev/prod에서 override)
   flyway:
-    enabled: false  # Default disabled (local uses ddl-auto, dev/prod use Flyway)
-    baseline-on-migrate: true  # Create baseline when first migration runs
-    baseline-version: 1        # Starting version
+    enabled: false # Default disabled (local uses ddl-auto, dev/prod use Flyway)
+    baseline-on-migrate: true # Create baseline when first migration runs
+    baseline-version: 1 # Starting version

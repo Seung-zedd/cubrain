@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class SpringbootStarterAuthApplication {
+public class CubrainApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringbootStarterAuthApplication.class, args);
+		SpringApplication.run(CubrainApplication.class, args);
 	}
 
 }

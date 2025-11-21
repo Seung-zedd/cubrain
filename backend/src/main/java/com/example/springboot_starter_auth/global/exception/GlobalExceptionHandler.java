@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -49,8 +48,7 @@ public class GlobalExceptionHandler {
     }
 
     // 외부 API 호출 실패 시
-    @ExceptionHandler({HttpClientErrorException.class, WebClientResponseException.class,
-            AuthenticationServiceException.class})
+    @ExceptionHandler({HttpClientErrorException.class, WebClientResponseException.class})
     public ResponseEntity<Map<String, Object>> handleExternalApiError(Exception e) {
         log.error("External API call failed", e);
         return createErrorResponse(HttpStatus.BAD_REQUEST, "외부 API 호출에 실패했습니다.", "서비스 연결에 문제가 발생했습니다.");

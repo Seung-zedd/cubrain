@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "CubrainApplication",
+      "request": "launch",
+      "mainClass": "com.example.springboot_starter_auth.CubrainApplication",
+      "projectName": "backend"
+    },
+    {
+      "type": "java",
+      "name": "CubrainApplication (local)",
+      "request": "launch",
+      "mainClass": "com.example.springboot_starter_auth.CubrainApplication",
+      "projectName": "cubrain",
+      "cwd": "${workspaceFolder}/backend",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "local"
+      },
+      "args": ""
+    },
+    {
+      "type": "java",
+      "name": "CubrainApplication (dev)",
+      "request": "launch",
+      "mainClass": "com.example.springboot_starter_auth.CubrainApplication",
+      "projectName": "cubrain",
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "dev"
+      },
+      "args": ""
+    },
+    {
+      "type": "java",
+      "name": "CubrainApplication (prod)",
+      "request": "launch",
+      "mainClass": "com.example.springboot_starter_auth.CubrainApplication",
+      "projectName": "cubrain",
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "prod"
+      },
+      "args": ""
+    },
+    {
+      "type": "java",
+      "name": "CubrainApplication (custom env)",
+      "request": "launch",
+      "mainClass": "com.example.springboot_starter_auth.CubrainApplication",
+      "projectName": "cubrain",
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "local"
+      },
+      "args": ""
+    }
+  ]
+}

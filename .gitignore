@@ -18,6 +18,7 @@ out/
 # VSCode (프론트엔드 설정에서 가져옴)
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 
 ### [Backend - Gradle/Java/Kotlin] (기존 설정 + 신규) ###
 # Gradle 캐시

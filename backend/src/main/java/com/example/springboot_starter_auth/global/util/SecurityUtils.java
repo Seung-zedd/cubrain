@@ -1,17 +1,21 @@
 package com.example.springboot_starter_auth.global.util;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-// BoilerPlate Class
+/**
+ * Security 유틸리티 클래스
+ * 현재는 인증 기능이 없으므로 기본값 반환
+ * 추후 인증 기능 추가 시 실제 사용자 정보를 반환하도록 수정 필요
+ */
 public class SecurityUtils {
 
     private SecurityUtils() {}  // 인스턴스화 방지
 
+    /**
+     * 현재 사용자의 닉네임 반환
+     * TODO: 인증 기능 추가 시 실제 사용자 닉네임 반환
+     * @return 현재는 "anonymous" 반환
+     */
     public static String getCurrentNickname() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("User not authenticated");  // 에러 핸들링 (필요 시)
-        }
-        return authentication.getName();  // JWT 클레임에서 nickname (카카오 실명) 반환
+        // TODO: 인증 기능 추가 시 실제 사용자 정보 반환
+        return "anonymous";
     }
 }
