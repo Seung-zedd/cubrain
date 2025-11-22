@@ -45,11 +45,13 @@ public class GlobalExceptionHandler {
     // @Valid 어노테이션이 붙은 @RequestBody DTO의 유효성 검증이 실패했을 때만 발생
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException e) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다.", e.getMessage());
+        org.springframework.validation.FieldError fieldError = e.getBindingResult().getFieldError();
+        String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "입력값이 올바르지 않습니다.";
+        return createErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, e.getMessage());
     }
 
     // 외부 API 호출 실패 시
-    @ExceptionHandler({HttpClientErrorException.class, WebClientResponseException.class})
+    @ExceptionHandler({ HttpClientErrorException.class, WebClientResponseException.class })
     public ResponseEntity<Map<String, Object>> handleExternalApiError(Exception e) {
         log.error("External API call failed", e);
         return createErrorResponse(HttpStatus.BAD_REQUEST, "외부 API 호출에 실패했습니다.", "서비스 연결에 문제가 발생했습니다.");
@@ -77,7 +79,7 @@ public class GlobalExceptionHandler {
             log.warn("Client abort exception in generic handler: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).build();
         }
-        
+
         log.error("Unexpected error occurred", e);
         return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.", e.getMessage());
     }
@@ -89,7 +91,7 @@ public class GlobalExceptionHandler {
         errorResponse.put("status", status.value());
         errorResponse.put("error", status.getReasonPhrase());
         errorResponse.put("message", message);
-        //! 운영 환경에서는 상세 정보 노출 방지
+        // ! 운영 환경에서는 상세 정보 노출 방지
         if (envUtil.isLocalEnvironment() || envUtil.isDevEnvironment()) {
             errorResponse.put("details", details);
         }
@@ -97,12 +99,13 @@ public class GlobalExceptionHandler {
         // Content-Type을 명시적으로 application/json으로 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         return ResponseEntity.status(status).headers(headers).body(errorResponse);
     }
 
     /**
      * 데이터 무결성 제약 조건 위반 시 (예: 사용 중인 카테고리 삭제 시도)
+     * 
      * @param e DataIntegrityViolationException
      * @return 409 Conflict 응답
      */

@@ -1,5 +1,49 @@
 <script>
     import heroImage from '$lib/assets/hero.png';
+
+    let email = '';
+    let status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'
+    let message = '';
+
+    async function joinWaitlist() {
+        if (!email || !email.includes('@')) {
+            status = 'error';
+            message = 'Please enter a valid email address.';
+            return;
+        }
+
+        status = 'loading';
+        message = '';
+
+        try {
+            const response = await fetch('http://localhost:8080/api/waitlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            if (response.ok) {
+                status = 'success';
+                message = 'Thanks for joining! We’ll be in touch soon.';
+                email = '';
+            } else {
+                const text = await response.text();
+                status = 'error';
+                try {
+                    const errorData = JSON.parse(text);
+                    message = errorData.message || errorData.details || 'Something went wrong. Please try again.';
+                } catch (e) {
+                    message = text || 'Something went wrong. Please try again.';
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            status = 'error';
+            message = 'Failed to connect to the server. Please check your connection.';
+        }
+    }
 </script>
 
 <div class="landing-page">
@@ -16,7 +60,7 @@
             <h1 class="gradient-text">Turn Your PDFs into Flashcards in Seconds.</h1>
             <p class="subheadline">Zero hallucinations. Zero manual entry. <br> Every flashcard is backed by a direct link to the source text, turning your PDFs into an interactive knowledge base.</p>
             <div class="cta-group">
-                <button class="cta-button primary">Join the Waitlist</button>
+                <a href="#waitlist" class="cta-button primary">Join the Waitlist</a>
                 <button class="cta-button secondary">Learn More</button>
             </div>
         </div>
@@ -52,10 +96,33 @@
         <div class="glass-panel waitlist-container">
             <h2>Join the Waitlist</h2>
             <p>Be the first to experience the future of learning.</p>
-            <form class="waitlist-form" onsubmit={(e) => e.preventDefault()}>
-                <input type="email" placeholder="Enter your email" required />
-                <button type="submit" class="cta-button primary">Join Now</button>
+            <form class="waitlist-form" onsubmit={(e) => { e.preventDefault(); joinWaitlist(); }}>
+                <input 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    required 
+                    bind:value={email} 
+                    disabled={status === 'loading' || status === 'success'}
+                />
+                <button 
+                    type="submit" 
+                    class="cta-button primary" 
+                    disabled={status === 'loading' || status === 'success'}
+                >
+                    {#if status === 'loading'}
+                        Joining...
+                    {:else if status === 'success'}
+                        ✓ Joined!
+                    {:else}
+                        Join the Waitlist
+                    {/if}
+                </button>
             </form>
+            {#if message}
+                <p style="margin-top: 1rem; color: {status === 'success' ? '#4ade80' : '#f87171'};">
+                    {message}
+                </p>
+            {/if}
         </div>
     </section>
 
@@ -65,6 +132,10 @@
 </div>
 
 <style>
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+
     .landing-page {
         min-height: 100vh;
         display: flex;
