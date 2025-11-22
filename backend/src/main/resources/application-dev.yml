@@ -24,10 +24,11 @@ springdoc:
     enabled: false
 
 # Logging for debugging database connection
-logging:
-  level:
-    "[com.zaxxer.hikari]": DEBUG
-    "[org.hibernate.SQL]": DEBUG
-    "[org.springframework.jdbc.datasource]": DEBUG
-    "[org.springframework.core.env]": DEBUG
-    "[org.springframework.boot.context.properties]": DEBUG
+# i'll unsupress when i feel needed
+# logging:
+#   level:
+#     "[com.zaxxer.hikari]": DEBUG
+#     "[org.hibernate.SQL]": DEBUG
+#     "[org.springframework.jdbc.datasource]": DEBUG
+#     "[org.springframework.core.env]": DEBUG
+#     "[org.springframework.boot.context.properties]": DEBUG

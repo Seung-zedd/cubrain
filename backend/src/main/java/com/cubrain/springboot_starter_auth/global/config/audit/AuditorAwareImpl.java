@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.config.audit;
+package com.cubrain.springboot_starter_auth.global.config.audit;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;

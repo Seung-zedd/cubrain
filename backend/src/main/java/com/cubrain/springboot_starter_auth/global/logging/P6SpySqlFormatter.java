@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.logging;
+package com.cubrain.springboot_starter_auth.global.logging;
 
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.P6SpyOptions;

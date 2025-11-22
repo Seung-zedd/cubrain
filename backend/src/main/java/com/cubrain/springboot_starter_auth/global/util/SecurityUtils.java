@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.util;
+package com.cubrain.springboot_starter_auth.global.util;
 
 /**
  * Security 유틸리티 클래스

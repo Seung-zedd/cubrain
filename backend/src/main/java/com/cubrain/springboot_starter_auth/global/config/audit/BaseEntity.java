@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.config.audit;
+package com.cubrain.springboot_starter_auth.global.config.audit;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

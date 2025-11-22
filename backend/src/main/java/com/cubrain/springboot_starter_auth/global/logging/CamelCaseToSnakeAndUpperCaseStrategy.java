@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.logging;
+package com.cubrain.springboot_starter_auth.global.logging;
 
 import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
 import org.hibernate.boot.model.naming.Identifier;

@@ -1,6 +1,5 @@
-package com.example.springboot_starter_auth.global.exception;
+package com.cubrain.springboot_starter_auth.global.exception;
 
-import com.example.springboot_starter_auth.global.util.EnvironmentUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import com.cubrain.springboot_starter_auth.global.util.EnvironmentUtil;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

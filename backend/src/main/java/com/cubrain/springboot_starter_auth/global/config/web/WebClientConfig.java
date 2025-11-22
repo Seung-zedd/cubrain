@@ -1,4 +1,4 @@
-package com.example.springboot_starter_auth.global.config.web;
+package com.cubrain.springboot_starter_auth.global.config.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
