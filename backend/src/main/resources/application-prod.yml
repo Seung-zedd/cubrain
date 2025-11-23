@@ -14,9 +14,10 @@ spring:
 
   # 데이터베이스 설정 (운영 환경)
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    # Railway provides DATABASE_URL as postgresql://, but JDBC needs jdbc:postgresql://
+    url: jdbc:${DATABASE_URL:postgresql://localhost:5432/postgres}
     username: ${PGUSER:postgres}
-    password: ${PGPASSWORD:postgres}
+    password: ${PGPASSWORD:postgres};
 
   # Flyway 활성화 (운영 환경 스키마 관리)
   flyway:
