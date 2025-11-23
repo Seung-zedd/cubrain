@@ -50,7 +50,7 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
     // in-memory 테스트용
-    runtimeOnly 'com.h2database:h2'
+    // runtimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // github-action으로 Apidog 자동화
