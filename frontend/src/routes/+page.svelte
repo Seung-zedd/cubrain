@@ -16,7 +16,7 @@
         message = '';
 
         try {
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+            const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
             const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
                 method: 'POST',
                 headers: {
