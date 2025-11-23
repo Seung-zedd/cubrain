@@ -23,7 +23,9 @@ public class CorsConfig {
 
         // Parse allowed origins from environment variable
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
-        config.setAllowedOrigins(origins);
+        for (String origin : origins) {
+            config.addAllowedOriginPattern(origin.trim());
+        }
 
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
