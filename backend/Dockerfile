@@ -21,5 +21,8 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 # Expose port 8080
 EXPOSE 8080
 
+# Set default profile to prod
+ENV SPRING_PROFILES_ACTIVE=prod
+
 # Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]

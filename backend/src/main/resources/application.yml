@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: dev # 배포용 dev로 활성화
+    default: dev # for running in local env
     group:
       local: local, common
       dev: dev, common
