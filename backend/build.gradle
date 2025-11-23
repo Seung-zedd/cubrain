@@ -81,3 +81,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// 💡 Fix for Docker deployment:
+// Disable the generation of the 'plain' jar so only the executable 'bootJar' is created.
+tasks.named("jar") {
+    enabled = false
+}
