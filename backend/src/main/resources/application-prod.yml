@@ -6,11 +6,12 @@ spring:
   # jpa 설정
   jpa:
     hibernate:
-      # (매우 중요) 운영 환경에서는 절대로 JPA가 스키마를 건드리지 않도록 'none'으로 설정합니다.
-      ddl-auto: none
+      # ✅ MVP 전략: Flyway 대신 JPA가 테이블을 생성/수정하도록 'update'로 변경!
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false # 운영 로그 깔끔하게
 
   # 데이터베이스 설정 (운영 환경)
   datasource:
@@ -21,7 +22,7 @@ spring:
 
   # Flyway 활성화 (운영 환경 스키마 관리)
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
 
