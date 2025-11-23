@@ -9,6 +9,7 @@ reviews:
   auto_review:
     base_branches:
     - "dev"
+
   # 보안 강화: 리뷰에서 보안 취약점(예: SQL 인젝션, XSS 등)을 우선적으로 검토하도록 설정
   security:
     enabled: true  # 보안 리뷰 활성화
