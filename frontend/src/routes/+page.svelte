@@ -16,8 +16,14 @@
         message = '';
 
         try {
-            console.log('Environment PUBLIC_API_URL:', import.meta.env.PUBLIC_API_URL);
-            const apiBaseUrl = import.meta.env.PUBLIC_API_URL ? import.meta.env.PUBLIC_API_URL : 'http://localhost:8080';
+            // Use environment variable if set, otherwise default based on mode
+            let apiBaseUrl = import.meta.env.PUBLIC_API_URL;
+            
+            if (!apiBaseUrl) {
+                // If no env var, use localhost in dev, production URL otherwise
+                apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://api.cubrain.app';
+            }
+            
             console.log('Using API URL:', apiBaseUrl);
             
             const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
