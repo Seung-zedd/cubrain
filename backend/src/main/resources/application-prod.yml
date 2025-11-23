@@ -14,9 +14,9 @@ spring:
 
   # 데이터베이스 설정 (운영 환경)
   datasource:
-    url: ${DATABASE_URL:${SPRING_DATASOURCE_URL}}
-    username: ${PGUSER:${SPRING_DATASOURCE_USERNAME}}
-    password: ${PGPASSWORD:${SPRING_DATASOURCE_PASSWORD}}
+    url: ${JDBC_DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}}
+    username: ${PGUSER:${SPRING_DATASOURCE_USERNAME:postgres}}
+    password: ${PGPASSWORD:${SPRING_DATASOURCE_PASSWORD:postgres}}
 
   # Flyway 활성화 (운영 환경 스키마 관리)
   flyway:
