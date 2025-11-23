@@ -16,7 +16,10 @@
         message = '';
 
         try {
-            const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+            console.log('Environment PUBLIC_API_URL:', import.meta.env.PUBLIC_API_URL);
+            const apiBaseUrl = import.meta.env.PUBLIC_API_URL ? import.meta.env.PUBLIC_API_URL : 'http://localhost:8080';
+            console.log('Using API URL:', apiBaseUrl);
+            
             const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
                 method: 'POST',
                 headers: {
