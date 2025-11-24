@@ -1,6 +1,7 @@
+export const prerender = true;
+
 export async function GET() {
   const site = "https://cubrain.app";
-  // Add any other static pages you have here
   const pages = ["", "/about", "/pricing"];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8" ?>
