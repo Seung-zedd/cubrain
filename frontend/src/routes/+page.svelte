@@ -54,7 +54,20 @@
             message = 'Failed to connect to the server. Please check your connection.';
         }
     }
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Cubrain",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "AI-powered study tool that converts PDFs into quizzes."
+    };
 </script>
+
+<svelte:head>
+    {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+</svelte:head>
 
 <div class="landing-page">
     <nav class="glass-panel nav">
