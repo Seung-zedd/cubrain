@@ -1,5 +1,5 @@
 export async function GET() {
-  const site = "https://www.cubrain.app";
+  const site = "https://cubrain.app";
   const pages = [
     "", // Home
     "/about",

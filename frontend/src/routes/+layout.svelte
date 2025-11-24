@@ -9,8 +9,8 @@
 	// SEO Configuration
 	const title = "Cubrain - Study Smarter with AI Flashcards";
 	const description = "Stop drowning in PDFs. Turn your study materials into AI-generated quizzes and flashcards instantly.";
-	const url = "https://www.cubrain.app";
-	const imageUrl = "https://www.cubrain.app/og-image.png"; // Ensure this image exists in static/
+	const url = "https://cubrain.app";
+	const imageUrl = "https://cubrain.app/og-image.png"; // Ensure this image exists in static/
 </script>
 
 <svelte:head>

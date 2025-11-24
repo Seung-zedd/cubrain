@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.cubrain.app/sitemap.xml
+Sitemap: https://cubrain.app/sitemap.xml
