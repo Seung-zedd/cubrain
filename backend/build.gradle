@@ -38,6 +38,19 @@ dependencyManagement {
 }
 
 dependencies {
+    // ✅ dotenv
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// ✅ LangChain4j BOM (버전 관리용)
+    implementation platform('dev.langchain4j:langchain4j-bom:0.35.0')
+
+    // ✅ Core Starter
+    implementation 'dev.langchain4j:langchain4j-spring-boot-starter'
+
+    // ✅ Google Gemini Starter (여기에 버전을 명시해 주세요!)
+    // BOM이 있어도 가끔 인식이 안 될 때는 버전을 적는 게 '정신건강'에 좋습니다.
+    implementation 'dev.langchain4j:langchain4j-google-ai-gemini:0.35.0' 
+	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	// implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
