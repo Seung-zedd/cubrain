@@ -14,6 +14,11 @@ public class CardService {
     private final ObjectMapper objectMapper; // Spring's default JSON parser
 
     public FlashcardResponseDto generateCard(String selection, String localContext, String globalContext) {
+        // Validate required parameters
+        if (selection == null || selection.isBlank()) {
+            throw new IllegalArgumentException("Selection text is required and cannot be empty");
+        }
+
         // 1. The "Senior Tutor" Prompt
         // We ask for strict JSON format to avoid parsing errors.
         String prompt = """
