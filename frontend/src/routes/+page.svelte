@@ -1,6 +1,8 @@
 <script>
     import heroImage from '$lib/assets/hero.png';
 
+    import FlashcardDemo from '$lib/components/FlashcardDemo.svelte';
+
     let email = '';
     let status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'
     let message = '';
@@ -92,6 +94,10 @@
             <div class="glow"></div>
         </div>
     </header>
+
+    <section class="demo-section">
+        <FlashcardDemo />
+    </section>
 
     <section id="features" class="features">
         <h2 class="section-title">Why Cubrain?</h2>

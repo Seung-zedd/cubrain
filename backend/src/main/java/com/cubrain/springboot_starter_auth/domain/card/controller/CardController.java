@@ -18,11 +18,13 @@ public class CardController {
 
     @PostMapping("/generate")
     public ResponseEntity<FlashcardResponseDto> generate(@RequestBody Map<String, String> payload) {
-        String text = payload.get("selectedText");
-        
+        String selection = payload.get("selection");
+        String localContext = payload.get("localContext");
+        String globalContext = payload.get("globalContext");
+
         // Call Service
-        FlashcardResponseDto flashcard = cardService.generateCard(text);
-        
+        FlashcardResponseDto flashcard = cardService.generateCard(selection, localContext, globalContext);
+
         return ResponseEntity.ok(flashcard);
     }
 }
