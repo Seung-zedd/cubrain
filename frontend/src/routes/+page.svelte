@@ -2,6 +2,7 @@
     import heroImage from '$lib/assets/hero.png';
 
     import FlashcardDemo from '$lib/components/FlashcardDemo.svelte';
+    import { API_BASE_URL } from '$lib/config';
 
     let email = '';
     let status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'
@@ -18,13 +19,7 @@
         message = '';
 
         try {
-            // Use environment variable if set, otherwise default based on mode
-            let apiBaseUrl = import.meta.env.PUBLIC_API_URL;
-            
-            if (!apiBaseUrl) {
-                // If no env var, use localhost in dev, production URL otherwise
-                apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://api.cubrain.app';
-            }
+            const apiBaseUrl = API_BASE_URL;
             
             console.log('Using API URL:', apiBaseUrl);
             

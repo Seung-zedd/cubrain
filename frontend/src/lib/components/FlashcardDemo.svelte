@@ -1,5 +1,6 @@
 <script>
     import { fade, fly } from 'svelte/transition';
+    import { API_BASE_URL } from '$lib/config';
 
     let showButton = false;
     let btnX = 0;
@@ -9,6 +10,10 @@
     let flashcard = null;
     let currentContext = null;
     let demoContainer; // Reference to the container
+
+    const MAX_LOCAL_CONTEXT_LENGTH = 2000;
+    const MAX_GLOBAL_CONTEXT_LENGTH = 4000;
+    const WORD_BOUNDARY_THRESHOLD = 0.9;
 
     // ==================== HELPER FUNCTIONS ====================
 
@@ -23,6 +28,16 @@
             current = current.parentElement;
         }
         return current || element;
+    }
+
+    function truncateText(text, maxLength) {
+        if (!text || text.length <= maxLength) return text || '';
+        const truncated = text.substring(0, maxLength);
+        const lastSpaceIndex = truncated.lastIndexOf(' ');
+        if (lastSpaceIndex > maxLength * WORD_BOUNDARY_THRESHOLD) {
+            return truncated.substring(0, lastSpaceIndex) + '...';
+        }
+        return truncated + '...';
     }
 
     function captureContext(range, text) {
@@ -42,8 +57,8 @@
 
         return {
             selection: text,
-            localContext: localContext,
-            globalContext: globalContext
+            localContext: truncateText(localContext, MAX_LOCAL_CONTEXT_LENGTH),
+            globalContext: truncateText(globalContext, MAX_GLOBAL_CONTEXT_LENGTH)
         };
     }
 
@@ -108,10 +123,8 @@
 
         try {
             // Use environment variable if set, otherwise default based on mode
-            let apiBaseUrl = import.meta.env.PUBLIC_API_URL;
-            if (!apiBaseUrl) {
-                apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://api.cubrain.app';
-            }
+            // Use shared API URL configuration
+            const apiBaseUrl = API_BASE_URL;
 
             const response = await fetch(`${apiBaseUrl}/api/cards/generate`, {
                 method: 'POST',
@@ -192,6 +205,7 @@
             class="cubrain-float-btn" 
             style="left: {btnX}px; top: {btnY}px;"
             on:click={createFlashcard}
+            disabled={isLoading}
             transition:fade={{ duration: 150 }}
         >
             {#if isLoading}
