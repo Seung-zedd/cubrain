@@ -10,6 +10,8 @@
     let flashcard = null;
     let currentContext = null;
     let demoContainer; // Reference to the container
+    let errorMessage = '';
+    let errorTimeout;
 
     const MAX_LOCAL_CONTEXT_LENGTH = 2000;
     const MAX_GLOBAL_CONTEXT_LENGTH = 4000;
@@ -115,6 +117,14 @@
         showButton = false;
     }
 
+    function showError(message) {
+        errorMessage = message;
+        if (errorTimeout) clearTimeout(errorTimeout);
+        errorTimeout = setTimeout(() => {
+            errorMessage = '';
+        }, 5000);
+    }
+
     async function createFlashcard() {
         if (!selectedText) return;
 
@@ -149,27 +159,27 @@
                 }
                 switch (response.status) {
                     case 400:
-                        alert('Bad request: ' + errorMsg);
+                        showError('Bad request: ' + errorMsg);
                         break;
                     case 401:
-                        alert('Unauthorized: Please log in.');
+                        showError('Unauthorized: Please log in.');
                         break;
                     case 403:
-                        alert('Forbidden: You do not have permission to perform this action.');
+                        showError('Forbidden: You do not have permission to perform this action.');
                         break;
                     case 404:
-                        alert('Not found: The requested resource could not be found.');
+                        showError('Not found: The requested resource could not be found.');
                         break;
                     case 500:
-                        alert('Server error: Please try again later.');
+                        showError('Server error: Please try again later.');
                         break;
                     default:
-                        alert(errorMsg);
+                        showError(errorMsg);
                 }
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Network error: Could not connect to server.');
+            showError('Network error: Could not connect to server.');
         } finally {
             isLoading = false;
         }
@@ -232,6 +242,14 @@
                     <div class="text">{flashcard.answer}</div>
                 </div>
             </div>
+        </div>
+    {/if}
+
+    {#if errorMessage}
+        <div class="error-toast" transition:fade={{ duration: 200 }}>
+            <span class="icon">⚠️</span>
+            {errorMessage}
+            <button class="close-btn-small" on:click={() => errorMessage = ''}>×</button>
         </div>
     {/if}
 </div>
@@ -376,5 +394,40 @@
 
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+
+    .error-toast {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 200;
+        width: 90%;
+        max-width: 400px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .close-btn-small {
+        background: none;
+        border: none;
+        color: white;
+        margin-left: auto;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0 0.25rem;
+        opacity: 0.8;
+    }
+    
+    .close-btn-small:hover {
+        opacity: 1;
     }
 </style>
