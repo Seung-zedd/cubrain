@@ -72,11 +72,13 @@
         currentContext = captureContext(range, text);
         if (!currentContext) return;
 
-        console.log("🔍 Captured Context Data:", {
-            Layer1_Selection: currentContext.selection,
-            Layer2_LocalContext: currentContext.localContext,
-            Layer3_GlobalContext: currentContext.globalContext
-        });
+        if (import.meta.env.DEV) {
+            console.log("🔍 Captured Context Data:", {
+                Layer1_Selection: currentContext.selection,
+                Layer2_LocalContext: currentContext.localContext,
+                Layer3_GlobalContext: currentContext.globalContext
+            });
+        }
 
         selectedText = text;
         
