@@ -13,7 +13,7 @@ public class CardService {
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper; // Spring's default JSON parser
 
-    public FlashcardResponseDto generateCard(String selectedText) {
+    public FlashcardResponseDto generateCard(String selection, String localContext, String globalContext) {
         // 1. The "Senior Tutor" Prompt
         // We ask for strict JSON format to avoid parsing errors.
         String prompt = """
@@ -22,20 +22,28 @@ public class CardService {
                 TASK:
                 Create a flashcard (Question and Answer) based on the user's selected text.
 
-                USER SELECTION:
+                GLOBAL CONTEXT (The full document):
+                "%s"
+
+                LOCAL CONTEXT (The specific paragraph/section):
+                "%s"
+
+                USER SELECTION (Focus on this):
                 "%s"
 
                 RULES:
-                1. The 'question' should be engaging and test the core concept.
-                2. The 'answer' should be concise and accurate.
-                3. OUTPUT MUST BE RAW JSON ONLY. No markdown blocks (```json), no explanations.
+                1. The 'question' should be engaging and test the core concept in the SELECTION.
+                2. Use the LOCAL CONTEXT to understand the immediate meaning.
+                3. Use the GLOBAL CONTEXT only for broader disambiguation if needed.
+                4. The 'answer' should be concise and accurate.
+                5. OUTPUT MUST BE RAW JSON ONLY. No markdown blocks (```json), no explanations.
 
                 JSON FORMAT:
                 {
                   "question": "...",
                   "answer": "..."
                 }
-                """.formatted(selectedText);
+                """.formatted(globalContext, localContext, selection);
 
         // 2. Call Gemini
         String response = chatModel.chat(prompt);

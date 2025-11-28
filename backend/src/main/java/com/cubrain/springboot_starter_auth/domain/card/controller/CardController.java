@@ -18,11 +18,19 @@ public class CardController {
 
     @PostMapping("/generate")
     public ResponseEntity<FlashcardResponseDto> generate(@RequestBody Map<String, String> payload) {
-        String text = payload.get("selectedText");
-        
+        String selection = payload.get("selection");
+        String localContext = payload.get("localContext");
+        String globalContext = payload.get("globalContext");
+
+        // Input validation
+        if (selection == null || selection.trim().isEmpty() ||
+            localContext == null || localContext.trim().isEmpty() ||
+            globalContext == null || globalContext.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
         // Call Service
-        FlashcardResponseDto flashcard = cardService.generateCard(text);
-        
+        FlashcardResponseDto flashcard = cardService.generateCard(selection, localContext, globalContext);
+
         return ResponseEntity.ok(flashcard);
     }
 }
