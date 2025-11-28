@@ -154,7 +154,7 @@
             Particular applications of AI include expert systems, speech recognition, and machine vision. AI can be categorized as either weak or strong. Weak AI, also known as narrow AI, is an AI system that is designed and trained for a particular task. Strong AI, also known as artificial general intelligence, is an AI system with generalized human cognitive abilities.
         </p>
         <p class="instruction-text">
-            👆 <strong>Highlight any text above to generate a flashcard!</strong>
+            <span role="img" aria-label="Pointing up">👆</span> <strong>Highlight any text above to generate a flashcard!</strong>
         </p>
     </div>
 
