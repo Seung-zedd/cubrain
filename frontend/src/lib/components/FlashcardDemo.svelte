@@ -125,11 +125,38 @@
                 window.getSelection().removeAllRanges();
                 showButton = false;
             } else {
-                alert('Failed to generate flashcard. Please try again.');
+                let errorMsg = 'Failed to generate flashcard. Please try again.';
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.error) {
+                        errorMsg = errorData.error;
+                    }
+                } catch (e) {
+                    // Ignore JSON parse errors
+                }
+                switch (response.status) {
+                    case 400:
+                        alert('Bad request: ' + errorMsg);
+                        break;
+                    case 401:
+                        alert('Unauthorized: Please log in.');
+                        break;
+                    case 403:
+                        alert('Forbidden: You do not have permission to perform this action.');
+                        break;
+                    case 404:
+                        alert('Not found: The requested resource could not be found.');
+                        break;
+                    case 500:
+                        alert('Server error: Please try again later.');
+                        break;
+                    default:
+                        alert(errorMsg);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error connecting to server.');
+            alert('Network error: Could not connect to server.');
         } finally {
             isLoading = false;
         }
