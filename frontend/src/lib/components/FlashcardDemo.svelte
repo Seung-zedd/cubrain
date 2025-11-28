@@ -10,7 +10,36 @@
     let currentContext = null;
     let demoContainer; // Reference to the container
 
+    // ==================== CONTEXT LIMITS ====================
+    // Maximum character limits to prevent large request payloads and token limit issues
+    const MAX_LOCAL_CONTEXT_LENGTH = 2000;  // ~500 tokens
+    const MAX_GLOBAL_CONTEXT_LENGTH = 4000; // ~1000 tokens
+
     // ==================== HELPER FUNCTIONS ====================
+
+    /**
+     * Truncates text to a maximum length, preserving word boundaries.
+     * Adds ellipsis if truncation occurs.
+     * @param {string} text - The text to truncate
+     * @param {number} maxLength - Maximum character length
+     * @returns {string} The truncated text
+     */
+    function truncateText(text, maxLength) {
+        if (!text || text.length <= maxLength) {
+            return text;
+        }
+        
+        // Find the last space before the max length to avoid cutting words
+        const truncated = text.substring(0, maxLength);
+        const lastSpaceIndex = truncated.lastIndexOf(' ');
+        
+        if (lastSpaceIndex > maxLength * 0.8) {
+            // Only use word boundary if it's reasonably close to the limit
+            return truncated.substring(0, lastSpaceIndex) + '...';
+        }
+        
+        return truncated + '...';
+    }
 
     function getNearestElement(node) {
         return node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -37,8 +66,12 @@
              return null;
         }
 
-        const localContext = (semanticContainer.textContent || semanticContainer.innerText || '').trim();
-        const globalContext = (demoContainer.textContent || demoContainer.innerText || '').trim();
+        const rawLocalContext = (semanticContainer.textContent || semanticContainer.innerText || '').trim();
+        const rawGlobalContext = (demoContainer.textContent || demoContainer.innerText || '').trim();
+
+        // Truncate contexts to prevent large request payloads and token limit issues
+        const localContext = truncateText(rawLocalContext, MAX_LOCAL_CONTEXT_LENGTH);
+        const globalContext = truncateText(rawGlobalContext, MAX_GLOBAL_CONTEXT_LENGTH);
 
         return {
             selection: text,
