@@ -13,6 +13,7 @@ import java.util.Optional;
 public class AuditorAwareImpl implements AuditorAware<String> {
     @Override
     @NonNull
+    @SuppressWarnings("null")
     public Optional<String> getCurrentAuditor() {
         // TODO: 인증 기능 추가 시 실제 사용자 정보 반환
         // 현재는 시스템 사용자로 고정

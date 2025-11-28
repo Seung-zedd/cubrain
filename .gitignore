@@ -7,6 +7,7 @@
 .temp/
 Thumbs.db
 HELP.md
+AGENT.md
 
 # IntelliJ (기존 설정)
 .idea/

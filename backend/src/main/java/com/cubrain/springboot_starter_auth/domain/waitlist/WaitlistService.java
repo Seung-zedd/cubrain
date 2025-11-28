@@ -14,6 +14,7 @@ public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
 
     @Transactional
+    @SuppressWarnings("null")
     public String joinWaitlist(WaitlistRequestDto requestDto) {
         String email = requestDto.email();
 

@@ -16,7 +16,17 @@
         message = '';
 
         try {
-            const response = await fetch('http://localhost:8080/api/waitlist', {
+            // Use environment variable if set, otherwise default based on mode
+            let apiBaseUrl = import.meta.env.PUBLIC_API_URL;
+            
+            if (!apiBaseUrl) {
+                // If no env var, use localhost in dev, production URL otherwise
+                apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://api.cubrain.app';
+            }
+            
+            console.log('Using API URL:', apiBaseUrl);
+            
+            const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -44,7 +54,20 @@
             message = 'Failed to connect to the server. Please check your connection.';
         }
     }
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Cubrain",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "AI-powered study tool that converts PDFs into quizzes."
+    };
 </script>
+
+<svelte:head>
+    {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+</svelte:head>
 
 <div class="landing-page">
     <nav class="glass-panel nav">
