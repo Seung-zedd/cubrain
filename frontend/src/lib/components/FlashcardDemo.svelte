@@ -1,5 +1,6 @@
 <script>
     import { fade, fly } from 'svelte/transition';
+    import { onDestroy } from 'svelte';
 
     let showButton = false;
     let btnX = 0;
@@ -30,6 +31,13 @@
         }
         errorMessage = null;
     }
+
+    // Clean up timeout on component destroy to prevent memory leaks
+    onDestroy(() => {
+        if (errorTimeout) {
+            clearTimeout(errorTimeout);
+        }
+    });
 
     // ==================== HELPER FUNCTIONS ====================
 
