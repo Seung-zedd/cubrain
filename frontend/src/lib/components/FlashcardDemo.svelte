@@ -9,6 +9,27 @@
     let flashcard = null;
     let currentContext = null;
     let demoContainer; // Reference to the container
+    let errorMessage = null;
+    let errorTimeout = null;
+
+    function showError(message) {
+        // Clear any existing timeout
+        if (errorTimeout) {
+            clearTimeout(errorTimeout);
+        }
+        errorMessage = message;
+        // Auto-dismiss after 5 seconds
+        errorTimeout = setTimeout(() => {
+            errorMessage = null;
+        }, 5000);
+    }
+
+    function dismissError() {
+        if (errorTimeout) {
+            clearTimeout(errorTimeout);
+        }
+        errorMessage = null;
+    }
 
     // ==================== HELPER FUNCTIONS ====================
 
@@ -125,11 +146,11 @@
                 window.getSelection().removeAllRanges();
                 showButton = false;
             } else {
-                alert('Failed to generate flashcard. Please try again.');
+                showError('Failed to generate flashcard. Please try again.');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error connecting to server.');
+            showError('Error connecting to server.');
         } finally {
             isLoading = false;
         }
@@ -173,6 +194,14 @@
                 ⚡ Make Flashcard
             {/if}
         </button>
+    {/if}
+
+    {#if errorMessage}
+        <div class="error-toast" transition:fly={{ y: -10, duration: 200 }}>
+            <span class="error-icon">⚠️</span>
+            <span class="error-text">{errorMessage}</span>
+            <button class="error-close-btn" on:click={dismissError}>×</button>
+        </div>
     {/if}
 
     {#if flashcard}
@@ -335,5 +364,47 @@
 
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+
+    /* Error Toast */
+    .error-toast {
+        position: absolute;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(239, 68, 68, 0.95);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        z-index: 200;
+        max-width: 90%;
+    }
+
+    .error-icon {
+        font-size: 1.1rem;
+    }
+
+    .error-text {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .error-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        opacity: 0.8;
+    }
+
+    .error-close-btn:hover {
+        opacity: 1;
     }
 </style>
