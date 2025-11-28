@@ -83,7 +83,7 @@
         // Calculate position relative to the container
         // We use the container's rect to offset the button's position
         btnX = rect.left - containerRect.left + (rect.width / 2);
-        btnY = rect.top - containerRect.top - 50; // 50px above
+        btnY = Math.max(0, rect.top - containerRect.top - 50); // 50px above, clamped to 0
         
         showButton = true;
     }
