@@ -22,6 +22,12 @@ public class CardController {
         String localContext = payload.get("localContext");
         String globalContext = payload.get("globalContext");
 
+        // Input validation
+        if (selection == null || selection.trim().isEmpty() ||
+            localContext == null || localContext.trim().isEmpty() ||
+            globalContext == null || globalContext.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
         // Call Service
         FlashcardResponseDto flashcard = cardService.generateCard(selection, localContext, globalContext);
 
