@@ -14,6 +14,8 @@
     // Maximum character limits to prevent large request payloads and token limit issues
     const MAX_LOCAL_CONTEXT_LENGTH = 2000;  // ~500 tokens
     const MAX_GLOBAL_CONTEXT_LENGTH = 4000; // ~1000 tokens
+    // Threshold for preserving word boundaries (80% of max length)
+    const WORD_BOUNDARY_THRESHOLD = 0.8;
 
     // ==================== HELPER FUNCTIONS ====================
 
@@ -26,14 +28,14 @@
      */
     function truncateText(text, maxLength) {
         if (!text || text.length <= maxLength) {
-            return text;
+            return text || '';
         }
         
         // Find the last space before the max length to avoid cutting words
         const truncated = text.substring(0, maxLength);
         const lastSpaceIndex = truncated.lastIndexOf(' ');
         
-        if (lastSpaceIndex > maxLength * 0.8) {
+        if (lastSpaceIndex > maxLength * WORD_BOUNDARY_THRESHOLD) {
             // Only use word boundary if it's reasonably close to the limit
             return truncated.substring(0, lastSpaceIndex) + '...';
         }
