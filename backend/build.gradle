@@ -41,12 +41,23 @@ dependencies {
     // ✅ dotenv
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
-	// ✅ LangChain4j BOM (버전 관리용)
-    // ✅ LangChain4j BOM
-    implementation platform('dev.langchain4j:langchain4j-bom:1.0.0-beta1')
+	// ============================================================
+    // 🧠 AI Brain: LangChain4j (Ver 0.35.0 통일 - 안정 버전)
+    // ============================================================
+    
+    // 1. BOM (버전 관리자): 얘를 0.35.0으로 잡으면 밑에 애들도 다 따라옵니다.
+    implementation platform('dev.langchain4j:langchain4j-bom:0.35.0')
 
-    // ✅ Google Gemini Starter
-    implementation 'dev.langchain4j:langchain4j-google-ai-gemini-spring-boot-starter:1.0.0-beta1'
+    // 2. Starters (버전 번호 지움 -> BOM이 0.35.0으로 맞춰줌)
+    implementation 'dev.langchain4j:langchain4j-spring-boot-starter'
+    implementation 'dev.langchain4j:langchain4j-google-ai-gemini'
+
+    // 3. RAG Features (역시 버전 번호 지움)
+    implementation 'dev.langchain4j:langchain4j-pgvector'
+    implementation 'dev.langchain4j:langchain4j-document-parser-apache-pdfbox'
+
+    // 4. Core (DocumentSplitters용)
+    implementation 'dev.langchain4j:langchain4j'
 	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'

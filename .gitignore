@@ -8,6 +8,7 @@
 Thumbs.db
 HELP.md
 AGENT.md
+*.pdf
 
 # IntelliJ (기존 설정)
 .idea/

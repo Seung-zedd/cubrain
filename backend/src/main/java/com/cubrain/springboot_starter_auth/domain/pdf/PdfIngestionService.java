@@ -1,0 +1,54 @@
+package com.cubrain.springboot_starter_auth.domain.pdf;
+
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
+import dev.langchain4j.data.document.splitter.DocumentSplitters;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class PdfIngestionService {
+
+    private final EmbeddingModel embeddingModel;
+    private final EmbeddingStore<TextSegment> embeddingStore;
+
+    public void ingestPdf(MultipartFile file) {
+        log.info("Starting PDF ingestion for file: {}", file.getOriginalFilename());
+
+        try (InputStream inputStream = file.getInputStream()) {
+            ApachePdfBoxDocumentParser parser = new ApachePdfBoxDocumentParser();
+            Document document = parser.parse(inputStream);
+
+            // Add source filename to metadata
+            document.metadata().put("file_name", file.getOriginalFilename());
+
+            log.info("Parsed PDF. Pages: {}, Metadata: {}", document.metadata().getString("page_count"),
+                    document.metadata().toMap());
+
+            EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                    .documentSplitter(DocumentSplitters.recursive(1000, 200))
+                    .embeddingModel(embeddingModel)
+                    .embeddingStore(embeddingStore)
+                    .build();
+
+            ingestor.ingest(document);
+
+            log.info("Successfully ingested PDF: {}", file.getOriginalFilename());
+
+        } catch (IOException e) {
+            log.error("Failed to ingest PDF", e);
+            throw new RuntimeException("Failed to process PDF file", e);
+        }
+    }
+}

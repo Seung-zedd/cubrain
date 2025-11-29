@@ -1,0 +1,14 @@
+-- Enable pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Create embeddings table
+CREATE TABLE IF NOT EXISTS embeddings (
+    id UUID PRIMARY KEY,
+    embedding vector(768), -- Gemini 1.5 Flash/Pro embedding dimension is 768
+    text TEXT,
+    metadata JSONB
+);
+
+-- Create index for faster similarity search (IVFFlat or HNSW)
+-- HNSW is generally better for performance/recall trade-off
+CREATE INDEX IF NOT EXISTS embedding_hnsw_idx ON embeddings USING hnsw (embedding vector_cosine_ops);
