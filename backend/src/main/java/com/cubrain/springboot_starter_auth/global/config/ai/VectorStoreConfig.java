@@ -27,13 +27,17 @@ public class VectorStoreConfig {
             // Strip "jdbc:" prefix and parse as standard URI
             URI uri = new URI(dbUrl.replaceFirst("^jdbc:", ""));
 
+            if (uri.getHost() == null && uri.getAuthority() != null) {
+                throw new IllegalArgumentException("Invalid host or port in JDBC URL: " + dbUrl);
+            }
+
             String host = uri.getHost() != null ? uri.getHost() : "localhost";
-            int port = uri.getPort() != -1 ? uri.getPort() : 5432;
+            int port = parsePort(uri.getPort());
 
             // Extract database name from path (remove leading slash)
             String path = uri.getPath();
             String database = (path != null && path.length() > 1)
-                    ? path.substring(1).split("/")[0] // Handle edge cases with multiple slashes
+                    ? path.substring(1).split("/")[0]
                     : "postgres";
 
             return PgVectorEmbeddingStore.builder()
@@ -48,5 +52,15 @@ public class VectorStoreConfig {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Malformed JDBC URL: " + dbUrl, e);
         }
+    }
+
+    private int parsePort(int uriPort) {
+        if (uriPort == -1) {
+            return 5432; // PostgreSQL default
+        }
+        if (uriPort < 1 || uriPort > 65535) {
+            throw new IllegalArgumentException("Invalid port number in JDBC URL: " + uriPort);
+        }
+        return uriPort;
     }
 }
