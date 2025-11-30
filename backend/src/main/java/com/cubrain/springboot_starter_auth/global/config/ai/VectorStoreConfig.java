@@ -7,23 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @Configuration
-/**
- * Configuration class for setting up the EmbeddingStore using PgVector.
- * <p>
- * This class manually parses the JDBC URL from Spring's datasource properties to extract
- * the host, port, and database name, which are required by the PgVectorEmbeddingStore builder.
- * Manual parsing is necessary because the PgVectorEmbeddingStore does not accept a JDBC URL
- * or a Spring DataSource directly.
- * <p>
- * <b>Limitations:</b>
- * <ul>
- *   <li>This parsing logic only supports standard JDBC URLs of the form {@code jdbc:postgresql://host:port/db}.</li>
- *   <li>JDBC URLs with query parameters (e.g., {@code ?sslmode=require}) or non-standard formats are not supported.</li>
- *   <li>If the URL format changes, this logic may break or extract incorrect values.</li>
- * </ul>
- * Consider improving this logic or using a more robust parsing library if advanced JDBC URL features are needed.
- */
 public class VectorStoreConfig {
     @Value("${spring.datasource.url}")
     private String dbUrl;
@@ -36,32 +23,30 @@ public class VectorStoreConfig {
 
     @Bean
     public EmbeddingStore<TextSegment> embeddingStore() {
-        // Parse host, port, database from JDBC URL (jdbc:postgresql://host:port/db)
-        // Simple parsing logic for standard JDBC URL
-        String cleanUrl = dbUrl.replace("jdbc:postgresql://", "");
-        String[] hostPortDb = cleanUrl.split("/");
-        String hostPort = hostPortDb[0];
-        String database = hostPortDb.length > 1 ? hostPortDb[1] : "postgres";
+        try {
+            // Strip "jdbc:" prefix and parse as standard URI
+            URI uri = new URI(dbUrl.replaceFirst("^jdbc:", ""));
 
-        String host = "localhost";
-        int port = 5432;
+            String host = uri.getHost() != null ? uri.getHost() : "localhost";
+            int port = uri.getPort() != -1 ? uri.getPort() : 5432;
 
-        if (hostPort.contains(":")) {
-            String[] hp = hostPort.split(":");
-            host = hp[0];
-            port = Integer.parseInt(hp[1]);
-        } else {
-            host = hostPort;
+            // Extract database name from path (remove leading slash)
+            String path = uri.getPath();
+            String database = (path != null && path.length() > 1)
+                    ? path.substring(1).split("/")[0] // Handle edge cases with multiple slashes
+                    : "postgres";
+
+            return PgVectorEmbeddingStore.builder()
+                    .host(host)
+                    .port(port)
+                    .database(database)
+                    .user(dbUser)
+                    .password(dbPassword)
+                    .table("embeddings")
+                    .dimension(768)
+                    .build();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Malformed JDBC URL: " + dbUrl, e);
         }
-
-        return PgVectorEmbeddingStore.builder()
-                .host(host)
-                .port(port)
-                .database(database)
-                .user(dbUser)
-                .password(dbPassword)
-                .table("embeddings")
-                .dimension(768) // Gemini 1.5 Flash/Pro
-                .build();
     }
 }
