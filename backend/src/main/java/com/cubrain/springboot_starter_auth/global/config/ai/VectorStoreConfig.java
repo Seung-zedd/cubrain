@@ -49,7 +49,11 @@ public class VectorStoreConfig {
         if (hostPort.contains(":")) {
             String[] hp = hostPort.split(":");
             host = hp[0];
-            port = Integer.parseInt(hp[1]);
+            try {
+                port = Integer.parseInt(hp[1]);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid port number in JDBC URL: " + hp[1], e);
+            }
         } else {
             host = hostPort;
         }
