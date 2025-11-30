@@ -8,8 +8,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+/**
+ * Configuration class for setting up the EmbeddingStore using PgVector.
+ * <p>
+ * This class manually parses the JDBC URL from Spring's datasource properties to extract
+ * the host, port, and database name, which are required by the PgVectorEmbeddingStore builder.
+ * Manual parsing is necessary because the PgVectorEmbeddingStore does not accept a JDBC URL
+ * or a Spring DataSource directly.
+ * <p>
+ * <b>Limitations:</b>
+ * <ul>
+ *   <li>This parsing logic only supports standard JDBC URLs of the form {@code jdbc:postgresql://host:port/db}.</li>
+ *   <li>JDBC URLs with query parameters (e.g., {@code ?sslmode=require}) or non-standard formats are not supported.</li>
+ *   <li>If the URL format changes, this logic may break or extract incorrect values.</li>
+ * </ul>
+ * Consider improving this logic or using a more robust parsing library if advanced JDBC URL features are needed.
+ */
 public class VectorStoreConfig {
-
     @Value("${spring.datasource.url}")
     private String dbUrl;
 
