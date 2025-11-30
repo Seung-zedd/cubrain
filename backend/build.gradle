@@ -51,6 +51,7 @@ dependencies {
     // 2. Starters (버전 번호 지움 -> BOM이 0.35.0으로 맞춰줌)
     implementation 'dev.langchain4j:langchain4j-spring-boot-starter'
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini'
+    implementation 'dev.langchain4j:langchain4j-open-ai' // For OpenAiTokenizer
 
     // 3. RAG Features (역시 버전 번호 지움)
     implementation 'dev.langchain4j:langchain4j-pgvector'
