@@ -19,3 +19,8 @@ langchain4j:
     embedding-model:
       api-key: "${GEMINI_API_KEY}"
       model-name: text-embedding-004
+  document-splitter:
+    # 1000 chars balances context size with embedding model limits
+    chunk-size: 1000
+    # 200 chars (~20%) ensures continuity at chunk boundaries
+    chunk-overlap: 200
