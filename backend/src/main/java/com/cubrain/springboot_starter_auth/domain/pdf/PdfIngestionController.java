@@ -1,6 +1,7 @@
 package com.cubrain.springboot_starter_auth.domain.pdf;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/ingest")
 @RequiredArgsConstructor
+@Slf4j
 public class PdfIngestionController {
 
     private final PdfIngestionService pdfIngestionService;
@@ -33,7 +35,8 @@ public class PdfIngestionController {
             pdfIngestionService.ingestPdf(file);
             return ResponseEntity.ok("PDF ingested successfully");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Failed to ingest PDF: " + e.getMessage());
+            log.error("Failed to ingest PDF: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body("Failed to ingest PDF. Please try again later.");
         }
     }
 }
