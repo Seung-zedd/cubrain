@@ -41,15 +41,27 @@ public class VectorStoreConfig {
                     ? path.substring(1).split("/")[0]
                     : "postgres";
 
-            return PgVectorEmbeddingStore.builder()
-                    .host(host)
-                    .port(port)
-                    .database(database)
-                    .user(dbUser)
-                    .password(dbPassword)
-                    .table("embeddings")
-                    .dimension(768)
-                    .build();
+            try {
+                return PgVectorEmbeddingStore.builder()
+                        .host(host)
+                        .port(port)
+                        .database(database)
+                        .user(dbUser)
+                        .password(dbPassword)
+                        .table("embeddings")
+                        .dimension(768)
+                        .build();
+            } catch (RuntimeException e) {
+                if (e.getCause() != null && e.getCause().getMessage() != null
+                        && e.getCause().getMessage().contains("extension \"vector\" is not available")) {
+                    throw new RuntimeException(
+                            "CRITICAL ERROR: The PostgreSQL database does not have the 'pgvector' extension installed. "
+                                    +
+                                    "Please refer to RAILWAY_SETUP.md in the project root for instructions on how to provision a compatible database on Railway.",
+                            e);
+                }
+                throw e;
+            }
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Malformed JDBC URL: " + dbUrl, e);
         }
