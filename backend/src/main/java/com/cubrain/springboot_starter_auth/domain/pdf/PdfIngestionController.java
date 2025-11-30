@@ -20,6 +20,14 @@ public class PdfIngestionController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty");
         }
+        // Validate content type and file extension
+        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        boolean isPdfContentType = contentType != null && contentType.equalsIgnoreCase("application/pdf");
+        boolean isPdfExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf");
+        if (!isPdfContentType || !isPdfExtension) {
+            return ResponseEntity.badRequest().body("Invalid file type. Only PDF files are allowed.");
+        }
 
         try {
             pdfIngestionService.ingestPdf(file);
