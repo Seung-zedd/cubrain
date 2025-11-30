@@ -48,7 +48,16 @@ public class PdfIngestionService {
 
         } catch (IOException e) {
             log.error("Failed to ingest PDF", e);
-            throw new RuntimeException("Failed to process PDF file", e);
+            throw new PdfIngestionException("Failed to process PDF file", e);
+        }
+    }
+
+    /**
+     * Custom unchecked exception for PDF ingestion errors.
+     */
+    public static class PdfIngestionException extends RuntimeException {
+        public PdfIngestionException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }
