@@ -34,7 +34,7 @@ public class PdfIngestionController {
         try {
             pdfIngestionService.ingestPdf(file);
             return ResponseEntity.ok("PDF ingested successfully");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("Failed to ingest PDF: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body("Failed to ingest PDF. Please try again later.");
         }
