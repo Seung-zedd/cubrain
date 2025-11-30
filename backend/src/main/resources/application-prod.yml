@@ -6,12 +6,12 @@ spring:
   # jpa 설정
   jpa:
     hibernate:
-      # ✅ MVP 전략: Flyway 대신 JPA가 테이블을 생성/수정하도록 'update'로 변경!
-      ddl-auto: update
+      # ✅ Production: Use 'validate' to prevent Hibernate from altering the schema managed by Flyway
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false # 운영 로그 깔끔하게
+        "[format_sql]": false # 운영 로그 깔끔하게
 
   # 데이터베이스 설정 (운영 환경)
   datasource:
@@ -22,7 +22,7 @@ spring:
 
   # Flyway 활성화 (운영 환경 스키마 관리)
   flyway:
-    enabled: false
+    enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
 
