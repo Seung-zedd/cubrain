@@ -19,3 +19,14 @@ langchain4j:
     embedding-model:
       api-key: "${GEMINI_API_KEY}"
       model-name: text-embedding-004
+  # Document splitter settings for PDF ingestion
+  document-splitter:
+    # Maximum number of characters per text chunk.
+    # 1000 characters balances context size with embedding model limits.
+    # Larger chunks preserve more context but may reduce search precision.
+    # Smaller chunks improve precision but may lose context between sentences.
+    chunk-size: 1000
+    # Number of overlapping characters between adjacent chunks.
+    # 200 characters (~20% of chunk-size) ensures continuity at chunk boundaries.
+    # This helps maintain context when sentences span multiple chunks.
+    chunk-overlap: 200

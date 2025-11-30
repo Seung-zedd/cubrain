@@ -7,8 +7,8 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,11 +17,23 @@ import java.io.InputStream;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PdfIngestionService {
 
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
+    private final int chunkSize;
+    private final int chunkOverlap;
+
+    public PdfIngestionService(
+            EmbeddingModel embeddingModel,
+            EmbeddingStore<TextSegment> embeddingStore,
+            @Value("${langchain4j.document-splitter.chunk-size}") int chunkSize,
+            @Value("${langchain4j.document-splitter.chunk-overlap}") int chunkOverlap) {
+        this.embeddingModel = embeddingModel;
+        this.embeddingStore = embeddingStore;
+        this.chunkSize = chunkSize;
+        this.chunkOverlap = chunkOverlap;
+    }
 
     public void ingestPdf(MultipartFile file) {
         log.info("Starting PDF ingestion for file: {}", file.getOriginalFilename());
@@ -37,7 +49,7 @@ public class PdfIngestionService {
                     document.metadata().toMap());
 
             EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                    .documentSplitter(DocumentSplitters.recursive(1000, 200))
+                    .documentSplitter(DocumentSplitters.recursive(chunkSize, chunkOverlap))
                     .embeddingModel(embeddingModel)
                     .embeddingStore(embeddingStore)
                     .build();
