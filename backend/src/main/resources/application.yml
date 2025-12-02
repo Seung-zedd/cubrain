@@ -2,13 +2,12 @@ spring:
   profiles:
     default: dev # for running in local env
     group:
-      local: local, common
-      dev: dev, common
-      prod: prod, common
+      local: common, local
+      dev: common, dev
+      prod: common, prod
   output:
     ansi:
       enabled: ALWAYS
-
 # ✅ AI 설정 추가
 # 🔒 [Hotfix] 배포 안정을 위해 AI 잠시 비활성화
 # langchain4j:
