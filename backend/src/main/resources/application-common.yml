@@ -26,9 +26,10 @@ spring:
     properties:
       hibernate:
         "[format_sql]": true
-    hibernate:
-      # naming:
-      # physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
+  # comment due to mismatched table names between naming strategy and flyway
+    # hibernate:
+    #   naming:
+    #   physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
 
   # Flyway 설정 (기본값: disabled, dev/prod에서 override)
   flyway:
