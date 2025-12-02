@@ -16,7 +16,7 @@ spring:
   # 데이터베이스 설정 (운영 환경)
   datasource:
     # Use individual connection parameters instead of DATABASE_URL
-    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:postgres}
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/postgres
     username: ${PGUSER:postgres}
     password: ${PGPASSWORD:postgres}
 
