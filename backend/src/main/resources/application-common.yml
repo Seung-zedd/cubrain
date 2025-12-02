@@ -27,8 +27,8 @@ spring:
       hibernate:
         "[format_sql]": true
     hibernate:
-      naming:
-        physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
+      # naming:
+      # physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
 
   # Flyway 설정 (기본값: disabled, dev/prod에서 override)
   flyway:
