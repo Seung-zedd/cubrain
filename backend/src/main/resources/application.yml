@@ -1,10 +1,11 @@
 spring:
   profiles:
-    default: dev # for running in local env
+    default: local # for running in local env
     group:
-      local: local, common
-      dev: dev, common
-      prod: prod, common
+      local: common, local
+      prod: common, prod
+  application:
+    name: cubrainApp
   output:
     ansi:
       enabled: ALWAYS
