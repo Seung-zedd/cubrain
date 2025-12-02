@@ -1,6 +1,5 @@
-package com.cubrain.springboot_starter_auth.domain.card.service;
+package com.cubrain.springboot_starter_auth.domain.card;
 
-import com.cubrain.springboot_starter_auth.domain.card.dto.FlashcardResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
