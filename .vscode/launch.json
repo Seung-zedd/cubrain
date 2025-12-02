@@ -23,18 +23,6 @@
     },
     {
       "type": "java",
-      "name": "CubrainApplication (dev)",
-      "request": "launch",
-      "mainClass": "com.cubrain.springboot_starter_auth.CubrainApplication",
-      "projectName": "cubrain",
-      "cwd": "${workspaceFolder}/backend",
-      "env": {
-        "SPRING_PROFILES_ACTIVE": "dev"
-      },
-      "args": ""
-    },
-    {
-      "type": "java",
       "name": "CubrainApplication (prod)",
       "request": "launch",
       "mainClass": "com.cubrain.springboot_starter_auth.CubrainApplication",
