@@ -5,6 +5,7 @@ import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentPa
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,8 @@ public class PdfIngestionService {
                     document.metadata().toMap());
 
             EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                    .documentSplitter(DocumentSplitters.recursive(chunkSize, chunkOverlap))
+                    .documentSplitter(
+                            DocumentSplitters.recursive(chunkSize, chunkOverlap, new OpenAiTokenizer("gpt-4")))
                     .embeddingModel(embeddingModel)
                     .embeddingStore(embeddingStore)
                     .build();

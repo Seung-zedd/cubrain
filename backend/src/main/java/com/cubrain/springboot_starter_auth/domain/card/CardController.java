@@ -1,7 +1,5 @@
-package com.cubrain.springboot_starter_auth.domain.card.controller;
+package com.cubrain.springboot_starter_auth.domain.card;
 
-import com.cubrain.springboot_starter_auth.domain.card.dto.FlashcardResponseDto;
-import com.cubrain.springboot_starter_auth.domain.card.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
