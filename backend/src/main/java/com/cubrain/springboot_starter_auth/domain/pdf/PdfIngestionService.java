@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
-// @Service
+@Service
 public class PdfIngestionService {
 
     private final EmbeddingModel embeddingModel;

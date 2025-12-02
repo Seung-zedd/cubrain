@@ -23,10 +23,6 @@ spring:
       static-locations: classpath:/static/
       add-mappings: true # static 매핑 활성화 (default true지만 명시)
 
-  # Flyway 비활성화 (로컬은 ddl-auto 사용)
-  flyway:
-    enabled: false
-
   # 데이터베이스 설정
   datasource:
     driver-class-name: org.postgresql.Driver
