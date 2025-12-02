@@ -3,6 +3,11 @@ spring:
     activate:
       on-profile: common
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
   # 애플리케이션 이름 설정 (공통)
   application:
     name: my-app-server # 원하는 이름으로 변경 (예: MySpringBootApp)

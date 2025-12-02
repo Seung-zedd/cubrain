@@ -2,12 +2,18 @@ package com.cubrain.springboot_starter_auth.domain.card.service;
 
 import com.cubrain.springboot_starter_auth.domain.card.dto.FlashcardResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.output.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CardService {
 
     private final ChatLanguageModel chatModel;
@@ -16,9 +22,8 @@ public class CardService {
     public FlashcardResponseDto generateCard(String selection, String localContext, String globalContext) {
         // 1. The "Senior Tutor" Prompt
         // We ask for strict JSON format to avoid parsing errors.
-        String prompt = """
-                You are an expert tutor creating study materials.
-
+        SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating study materials.");
+        UserMessage userMessage = UserMessage.from("""
                 TASK:
                 Create a flashcard (Question and Answer) based on the user's selected text.
 
@@ -43,14 +48,15 @@ public class CardService {
                   "question": "...",
                   "answer": "..."
                 }
-                """.formatted(globalContext, localContext, selection);
+                """.formatted(globalContext, localContext, selection));
 
         // 2. Call Gemini
-        String response = chatModel.chat(prompt);
-        System.out.println("🤖 Raw AI Response: " + response); // Debug log
+        Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
+        String responseText = response.content().text();
+        log.info("🤖 Raw AI Response: " + responseText); // Debug log
 
         // 3. Clean & Parse JSON
-        return parseResponse(response);
+        return parseResponse(responseText);
     }
 
     private FlashcardResponseDto parseResponse(String rawResponse) {
