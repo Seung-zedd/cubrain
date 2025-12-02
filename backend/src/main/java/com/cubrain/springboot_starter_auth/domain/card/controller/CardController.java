@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
+// @RestController
 @RequestMapping("/api/cards")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
@@ -24,8 +24,8 @@ public class CardController {
 
         // Input validation
         if (selection == null || selection.trim().isEmpty() ||
-            localContext == null || localContext.trim().isEmpty() ||
-            globalContext == null || globalContext.trim().isEmpty()) {
+                localContext == null || localContext.trim().isEmpty() ||
+                globalContext == null || globalContext.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
         // Call Service

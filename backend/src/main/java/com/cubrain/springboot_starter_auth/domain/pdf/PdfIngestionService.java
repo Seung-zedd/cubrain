@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
-@Service
+// @Service
 public class PdfIngestionService {
 
     private final EmbeddingModel embeddingModel;
@@ -64,9 +64,6 @@ public class PdfIngestionService {
         }
     }
 
-    /**
-     * Custom unchecked exception for PDF ingestion errors.
-     */
     public static class PdfIngestionException extends RuntimeException {
         public PdfIngestionException(String message, Throwable cause) {
             super(message, cause);
