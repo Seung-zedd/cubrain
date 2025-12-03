@@ -68,7 +68,9 @@
 
 <div class="landing-page">
     <nav class="glass-panel nav">
-        <div class="logo">Cubrain</div>
+        <a href="/">
+            <img src="/logo-gold.png" alt="Cubrain AI Logo" class="h-10 w-auto object-contain" />
+        </a>
         <div class="links">
             <a href="#features">Features</a>
             <a href="#waitlist" class="cta-button small">Get Early Access</a>
@@ -180,12 +182,16 @@
         z-index: 100;
     }
 
-    .logo {
-        font-weight: 800;
-        font-size: 1.5rem;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .h-10 {
+        height: 2.5rem;
+    }
+
+    .w-auto {
+        width: auto;
+    }
+
+    .object-contain {
+        object-fit: contain;
     }
 
     .links {
