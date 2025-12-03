@@ -32,4 +32,6 @@
 	<meta property="twitter:image" content={imageUrl} />
 </svelte:head>
 
-{@render children()}
+<div class="dark min-h-screen bg-background text-foreground antialiased">
+	{@render children()}
+</div>

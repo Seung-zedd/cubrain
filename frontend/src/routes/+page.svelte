@@ -1,411 +1,300 @@
 <script>
-    import heroImage from '$lib/assets/hero.png';
+  import heroImage from "$lib/assets/hero.png";
 
-    import FlashcardDemo from '$lib/components/FlashcardDemo.svelte';
-    import { API_BASE_URL } from '$lib/config';
+  import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
+  import { API_BASE_URL } from "$lib/config";
 
-    let email = '';
-    let status = 'idle'; // 'idle' | 'loading' | 'success' | 'error'
-    let message = '';
+  let email = "";
+  let status = "idle"; // 'idle' | 'loading' | 'success' | 'error'
+  let message = "";
 
-    async function joinWaitlist() {
-        if (!email || !email.includes('@')) {
-            status = 'error';
-            message = 'Please enter a valid email address.';
-            return;
-        }
-
-        status = 'loading';
-        message = '';
-
-        try {
-            const apiBaseUrl = API_BASE_URL;
-            
-            console.log('Using API URL:', apiBaseUrl);
-            
-            const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            });
-
-            if (response.ok) {
-                status = 'success';
-                message = 'Thanks for joining! We’ll be in touch soon.';
-                email = '';
-            } else {
-                const text = await response.text();
-                status = 'error';
-                try {
-                    const errorData = JSON.parse(text);
-                    message = errorData.message || errorData.details || 'Something went wrong. Please try again.';
-                } catch (e) {
-                    message = text || 'Something went wrong. Please try again.';
-                }
-            }
-        } catch (err) {
-            console.error(err);
-            status = 'error';
-            message = 'Failed to connect to the server. Please check your connection.';
-        }
+  async function joinWaitlist() {
+    if (!email || !email.includes("@")) {
+      status = "error";
+      message = "Please enter a valid email address.";
+      return;
     }
 
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Cubrain",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web",
-        "description": "AI-powered study tool that converts PDFs into quizzes."
-    };
+    status = "loading";
+    message = "";
+
+    try {
+      const apiBaseUrl = API_BASE_URL;
+
+      console.log("Using API URL:", apiBaseUrl);
+
+      const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        status = "success";
+        message = "Thanks for joining! We’ll be in touch soon.";
+        email = "";
+      } else {
+        const text = await response.text();
+        status = "error";
+        try {
+          const errorData = JSON.parse(text);
+          message =
+            errorData.message ||
+            errorData.details ||
+            "Something went wrong. Please try again.";
+        } catch (e) {
+          message = text || "Something went wrong. Please try again.";
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      status = "error";
+      message =
+        "Failed to connect to the server. Please check your connection.";
+    }
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Cubrain",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    description: "AI-powered study tool that converts PDFs into quizzes.",
+  };
 </script>
 
 <svelte:head>
-    {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+  {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
 </svelte:head>
 
-<div class="landing-page">
-    <nav class="glass-panel nav">
-        <a href="/">
-            <img src="/logo-gold.png" alt="Cubrain AI Logo" class="h-10 w-auto object-contain" />
-        </a>
-        <div class="links">
-            <a href="#features">Features</a>
-            <a href="#waitlist" class="cta-button small">Get Early Access</a>
-        </div>
-    </nav>
+<div class="min-h-screen flex flex-col bg-background text-foreground">
+  <nav
+    class="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
+  >
+    <a href="/">
+      <img
+        src="/logo-gold.png"
+        alt="Cubrain AI Logo"
+        class="h-10 w-auto object-contain"
+      />
+    </a>
+    <div class="hidden md:flex gap-8 items-center">
+      <a
+        href="#features"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        >Features</a
+      >
+      <a
+        href="#waitlist"
+        class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+        >Get Early Access</a
+      >
+    </div>
+  </nav>
 
-    <header class="hero">
-        <div class="hero-content">
-            <h1 class="gradient-text">Turn Your PDFs into Flashcards in Seconds.</h1>
-            <p class="subheadline">Zero hallucinations. Zero manual entry. <br> Every flashcard is backed by a direct link to the source text, turning your PDFs into an interactive knowledge base.</p>
-            <div class="cta-group">
-                <a href="#waitlist" class="cta-button primary">Join the Waitlist</a>
-                <button class="cta-button secondary">Learn More</button>
-            </div>
-        </div>
-        <div class="hero-image">
-            <img src={heroImage} alt="Cubrain Interface" />
-            <div class="glow"></div>
-        </div>
-    </header>
+  <header
+    class="pt-40 pb-20 grid grid-cols-1 md:grid-cols-2 gap-16 max-w-6xl mx-auto items-center min-h-[90vh] px-6"
+  >
+    <div class="text-center md:text-left z-10">
+      <h1
+        class="text-5xl md:text-7xl font-extrabold leading-tight mb-8 text-white tracking-tight"
+      >
+        Turn Your PDFs into <br />
+        <span
+          class="bg-linear-to-r from-[#FFD700] via-[#FDB931] to-[#FFD700] bg-clip-text text-transparent bg-size-[200%_auto] animate-gradient"
+          >Flashcards</span
+        >
+        in Seconds.
+      </h1>
+      <p
+        class="text-lg md:text-xl text-white/60 mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed"
+      >
+        Zero hallucinations. Zero manual entry. <br /> Every flashcard is backed
+        by a direct link to the source text, turning your PDFs into an interactive
+        knowledge base.
+      </p>
+      <div
+        class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
+      >
+        <a
+          href="#waitlist"
+          class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1"
+          >Join the Waitlist</a
+        >
+        <button
+          class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all"
+          >Learn More</button
+        >
+      </div>
+    </div>
+    <div class="relative z-10 group perspective-1000">
+      <div
+        class="relative transform transition-transform duration-500 group-hover:rotate-y-2 group-hover:rotate-x-2"
+      >
+        <div
+          class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"
+        ></div>
+        <img
+          src={heroImage}
+          alt="Cubrain Interface"
+          class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50"
+        />
+      </div>
+      <!-- Ambient Glow -->
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[#FFD700]/10 blur-[100px] -z-10 pointer-events-none"
+      ></div>
+    </div>
+  </header>
 
-    <section class="demo-section">
-        <FlashcardDemo />
-    </section>
+  <section class="py-20 px-4 relative">
+    <div
+      class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
+    ></div>
+    <FlashcardDemo />
+  </section>
 
-    <section id="features" class="features">
-        <h2 class="section-title">Why Cubrain?</h2>
-        <div class="feature-grid">
-            <div class="feature-card glass-panel">
-                <h3><span class="feature-icon">⚡</span> <span class="feature-title">Instant Capture</span></h3>
-                <p>Highlight any text on the web and instantly turn it into a flashcard. No context switching.</p>
-            </div>
-            <div class="feature-card glass-panel">
-                <h3><span class="feature-icon">🧠</span> <span class="feature-title">Context Aware</span></h3>
-                <p>Cubrain understands the surrounding text to create better, more meaningful questions.</p>
-            </div>
-            <div class="feature-card glass-panel">
-                <h3><span class="feature-icon">🔄</span> <span class="feature-title">Seamless Sync</span></h3>
-                <p>Automatically syncs with Anki, Notion, and other tools you already use.</p>
-            </div>
-            <div class="feature-card glass-panel">
-                <h3><span class="feature-icon">✅</span> <span class="feature-title">AI Grading</span></h3>
-                <p>Get instant feedback on your answers. The AI acts as your personal tutor, explaining why you were right or wrong.</p>
-            </div>
+  <section id="features" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="text-center mb-20">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+        Why <span class="text-[#FFD700]">Cubrain</span>?
+      </h2>
+      <p class="text-white/60 max-w-2xl mx-auto text-lg">
+        Experience the next generation of study tools designed for efficiency
+        and retention.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Feature 1 -->
+      <div
+        class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
+      >
+        <div
+          class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+        >
+          <span class="text-2xl">⚡</span>
         </div>
-    </section>
+        <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
+        <p class="text-white/60 leading-relaxed">
+          Highlight any text on the web and instantly turn it into a flashcard.
+          No context switching required.
+        </p>
+      </div>
 
-    <section id="waitlist" class="waitlist-section">
-        <div class="glass-panel waitlist-container">
-            <h2>Join the Waitlist</h2>
-            <p>Be the first to experience the future of learning.</p>
-            <form class="waitlist-form" onsubmit={(e) => { e.preventDefault(); joinWaitlist(); }}>
-                <input 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    required 
-                    bind:value={email} 
-                    disabled={status === 'loading' || status === 'success'}
-                />
-                <button 
-                    type="submit" 
-                    class="cta-button primary" 
-                    disabled={status === 'loading' || status === 'success'}
-                >
-                    {#if status === 'loading'}
-                        Joining...
-                    {:else if status === 'success'}
-                        ✓ Joined!
-                    {:else}
-                        Join the Waitlist
-                    {/if}
-                </button>
-            </form>
-            {#if message}
-                <p style="margin-top: 1rem; color: {status === 'success' ? '#4ade80' : '#f87171'};">
-                    {message}
-                </p>
-            {/if}
+      <!-- Feature 2 -->
+      <div
+        class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
+      >
+        <div
+          class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+        >
+          <span class="text-2xl">🧠</span>
         </div>
-    </section>
+        <h3 class="text-2xl font-bold mb-3 text-white">Context Aware</h3>
+        <p class="text-white/60 leading-relaxed">
+          Cubrain understands the surrounding text to create better, more
+          meaningful questions that test true understanding.
+        </p>
+      </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 Cubrain. All rights reserved.</p>
-    </footer>
+      <!-- Feature 3 -->
+      <div
+        class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
+      >
+        <div
+          class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+        >
+          <span class="text-2xl">🔄</span>
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-white">Seamless Sync</h3>
+        <p class="text-white/60 leading-relaxed">
+          Automatically syncs with Anki, Notion, and other tools you already
+          use, fitting perfectly into your workflow.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div
+        class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
+      >
+        <div
+          class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+        >
+          <span class="text-2xl">✅</span>
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-white">AI Grading</h3>
+        <p class="text-white/60 leading-relaxed">
+          Get instant feedback on your answers. The AI acts as your personal
+          tutor, explaining why you were right or wrong.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="waitlist" class="py-24 px-6 flex justify-center relative">
+    <!-- Background Glow -->
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"
+    ></div>
+
+    <div
+      class="bg-black/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl text-center max-w-3xl w-full relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#FFD700] to-transparent opacity-50"
+      ></div>
+
+      <h2 class="text-4xl font-bold mb-4 text-white">Join the Waitlist</h2>
+      <p class="text-white/60 mb-10 text-lg">
+        Be the first to experience the future of learning. Limited spots
+        available.
+      </p>
+
+      <form
+        class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto"
+        onsubmit={(e) => {
+          e.preventDefault();
+          joinWaitlist();
+        }}
+      >
+        <input
+          type="email"
+          placeholder="Enter your email address"
+          required
+          bind:value={email}
+          disabled={status === "loading" || status === "success"}
+          class="flex-1 px-6 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          class="px-8 py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] disabled:opacity-50 transition-all whitespace-nowrap transform hover:-translate-y-0.5"
+          disabled={status === "loading" || status === "success"}
+        >
+          {#if status === "loading"}
+            Joining...
+          {:else if status === "success"}
+            ✓ Joined!
+          {:else}
+            Join Now
+          {/if}
+        </button>
+      </form>
+      {#if message}
+        <p
+          class="mt-6 font-medium"
+          style="color: {status === 'success' ? '#4ade80' : '#f87171'};"
+        >
+          {message}
+        </p>
+      {/if}
+    </div>
+  </section>
+
+  <footer class="text-center py-12 text-white/40 border-t border-white/5">
+    <p>&copy; 2025 Cubrain. All rights reserved.</p>
+  </footer>
 </div>
-
-<style>
-    :global(html) {
-        scroll-behavior: smooth;
-    }
-
-    .landing-page {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .nav {
-        position: fixed;
-        top: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 1200px;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 100;
-    }
-
-    .h-10 {
-        height: 2.5rem;
-    }
-
-    .w-auto {
-        width: auto;
-    }
-
-    .object-contain {
-        object-fit: contain;
-    }
-
-    .links {
-        display: flex;
-        gap: 2rem;
-        align-items: center;
-    }
-
-    .hero {
-        padding: 8rem 1rem 4rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        align-items: center;
-        min-height: 90vh;
-    }
-
-    .hero-content h1 {
-        font-size: 3.5rem;
-        line-height: 1.1;
-        margin-bottom: 1.5rem;
-        font-weight: 800;
-    }
-
-    .subheadline {
-        font-size: 1.25rem;
-        color: var(--text-muted);
-        margin-bottom: 2.5rem;
-        max-width: 500px;
-    }
-
-    .cta-group {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .cta-button {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: none;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .cta-button.small {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        background: var(--primary-gradient);
-        color: white;
-    }
-
-    .cta-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .cta-button.primary {
-        background: var(--primary-gradient);
-        color: white;
-    }
-
-    .cta-button.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .hero-image {
-        position: relative;
-    }
-
-    .hero-image img {
-        width: 100%;
-        border-radius: 1rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        border: 1px solid var(--glass-border);
-    }
-
-    .glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
-        z-index: -1;
-        pointer-events: none;
-    }
-
-    .features {
-        padding: 4rem 1rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .section-title {
-        text-align: center;
-        font-size: 2.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .feature-card {
-        padding: 2rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .feature-card h3 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        width: fit-content;
-    }
-
-    .feature-title {
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        color: transparent;
-    }
-
-    .feature-icon {
-        color: #fbbf24;
-        margin-right: 0.5rem;
-    }
-
-    .waitlist-section {
-        padding: 4rem 1rem;
-        display: flex;
-        justify-content: center;
-    }
-
-    .waitlist-container {
-        padding: 3rem;
-        text-align: center;
-        max-width: 600px;
-        width: 100%;
-    }
-
-    .waitlist-container h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .waitlist-container p {
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-    }
-
-    .waitlist-form {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .waitlist-form input {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--glass-border);
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
-    }
-
-    .footer {
-        text-align: center;
-        padding: 2rem;
-        color: var(--text-muted);
-        margin-top: auto;
-    }
-
-    @media (max-width: 768px) {
-        .hero {
-            grid-template-columns: 1fr;
-            text-align: center;
-            padding-top: 8rem;
-        }
-
-        .feature-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .hero-content h1 {
-            font-size: 2.5rem;
-        }
-
-        .subheadline {
-            margin: 0 auto 2rem;
-        }
-
-        .cta-group {
-            justify-content: center;
-        }
-
-        .nav {
-            width: 95%;
-            padding: 1rem;
-        }
-        
-        .links {
-            display: none;
-        }
-    }
-</style>
