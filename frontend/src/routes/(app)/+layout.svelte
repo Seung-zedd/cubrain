@@ -11,6 +11,14 @@
   }
 </script>
 
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === "Escape") {
+      isMobileMenuOpen = false;
+    }
+  }}
+/>
+
 <div
   class="flex h-screen w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500/30"
 >
@@ -40,6 +48,7 @@
         onclick={toggleMobileMenu}
         role="presentation"
       ></div>
+
       <div
         class="fixed inset-y-0 left-0 z-50 w-64 bg-zinc-900 shadow-2xl md:hidden"
       >

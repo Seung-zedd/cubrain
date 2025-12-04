@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import {
     LayoutDashboard,
-    UploadCloud,
+    CloudUpload,
     Library,
     Settings,
     LogOut,
@@ -11,7 +11,7 @@
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/upload", label: "Upload PDF", icon: UploadCloud },
+    { href: "/upload", label: "Upload PDF", icon: CloudUpload },
     { href: "/library", label: "Library", icon: Library },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
