@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { UploadCloud, FileText, AlertCircle } from "@lucide/svelte";
+  import { CloudUpload, FileText, AlertCircle } from "@lucide/svelte";
   import { fade } from "svelte/transition";
 
   export let isGuest = false;
@@ -37,22 +37,31 @@
     if (!files || files.length === 0) return [];
 
     const validFiles: File[] = [];
+    const errors: string[] = [];
     errorMessage = "";
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (file.type !== "application/pdf") {
-        errorMessage = "Only PDF files are allowed.";
+        errors.push(`"${file.name}" is not a PDF`);
         continue;
       }
 
       if (file.size > MAX_SIZE_BYTES) {
-        errorMessage = `File size must be less than ${MAX_SIZE_MB}MB.`;
+        errors.push(`"${file.name}" is too large (> ${MAX_SIZE_MB}MB)`);
         continue;
       }
 
       validFiles.push(file);
+    }
+
+    if (errors.length > 0) {
+      if (errors.length === 1) {
+        errorMessage = errors[0];
+      } else {
+        errorMessage = `${errors.length} files rejected (Invalid type or too large)`;
+      }
     }
 
     return validFiles;
@@ -119,7 +128,7 @@
         class="w-20 h-20 rounded-2xl bg-[#FFD700]/10 flex items-center justify-center
         {isDragging ? 'scale-110' : ''} transition-transform duration-300"
       >
-        <UploadCloud
+        <CloudUpload
           class="w-10 h-10 text-[#FFD700] {isDragging ? 'animate-bounce' : ''}"
         />
       </div>

@@ -8,7 +8,7 @@
 
   function handleFileSelect(newFiles: File[]) {
     // Guest mode: Only allow 1 file
-    files = [newFiles[0]];
+    files = newFiles.length > 0 ? [newFiles[0]] : [];
   }
 
   function removeFile() {
