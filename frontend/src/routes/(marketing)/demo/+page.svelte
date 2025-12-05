@@ -22,8 +22,11 @@
     // Mock generation delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
     isGenerating = false;
-    alert("This is a demo! In the full app, this would generate flashcards.");
+    // alert("This is a demo! In the full app, this would generate flashcards.");
+    showSuccess = true;
   }
+
+  let showSuccess = false;
 </script>
 
 <div class="min-h-screen pt-32 pb-20 px-4">
@@ -76,6 +79,20 @@
               Generate Flashcards ✨
             {/if}
           </button>
+
+          {#if showSuccess}
+            <div
+              in:fly={{ y: 10, duration: 300 }}
+              class="mt-6 p-4 bg-green-900/20 border border-green-500/30 rounded-xl text-center"
+            >
+              <h3 class="text-green-400 font-bold text-lg mb-2">
+                🎉 Demo Complete!
+              </h3>
+              <p class="text-white/80">
+                In the full version, you'd see your flashcards here instantly.
+              </p>
+            </div>
+          {/if}
 
           <p class="text-center mt-4 text-white/40 text-sm">
             Want to process the whole file? <a

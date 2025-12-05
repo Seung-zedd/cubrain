@@ -14,7 +14,9 @@
       (newFile) =>
         !files.some(
           (existing) =>
-            existing.name === newFile.name && existing.size === newFile.size
+            existing.name === newFile.name &&
+            existing.size === newFile.size &&
+            existing.lastModified === newFile.lastModified
         )
     );
     files = [...files, ...uniqueNewFiles];
@@ -31,7 +33,10 @@
     // Mock generation delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
     isGenerating = false;
-    alert(`Generating decks for ${files.length} files...`);
+    // alert(`Generating decks for ${files.length} files...`);
+    // TODO: Replace with real backend API call
+    console.log(`[Mock] Generating decks for ${files.length} files...`);
+
     // Reset after "generation"
     files = [];
   }
