@@ -62,6 +62,10 @@
       } else {
         errorMessage = `${errors.length} files rejected (Invalid type or too large)`;
       }
+      // Auto-clear error after 5 seconds
+      setTimeout(() => {
+        errorMessage = "";
+      }, 5000);
     }
 
     return validFiles;
