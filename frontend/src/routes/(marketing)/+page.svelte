@@ -180,8 +180,8 @@
         </div>
         <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
         <p class="text-white/60 leading-relaxed">
-          Highlight any text on the web and instantly turn it into a flashcard.
-          No context switching required.
+          Upload your PDFs and instantly turn them into flashcards. No context
+          switching required.
         </p>
       </div>
 
