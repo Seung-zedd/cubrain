@@ -56,6 +56,10 @@ dependencies {
     // 3. RAG Features (역시 버전 번호 지움)
     implementation 'dev.langchain4j:langchain4j-pgvector'
     implementation 'dev.langchain4j:langchain4j-document-parser-apache-pdfbox'
+    
+    // ✅ PDF 처리를 위한 Apache PDFBox (LangChain4j가 쓰지만, 명시적으로 추가)
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30' 
+    // (참고: 3.0 버전은 구조가 많이 달라서, 자료가 많은 2.x 버전을 추천합니다)
 
     // 4. Core (DocumentSplitters용)
     implementation 'dev.langchain4j:langchain4j'
