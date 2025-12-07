@@ -1,9 +1,12 @@
 package com.cubrain.springboot_starter_auth.domain.card;
 
+import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,8 +30,24 @@ public class CardController {
             return ResponseEntity.badRequest().body(null);
         }
         // Call Service
-        FlashcardResponseDto flashcard = cardService.generateCard(selection, localContext, globalContext);
+        FlashcardResponseDto flashcard = cardService.generateCardDemo(selection, localContext, globalContext);
 
         return ResponseEntity.ok(flashcard);
+    }
+
+    @PostMapping("/from-pdf")
+    public ResponseEntity<List<FlashcardResponseDto>> generateFromPdf(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "userTier", defaultValue = "GUEST") String userTierStr) {
+
+        UserTier userTier;
+        try {
+            userTier = UserTier.valueOf(userTierStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            userTier = UserTier.GUEST; // Fallback
+        }
+
+        List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, userTier);
+        return ResponseEntity.ok(results);
     }
 }

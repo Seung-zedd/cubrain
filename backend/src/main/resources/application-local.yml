@@ -3,6 +3,11 @@ spring:
     activate:
       on-profile: local
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
   # JPA 설정 (로컬: create로 초기화)
   # hibernate와 flyway schema가 일치하지 않기 때문에 local에서만 사용
   jpa:
