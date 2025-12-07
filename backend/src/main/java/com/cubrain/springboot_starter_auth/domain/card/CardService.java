@@ -28,35 +28,35 @@ public class CardService {
     private final PdfAnnotationService pdfAnnotationService;
 
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext) {
+        // Default to "Highlight" behavior for manual demo
+        return generateCardDemo(selection, localContext, globalContext, "Highlight");
+    }
+
+    public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
+            String annotationType) {
         // 1. The "Senior Tutor" Prompt
-        // We ask for strict JSON format to avoid parsing errors.
-        SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating study materials.");
+        SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating Anki flashcards.");
+
         UserMessage userMessage = UserMessage.from("""
-                TASK:
-                Create a flashcard (Question and Answer) based on the user's selected text.
-
-                GLOBAL CONTEXT (The full document):
+                **Context:**
                 "%s"
 
-                LOCAL CONTEXT (The specific paragraph/section):
+                **Target Text (%s):**
                 "%s"
 
-                USER SELECTION (Focus on this):
-                "%s"
+                **Instructions:**
+                1. IF type is 'Highlight':
+                   - Focus on the 'Big Picture'. Ask about causes, effects, or core concepts.
+                   - Example Q: "Explain the significance of [Topic]."
 
-                RULES:
-                1. The 'question' should be engaging and test the core concept in the SELECTION.
-                2. Use the LOCAL CONTEXT to understand the immediate meaning.
-                3. Use the GLOBAL CONTEXT only for broader disambiguation if needed.
-                4. The 'answer' should be concise and accurate.
-                5. OUTPUT MUST BE RAW JSON ONLY. No markdown blocks (```json), no explanations.
+                2. IF type is 'Underline':
+                   - Focus on 'Specific Facts'. Ask for definitions, dates, names, or values.
+                   - Use Cloze Deletion format ({{c1::answer}}) if appropriate.
+                   - Example Q: "The capital of France is {{c1::Paris}}."
 
-                JSON FORMAT:
-                {
-                  "question": "...",
-                  "answer": "..."
-                }
-                """.formatted(globalContext, localContext, selection));
+                Based on the Target Text and Context above, generate 1 Flashcard (Question & Answer).
+                Return ONLY JSON format: { "question": "...", "answer": "..." }
+                """.formatted(localContext, annotationType, selection));
 
         // 2. Call Gemini
         Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
@@ -77,18 +77,32 @@ public class CardService {
                 annotations = annotations.stream()
                         .filter(a -> a.pageIndex() <= 3)
                         .toList();
+            } else if (userTier == UserTier.FREE_USER) {
+                // Safety Cap for Free Tier
+                if (annotations.size() > 10) {
+                    log.warn("⚠️ Free Tier Limit: Processing capped at 10 annotations to prevent timeout.");
+                    annotations = annotations.subList(0, 10);
+                }
             }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
 
             // 3. Generate Flashcards for each annotation
-            // TODO: Optimize this to batch requests or use async processing for better
-            // performance
             for (AnnotationResultDto annotation : annotations) {
+
+                // Throttling for FREE_USER to avoid Rate Limits (Batch System)
+                if (userTier == UserTier.FREE_USER) {
+                    try {
+                        Thread.sleep(2000); // 2 seconds delay
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
                 // For PDF annotations, local context is the annotation text itself, global
                 // context is omitted for now or could be the page text if available
-                FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.text(),
-                        "Extracted from PDF Page " + annotation.pageIndex());
+                FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
+                        "Extracted from PDF Page " + annotation.pageIndex(), annotation.type());
                 flashcards.add(card);
             }
 

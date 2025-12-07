@@ -36,21 +36,36 @@ public class PdfAnnotationService {
                 List<PDAnnotationTextMarkup> markups = new ArrayList<>();
 
                 for (PDAnnotation annotation : annotations) {
-                    // 하이라이트(Highlight) 또는 밑줄(Underline)인 경우만 처리
-                    if (annotation instanceof PDAnnotationTextMarkup markup) {
-                        String subType = markup.getSubtype();
-                        if (PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
-                                PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
+                    try {
+                        // 하이라이트(Highlight) 또는 밑줄(Underline)인 경우만 처리
+                        if (annotation instanceof PDAnnotationTextMarkup markup) {
+                            String subType = markup.getSubtype();
+                            if (PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
+                                    PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
 
-                            markups.add(markup);
-                            // 추출기에 영역 등록 (이름은 유니크하게)
-                            PDRectangle rect = markup.getRectangle();
-                            stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(
-                                    rect.getLowerLeftX(),
-                                    rect.getLowerLeftY(),
-                                    rect.getWidth(),
-                                    rect.getHeight()));
+                                markups.add(markup);
+                                // 추출기에 영역 등록 (이름은 유니크하게)
+                                PDRectangle rect = markup.getRectangle();
+                                stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(
+                                        rect.getLowerLeftX(),
+                                        rect.getLowerLeftY(),
+                                        rect.getWidth(),
+                                        rect.getHeight()));
+
+                                // Context extraction region (expand vertically, full width)
+                                float padding = 150f;
+                                PDRectangle pageRect = page.getCropBox();
+                                float cX = pageRect.getLowerLeftX();
+                                float cY = rect.getLowerLeftY() - padding;
+                                float cW = pageRect.getWidth();
+                                float cH = rect.getHeight() + (padding * 2);
+
+                                stripper.addRegion("context_" + markups.size(),
+                                        new java.awt.geom.Rectangle2D.Float(cX, cY, cW, cH));
+                            }
                         }
+                    } catch (Exception e) {
+                        log.warn("Skipping malformed annotation on page {}", i + 1, e);
                     }
                 }
 
@@ -66,6 +81,7 @@ public class PdfAnnotationService {
 
                     // 좌표에 해당하는 텍스트 가져오기
                     String extractedText = stripper.getTextForRegion("annotation_" + (j + 1)).trim();
+                    String contextText = stripper.getTextForRegion("context_" + (j + 1)).trim();
 
                     // 빈 텍스트나 너무 짧은 건 무시 (노이즈 제거)
                     if (!extractedText.isEmpty() && extractedText.length() > 3) {
@@ -73,6 +89,7 @@ public class PdfAnnotationService {
                                 i + 1, // 페이지 번호 (1부터 시작)
                                 markup.getSubtype(),
                                 extractedText,
+                                contextText,
                                 rect.getLowerLeftX(),
                                 rect.getLowerLeftY(),
                                 rect.getWidth(),
