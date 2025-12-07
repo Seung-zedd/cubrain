@@ -36,3 +36,17 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+
+# ✅ AI 설정 (Local)
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: "${GEMINI_API_KEY_LOCAL}" # .env 파일에서 가져옴
+      model-name: gemini-2.0-flash-exp
+      temperature: 0.7
+    embedding-model:
+      api-key: "${GEMINI_API_KEY_LOCAL}"
+      model-name: text-embedding-004
+  document-splitter:
+    chunk-size: 1000
+    chunk-overlap: 200
