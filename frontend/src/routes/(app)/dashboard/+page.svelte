@@ -3,9 +3,11 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
+  import { BookOpen } from "@lucide/svelte";
 
   let files: File[] = [];
   let isGenerating = false;
+  let isEmptyState = false;
 
   function handleFileSelect(newFiles: File[]) {
     // Auth mode: Append new files to existing ones
@@ -30,14 +32,40 @@
     if (files.length === 0) return;
 
     isGenerating = true;
-    // Mock generation delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    isGenerating = false;
-    // alert(`Generating decks for ${files.length} files...`);
-    // TODO: Replace with real backend API call
-    console.log(`[Mock] Generating decks for ${files.length} files...`);
+    isEmptyState = false;
 
-    // Reset after "generation"
+    try {
+      const formData = new FormData();
+      // Currently handling the first file for the demo
+      formData.append("file", files[0]);
+
+      const response = await fetch("/api/v1/pdf/extract-highlights", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data) && data.length === 0) {
+          isEmptyState = true;
+          files = []; // Clear queue to show empty state cleanly
+        } else {
+          console.log("Flashcards generated:", data);
+          // TODO: Navigate to deck view or show success
+          files = [];
+        }
+      } else {
+        console.error("Failed to extract highlights");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      isGenerating = false;
+    }
+  }
+
+  function resetView() {
+    isEmptyState = false;
     files = [];
   }
 </script>
@@ -52,35 +80,57 @@
 
   <!-- Upload Section -->
   <section class="space-y-6">
-    <FileDropzone isGuest={false} onFileSelect={handleFileSelect} />
-
-    {#if files.length > 0}
-      <div class="space-y-4" transition:fade>
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-white">
-            Upload Queue ({files.length})
-          </h2>
-          <button
-            on:click={handleGenerate}
-            disabled={isGenerating}
-            class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {#if isGenerating}
-              Generating...
-            {:else}
-              Generate All Decks
-            {/if}
-          </button>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {#each files as file, i (file.name + file.size)}
-            <div animate:flip={{ duration: 300 }}>
-              <FileItemCard {file} onRemove={() => removeFile(i)} />
-            </div>
-          {/each}
-        </div>
+    {#if isEmptyState}
+      <div
+        class="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-300"
+      >
+        <BookOpen class="w-16 h-16 text-zinc-500 mb-4" />
+        <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
+        <p class="text-zinc-400 mt-2">
+          We don't provide flashcards without your annotation.<br />
+          <span class="text-[#FFD700] font-bold">Go study and come back!</span>
+        </p>
+        <p class="text-sm text-zinc-500">
+          Please highlight or underline key concepts in your PDF and re-upload.
+        </p>
+        <button
+          on:click={resetView}
+          class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
+        >
+          Upload Another File
+        </button>
       </div>
+    {:else}
+      <FileDropzone isGuest={false} onFileSelect={handleFileSelect} />
+
+      {#if files.length > 0}
+        <div class="space-y-4" transition:fade>
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-white">
+              Upload Queue ({files.length})
+            </h2>
+            <button
+              on:click={handleGenerate}
+              disabled={isGenerating}
+              class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {#if isGenerating}
+                Generating...
+              {:else}
+                Generate All Decks
+              {/if}
+            </button>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {#each files as file, i (file.name + file.size)}
+              <div animate:flip={{ duration: 300 }}>
+                <FileItemCard {file} onRemove={() => removeFile(i)} />
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
     {/if}
   </section>
 

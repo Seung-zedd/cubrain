@@ -1,3 +1,4 @@
+<script lang="ts">
   import heroImage from "$lib/assets/hero.png";
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
@@ -63,6 +64,7 @@
     operatingSystem: "Web",
     description: "AI-powered study tool that converts PDFs into quizzes.",
   };
+</script>
 
 <svelte:head>
   {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}

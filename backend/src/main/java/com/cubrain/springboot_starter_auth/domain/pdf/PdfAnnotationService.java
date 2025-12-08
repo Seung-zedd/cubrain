@@ -108,6 +108,10 @@ public class PdfAnnotationService {
                 .thenComparing((a, b) -> Float.compare(b.y(), a.y())) // Descending Y (Top is higher Y in PDF)
                 .thenComparingDouble(AnnotationResultDto::x));
 
+        if (results.isEmpty()) {
+            log.warn("User uploaded a clean PDF. No flashcards generated.");
+        }
+
         return results;
     }
 }
