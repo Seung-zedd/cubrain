@@ -71,3 +71,12 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 - **Syncing:** When backend API endpoints change (e.g., versioning updates), IMMEDIATELY update the corresponding frontend API calls.
 - **Search:** Grep for the old endpoint path in the `frontend` directory to find all occurrences.
+
+### 6. Svelte 5 Refactoring Rules (Runes)
+
+- **State ($state):** Convert `let var = val;` to `let var = $state(val);`.
+- **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`. Use `$bindable()` only if necessary.
+- **Derived ($derived):** Convert `$: double = count * 2;` to `let double = $derived(count * 2);`.
+- **Effects ($effect):** Convert `$: { sideEffect(); }` to `$effect(() => { sideEffect(); });`.
+- **Events:** Prefer callback props over `createEventDispatcher`.
+- **Cleanup:** Remove unused imports and ensure `lang="ts"`.

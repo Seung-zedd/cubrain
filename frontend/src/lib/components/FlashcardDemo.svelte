@@ -13,15 +13,15 @@
     globalContext: string;
   }
 
-  let showButton = false;
-  let btnX = 0;
-  let btnY = 0;
-  let selectedText = "";
-  let isLoading = false;
-  let flashcard: Flashcard | null = null;
-  let currentContext: ContextData | null = null;
-  let demoContainer: HTMLElement; // Reference to the container
-  let errorMessage = "";
+  let showButton = $state(false);
+  let btnX = $state(0);
+  let btnY = $state(0);
+  let selectedText = $state("");
+  let isLoading = $state(false);
+  let flashcard = $state<Flashcard | null>(null);
+  let currentContext = $state<ContextData | null>(null);
+  let demoContainer = $state<HTMLElement>(); // Reference to the container
+  let errorMessage = $state("");
   let errorTimeout: ReturnType<typeof setTimeout>;
 
   const MAX_LOCAL_CONTEXT_LENGTH = 2000;
@@ -233,8 +233,8 @@
 <div
   class="demo-wrapper relative bg-zinc-950/50 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl max-w-3xl mx-auto my-8"
   bind:this={demoContainer}
-  on:mouseup={handleMouseUp}
-  on:mousedown={handleMouseDown}
+  onmouseup={handleMouseUp}
+  onmousedown={handleMouseDown}
   role="presentation"
 >
   <div class="flex items-center gap-4 mb-8">
@@ -275,7 +275,7 @@
     <button
       class="cubrain-float-btn"
       style="left: {btnX}px; top: {btnY}px;"
-      on:click={createFlashcard}
+      onclick={createFlashcard}
       disabled={isLoading}
       transition:fade={{ duration: 150 }}
     >
@@ -291,7 +291,7 @@
     <div class="result-card" transition:fly={{ y: 20, duration: 300 }}>
       <div class="card-header">
         <span class="icon">✨</span> Generated Flashcard
-        <button class="close-btn" on:click={() => (flashcard = null)}>×</button>
+        <button class="close-btn" onclick={() => (flashcard = null)}>×</button>
       </div>
       <div class="card-body">
         <div class="qa-pair">
@@ -310,7 +310,7 @@
     <div class="error-toast" transition:fade={{ duration: 200 }}>
       <span class="icon">⚠️</span>
       {errorMessage}
-      <button class="close-btn-small" on:click={() => (errorMessage = "")}
+      <button class="close-btn-small" onclick={() => (errorMessage = "")}
         >×</button
       >
     </div>

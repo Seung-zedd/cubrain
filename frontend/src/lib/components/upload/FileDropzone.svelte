@@ -2,12 +2,14 @@
   import { CloudUpload, FileText, AlertCircle } from "@lucide/svelte";
   import { fade } from "svelte/transition";
 
-  export let isGuest = false;
-  export let onFileSelect: (files: File[]) => void;
+  let { isGuest = false, onFileSelect } = $props<{
+    isGuest?: boolean;
+    onFileSelect: (files: File[]) => void;
+  }>();
 
-  let isDragging = false;
-  let errorMessage = "";
-  let fileInput: HTMLInputElement;
+  let isDragging = $state(false);
+  let errorMessage = $state("");
+  let fileInput = $state<HTMLInputElement>();
 
   const MAX_SIZE_MB = 20;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
@@ -93,7 +95,7 @@
   }
 
   function triggerFileInput() {
-    fileInput.click();
+    fileInput?.click();
   }
 </script>
 
@@ -101,10 +103,10 @@
   class="relative w-full max-w-4xl mx-auto transition-all duration-300 ease-out"
   role="region"
   aria-label="File Upload Dropzone"
-  on:dragenter={handleDragEnter}
-  on:dragleave={handleDragLeave}
-  on:dragover={handleDragOver}
-  on:drop={handleDrop}
+  ondragenter={handleDragEnter}
+  ondragleave={handleDragLeave}
+  ondragover={handleDragOver}
+  ondrop={handleDrop}
 >
   <input
     type="file"
@@ -112,7 +114,7 @@
     multiple={!isGuest}
     class="hidden"
     bind:this={fileInput}
-    on:change={handleFileInput}
+    onchange={handleFileInput}
   />
 
   <div
@@ -144,7 +146,7 @@
 
     <!-- Main Action Button -->
     <button
-      on:click={triggerFileInput}
+      onclick={triggerFileInput}
       class="
         px-8 py-4 mb-6
         bg-[#FFD700] hover:bg-[#FDB931]

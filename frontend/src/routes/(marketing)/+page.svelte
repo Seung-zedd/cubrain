@@ -1,12 +1,11 @@
-<script>
   import heroImage from "$lib/assets/hero.png";
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import { API_BASE_URL } from "$lib/config";
 
-  let email = "";
-  let status = "idle"; // 'idle' | 'loading' | 'success' | 'error'
-  let message = "";
+  let email = $state("");
+  let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
+  let message = $state("");
 
   async function joinWaitlist() {
     if (!email || !email.includes("@")) {
@@ -64,7 +63,6 @@
     operatingSystem: "Web",
     description: "AI-powered study tool that converts PDFs into quizzes.",
   };
-</script>
 
 <svelte:head>
   {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
