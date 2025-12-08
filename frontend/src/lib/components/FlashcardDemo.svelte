@@ -177,7 +177,7 @@
       // Use shared API URL configuration
       const apiBaseUrl = API_BASE_URL;
 
-      const response = await fetch(`${apiBaseUrl}/api/cards/generate`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/cards/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(currentContext),

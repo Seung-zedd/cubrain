@@ -23,7 +23,7 @@
 
       console.log("Using API URL:", apiBaseUrl);
 
-      const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/waitlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pdf")
+@RequestMapping("/api/v1/pdf")
 @RequiredArgsConstructor
 public class PdfController {
 

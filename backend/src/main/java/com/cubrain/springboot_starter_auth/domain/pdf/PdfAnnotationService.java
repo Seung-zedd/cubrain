@@ -101,6 +101,13 @@ public class PdfAnnotationService {
             }
         }
 
+        // Sort by Reading Order: Page (Asc) -> Y (Desc, Top-to-Bottom) -> X (Asc,
+        // Left-to-Right)
+        results.sort(java.util.Comparator
+                .comparingInt(AnnotationResultDto::pageIndex)
+                .thenComparing((a, b) -> Float.compare(b.y(), a.y())) // Descending Y (Top is higher Y in PDF)
+                .thenComparingDouble(AnnotationResultDto::x));
+
         return results;
     }
 }

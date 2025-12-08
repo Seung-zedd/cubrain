@@ -37,26 +37,30 @@ public class CardService {
         // 1. The "Senior Tutor" Prompt
         SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating Anki flashcards.");
 
-        UserMessage userMessage = UserMessage.from("""
-                **Context:**
-                "%s"
+        UserMessage userMessage = UserMessage
+                .from("""
+                        **Context:**
+                        "%s"
 
-                **Target Text (%s):**
-                "%s"
+                        **Target Text (%s):**
+                        "%s"
 
-                **Instructions:**
-                1. IF type is 'Highlight':
-                   - Focus on the 'Big Picture'. Ask about causes, effects, or core concepts.
-                   - Example Q: "Explain the significance of [Topic]."
+                        **Instructions:**
+                        1. IF type is 'Highlight':
+                           - User Psychology: "I understand the big picture here." or "This is the main idea."
+                           - Action: Generate Conceptual Questions. Ask 'Why', 'How', or 'Summarize'. Focus on logic, cause-and-effect, and the main argument.
+                           - Example Q: "Explain the significance of [Topic]."
 
-                2. IF type is 'Underline':
-                   - Focus on 'Specific Facts'. Ask for definitions, dates, names, or values.
-                   - Use Cloze Deletion format ({{c1::answer}}) if appropriate.
-                   - Example Q: "The capital of France is {{c1::Paris}}."
+                        2. IF type is 'Underline':
+                           - User Psychology: "This word is the answer." or "I need to memorize this data."
+                           - Action: Generate Factual Questions. Ask for definitions, specific dates, names, or numbers.
+                           - Use Cloze Deletion format ({{c1::answer}}) if the text is short.
+                           - Example Q: "The capital of France is {{c1::Paris}}."
 
-                Based on the Target Text and Context above, generate 1 Flashcard (Question & Answer).
-                Return ONLY JSON format: { "question": "...", "answer": "..." }
-                """.formatted(localContext, annotationType, selection));
+                        Based on the Target Text and Context above, generate 1 Flashcard (Question & Answer).
+                        Return ONLY JSON format: { "question": "...", "answer": "..." }
+                        """
+                        .formatted(localContext, annotationType, selection));
 
         // 2. Call Gemini
         Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
@@ -78,11 +82,25 @@ public class CardService {
                         .filter(a -> a.pageIndex() <= 3)
                         .toList();
             } else if (userTier == UserTier.FREE_USER) {
-                // Safety Cap for Free Tier
-                if (annotations.size() > 10) {
-                    log.warn("⚠️ Free Tier Limit: Processing capped at 10 annotations to prevent timeout.");
-                    annotations = annotations.subList(0, 10);
+                // Safety Cap for Free Tier: Top 10 Highlights + Top 10 Underlines
+                List<AnnotationResultDto> highlights = annotations.stream()
+                        .filter(a -> "Highlight".equalsIgnoreCase(a.type()))
+                        .limit(10)
+                        .toList();
+
+                List<AnnotationResultDto> underlines = annotations.stream()
+                        .filter(a -> "Underline".equalsIgnoreCase(a.type()))
+                        .limit(10)
+                        .toList();
+
+                if (annotations.size() > (highlights.size() + underlines.size())) {
+                    log.warn(
+                            "⚠️ Free Tier Limit: Processing capped at 10 Highlights + 10 Underlines to prevent timeout.");
                 }
+
+                annotations = new ArrayList<>();
+                annotations.addAll(highlights);
+                annotations.addAll(underlines);
             }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();

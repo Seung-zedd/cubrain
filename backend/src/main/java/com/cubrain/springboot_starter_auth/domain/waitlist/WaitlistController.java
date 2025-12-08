@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/waitlist")
+@RequestMapping("/api/v1/waitlist")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // Allow Svelte to call this
 public class WaitlistController {

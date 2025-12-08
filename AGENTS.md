@@ -1,5 +1,7 @@
 # Agent Behavioral Rules
 
+♻️this markdown file can be re-used anytime you wanna build a new app
+
 ## Documentation Lookup
 
 When I need code generation, setup or configuration steps, or library/API documentation:
@@ -35,6 +37,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 ## Coding Standards & Design Principles
 
 ### 1. SOLID Principles (Strict Enforcement)
+
 - **SRP (Single Responsibility Principle):**
   - Each class must have **one and only one reason to change**.
   - Do NOT create "God Classes". If a Service class exceeds 200 lines or handles mixed concerns (e.g., parsing + saving + email), split it into smaller components.
@@ -46,9 +49,25 @@ We follow a convention combining Gitmoji and Conventional Commits.
   - Inject dependencies via Constructor Injection (`@RequiredArgsConstructor`).
 
 ### 2. Spring Boot Best Practices
+
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs (suffix `Dto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
 
 ### 3. Package Structure
+
 - **Flat Architecture:** Keep domain packages flat (e.g., `domain/pdf` contains Controller, Service, Repository, DTOs).
 - **Refactoring Rule:** Only split a domain package into subpackages (`dto`, `service`, `controller`, etc.) when the file count in that package exceeds 15.
+
+### 4. API Versioning Strategy
+
+- **URI Versioning:** Use URI versioning for all REST API endpoints (e.g., `/api/v1/cards`).
+- **Evolution:**
+  - Start with `v1` for the MVP.
+  - When breaking changes are introduced, create a new controller/endpoint with `v2` (e.g., `/api/v2/cards`).
+  - Maintain `v1` for backward compatibility until it can be safely deprecated.
+- **Consistency:** Ensure all related endpoints (Controller methods) share the same version prefix.
+
+### 5. Frontend Integration
+
+- **Syncing:** When backend API endpoints change (e.g., versioning updates), IMMEDIATELY update the corresponding frontend API calls.
+- **Search:** Grep for the old endpoint path in the `frontend` directory to find all occurrences.
