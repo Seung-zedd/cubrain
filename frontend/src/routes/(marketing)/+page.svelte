@@ -8,7 +8,7 @@
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
 
-  async function joinWaitlist() {
+  const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
       status = "error";
       message = "Please enter a valid email address.";
@@ -54,7 +54,7 @@
       message =
         "Failed to connect to the server. Please check your connection.";
     }
-  }
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
