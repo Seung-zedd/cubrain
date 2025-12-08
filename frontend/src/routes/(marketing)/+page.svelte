@@ -21,7 +21,9 @@
     try {
       const apiBaseUrl = API_BASE_URL;
 
-      console.log("Using API URL:", apiBaseUrl);
+      if (import.meta.env.LOCAL) {
+        console.log("Using API URL:", apiBaseUrl);
+      }
 
       const response = await fetch(`${apiBaseUrl}/api/v1/waitlist`, {
         method: "POST",
@@ -49,7 +51,9 @@
         }
       }
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.LOCAL) {
+        console.error(err);
+      }
       status = "error";
       message =
         "Failed to connect to the server. Please check your connection.";

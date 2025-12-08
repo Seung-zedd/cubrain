@@ -50,15 +50,21 @@
           isEmptyState = true;
           files = []; // Clear queue to show empty state cleanly
         } else {
-          console.log("Flashcards generated:", data);
+          if (import.meta.env.LOCAL) {
+            console.log("Flashcards generated:", data);
+          }
           // TODO: Navigate to deck view or show success
           files = [];
         }
       } else {
-        console.error("Failed to extract highlights");
+        if (import.meta.env.LOCAL) {
+          console.error("Failed to extract highlights");
+        }
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.LOCAL) {
+        console.error("Error:", error);
+      }
     } finally {
       isGenerating = false;
     }
