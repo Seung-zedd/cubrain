@@ -1,5 +1,6 @@
 package com.cubrain.springboot_starter_auth.domain.card;
 
+import com.cubrain.springboot_starter_auth.domain.job.JobManager;
 import com.cubrain.springboot_starter_auth.domain.pdf.AnnotationResultDto;
 import com.cubrain.springboot_starter_auth.domain.pdf.PdfAnnotationService;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
@@ -17,6 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER;
+import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,23 @@ public class CardService {
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper; // Spring's default JSON parser
     private final PdfAnnotationService pdfAnnotationService;
+    private final JobManager jobManager;
+
+    public String generateCardsAsync(MultipartFile file, UserTier userTier) {
+        String jobId = jobManager.createJob();
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<FlashcardResponseDto> results = generateCardsFromPdf(file, userTier, jobId);
+                jobManager.completeJob(jobId, results);
+            } catch (Exception e) {
+                log.error("Async job failed", e);
+                jobManager.failJob(jobId);
+            }
+        });
+
+        return jobId;
+    }
 
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext) {
         // Default to "Highlight" behavior for manual demo
@@ -71,17 +93,23 @@ public class CardService {
         return parseResponse(responseText);
     }
 
+    // Overloaded for backward compatibility if needed, but modified to support
+    // progress tracking
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier) {
+        return generateCardsFromPdf(file, userTier, null);
+    }
+
+    public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
         try {
             // 1. Extract annotations
             List<AnnotationResultDto> annotations = pdfAnnotationService.extractAnnotations(file);
 
             // 2. Filter based on User Tier
-            if (userTier == UserTier.GUEST) {
+            if (userTier == GUEST) {
                 annotations = annotations.stream()
                         .filter(a -> a.pageIndex() <= 3)
                         .toList();
-            } else if (userTier == UserTier.FREE_USER) {
+            } else if (userTier == FREE_USER) {
                 // Safety Cap for Free Tier: Top 10 Highlights + Top 10 Underlines
                 List<AnnotationResultDto> highlights = annotations.stream()
                         .filter(a -> "Highlight".equalsIgnoreCase(a.type()))
@@ -104,12 +132,14 @@ public class CardService {
             }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
+            int total = annotations.size();
 
             // 3. Generate Flashcards for each annotation
-            for (AnnotationResultDto annotation : annotations) {
+            for (int i = 0; i < total; i++) {
+                AnnotationResultDto annotation = annotations.get(i);
 
                 // Throttling for FREE_USER to avoid Rate Limits (Batch System)
-                if (userTier == UserTier.FREE_USER) {
+                if (userTier == FREE_USER) {
                     try {
                         Thread.sleep(2000); // 2 seconds delay
                     } catch (InterruptedException e) {
@@ -122,6 +152,12 @@ public class CardService {
                 FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
                         "Extracted from PDF Page " + annotation.pageIndex(), annotation.type());
                 flashcards.add(card);
+
+                // Update Progress
+                if (jobId != null) {
+                    int progress = (int) (((double) (i + 1) / total) * 100);
+                    jobManager.updateProgress(jobId, progress);
+                }
             }
 
             return flashcards;

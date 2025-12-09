@@ -4,10 +4,14 @@
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { BookOpen } from "@lucide/svelte";
+  import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
 
-  let files: File[] = [];
-  let isGenerating = false;
-  let isEmptyState = false;
+  let files = $state<File[]>([]);
+  let isGenerating = $state(false);
+  let isEmptyState = $state(false);
+  let jobId = $state<string | null>(null);
+  let jobStatus = $state("PROCESSING");
+  let jobProgress = $state(0);
 
   function handleFileSelect(newFiles: File[]) {
     // Auth mode: Append new files to existing ones
@@ -33,39 +37,76 @@
 
     isGenerating = true;
     isEmptyState = false;
+    jobId = null;
+    jobProgress = 0;
+    jobStatus = "PROCESSING";
 
     try {
       const formData = new FormData();
-      // Currently handling the first file for the demo
       formData.append("file", files[0]);
 
-      const response = await fetch("/api/v1/pdf/extract-highlights", {
+      // 1. Start Async Job
+      const startResponse = await fetch("/api/v1/pdf/generate-cards", {
         method: "POST",
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data) && data.length === 0) {
-          isEmptyState = true;
-          files = []; // Clear queue to show empty state cleanly
-        } else {
-          if (import.meta.env.LOCAL) {
-            console.log("Flashcards generated:", data);
+      if (startResponse.ok) {
+        const startData = await startResponse.json();
+        jobId = startData.jobId;
+
+        // 2. Poll for Status
+        const pollInterval = setInterval(async () => {
+          if (!jobId) return;
+
+          try {
+            const statusResponse = await fetch(`/api/v1/pdf/jobs/${jobId}`);
+            if (statusResponse.ok) {
+              const statusData = await statusResponse.json();
+              jobStatus = statusData.status;
+              jobProgress = statusData.progress;
+
+              if (jobStatus === "COMPLETED") {
+                clearInterval(pollInterval);
+                isGenerating = false;
+
+                if (import.meta.env.LOCAL) {
+                  console.log("Job Completed:", statusData.results);
+                }
+
+                if (
+                  Array.isArray(statusData.results) &&
+                  statusData.results.length === 0
+                ) {
+                  isEmptyState = true;
+                } else {
+                  // TODO: Navigate to deck view or show success
+                }
+                files = [];
+              } else if (jobStatus === "FAILED") {
+                clearInterval(pollInterval);
+                isGenerating = false;
+                if (import.meta.env.LOCAL) {
+                  console.error("Job Failed");
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Polling error", e);
+            clearInterval(pollInterval);
+            isGenerating = false;
           }
-          // TODO: Navigate to deck view or show success
-          files = [];
-        }
+        }, 1000);
       } else {
         if (import.meta.env.LOCAL) {
-          console.error("Failed to extract highlights");
+          console.error("Failed to start generation job");
         }
+        isGenerating = false;
       }
     } catch (error) {
       if (import.meta.env.LOCAL) {
         console.error("Error:", error);
       }
-    } finally {
       isGenerating = false;
     }
   }
@@ -100,7 +141,7 @@
           Please highlight or underline key concepts in your PDF and re-upload.
         </p>
         <button
-          on:click={resetView}
+          onclick={resetView}
           class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
         >
           Upload Another File
@@ -116,7 +157,7 @@
               Upload Queue ({files.length})
             </h2>
             <button
-              on:click={handleGenerate}
+              onclick={handleGenerate}
               disabled={isGenerating}
               class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -128,13 +169,22 @@
             </button>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each files as file, i (file.name + file.size)}
-              <div animate:flip={{ duration: 300 }}>
-                <FileItemCard {file} onRemove={() => removeFile(i)} />
+          {#if isGenerating}
+            <div class="flex flex-col items-center justify-center py-12">
+              <div class="w-full max-w-md">
+                <ProgressBar progress={jobProgress} status={jobStatus} />
               </div>
-            {/each}
-          </div>
+              <p class="text-zinc-400 mt-4">Analyzing your document...</p>
+            </div>
+          {:else}
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {#each files as file, i (file.name + file.size)}
+                <div animate:flip={{ duration: 300 }}>
+                  <FileItemCard {file} onRemove={() => removeFile(i)} />
+                </div>
+              {/each}
+            </div>
+          {/if}
         </div>
       {/if}
     {/if}

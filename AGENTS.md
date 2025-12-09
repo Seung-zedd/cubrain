@@ -52,6 +52,9 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs (suffix `Dto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
+- **Import Style:**
+  - **Class Imports:** NO Wildcards. Explicitly import each class (e.g., `import java.util.List;`).
+  - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods to improve readability (e.g., `import static org.springframework.http.HttpStatus.OK;`).
 
 ### 3. Package Structure
 
