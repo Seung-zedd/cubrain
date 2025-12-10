@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.Operation;
 
 import com.cubrain.springboot_starter_auth.domain.card.CardService;
 import com.cubrain.springboot_starter_auth.domain.job.JobManager;
@@ -29,6 +30,7 @@ public class PdfController {
     private final CardService cardService;
     private final JobManager jobManager;
 
+    @Operation(summary = "Extract Highlights", description = "Extracts highlights and underlines from a PDF file.")
     @PostMapping("/extract-highlights")
     public ResponseEntity<List<AnnotationResultDto>> extractHighlights(@RequestParam("file") MultipartFile file)
             throws IOException {
@@ -36,6 +38,7 @@ public class PdfController {
         return ok(results);
     }
 
+    @Operation(summary = "Generate Cards Async", description = "Starts an asynchronous job to generate flashcards from a PDF.")
     @PostMapping("/generate-cards")
     public ResponseEntity<Map<String, String>> generateCardsAsync(
             @RequestParam("file") MultipartFile file,
@@ -44,6 +47,7 @@ public class PdfController {
         return ok(Map.of("jobId", jobId));
     }
 
+    @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<Map<String, Object>> getJobStatus(
             @PathVariable String jobId) {

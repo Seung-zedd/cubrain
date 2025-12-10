@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class PdfIngestionController {
     private final PdfIngestionService pdfIngestionService;
     private final JobManager jobManager;
 
+    @Operation(summary = "Ingest PDF", description = "Uploads and processes a PDF file asynchronously.")
     @PostMapping("/pdf")
     public ResponseEntity<Map<String, String>> ingestPdf(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
@@ -42,6 +44,7 @@ public class PdfIngestionController {
         return ok(Map.of("jobId", jobId, "message", "PDF ingestion started"));
     }
 
+    @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<Map<String, Object>> getJobStatus(@PathVariable String jobId) {
         JobStatus status = jobManager.getStatus(jobId);
