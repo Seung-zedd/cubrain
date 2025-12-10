@@ -1,13 +1,19 @@
 package com.cubrain.springboot_starter_auth.domain.pdf;
 
+import com.cubrain.springboot_starter_auth.domain.job.JobManager;
+import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
+import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api/v1/ingest")
@@ -16,11 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class PdfIngestionController {
 
     private final PdfIngestionService pdfIngestionService;
+    private final JobManager jobManager;
 
     @PostMapping("/pdf")
-    public ResponseEntity<String> ingestPdf(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> ingestPdf(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty");
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
         // Validate content type and file extension
         String contentType = file.getContentType();
@@ -28,15 +35,28 @@ public class PdfIngestionController {
         boolean isPdfContentType = contentType != null && contentType.equalsIgnoreCase("application/pdf");
         boolean isPdfExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf");
         if (!isPdfContentType || !isPdfExtension) {
-            return ResponseEntity.badRequest().body("Invalid file type. Only PDF files are allowed.");
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid file type. Only PDF files are allowed."));
         }
 
-        try {
-            pdfIngestionService.ingestPdf(file);
-            return ResponseEntity.ok("PDF ingested successfully");
-        } catch (RuntimeException e) {
-            log.error("Failed to ingest PDF: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().body("Failed to ingest PDF. Please try again later.");
+        String jobId = pdfIngestionService.ingestPdfAsync(file);
+        return ok(Map.of("jobId", jobId, "message", "PDF ingestion started"));
+    }
+
+    @GetMapping("/jobs/{jobId}")
+    public ResponseEntity<Map<String, Object>> getJobStatus(@PathVariable String jobId) {
+        JobStatus status = jobManager.getStatus(jobId);
+        if (status == null) {
+            return notFound().build();
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status);
+        response.put("progress", jobManager.getProgress(jobId));
+
+        if (status == COMPLETED) {
+            response.put("result", jobManager.getResults(jobId));
+        }
+
+        return ok(response);
     }
 }

@@ -16,7 +16,7 @@ import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.PROCESSIN
 public class JobManager {
 
     private final Map<String, JobStatus> jobStatuses = new ConcurrentHashMap<>();
-    private final Map<String, List<FlashcardResponseDto>> jobResults = new ConcurrentHashMap<>();
+    private final Map<String, Object> jobResults = new ConcurrentHashMap<>();
     private final Map<String, Integer> jobProgress = new ConcurrentHashMap<>(); // 0 to 100
 
     public String createJob() {
@@ -30,10 +30,14 @@ public class JobManager {
         jobProgress.put(jobId, progress);
     }
 
-    public void completeJob(String jobId, List<FlashcardResponseDto> results) {
-        jobResults.put(jobId, results);
+    public void completeJob(String jobId, Object result) {
+        jobResults.put(jobId, result);
         jobStatuses.put(jobId, COMPLETED);
         jobProgress.put(jobId, 100);
+    }
+
+    public void completeJob(String jobId) {
+        completeJob(jobId, "Success");
     }
 
     public void failJob(String jobId) {
@@ -48,7 +52,7 @@ public class JobManager {
         return jobProgress.getOrDefault(jobId, 0);
     }
 
-    public List<FlashcardResponseDto> getResults(String jobId) {
+    public Object getResults(String jobId) {
         return jobResults.get(jobId);
     }
 }
