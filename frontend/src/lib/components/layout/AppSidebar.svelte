@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import {
     LayoutDashboard,
     CloudUpload,
@@ -30,7 +30,7 @@
   <!-- Navigation -->
   <nav class="flex-1 space-y-1 px-3 py-4">
     {#each navItems as item}
-      {@const isActive = $page.url.pathname === item.href}
+      {@const isActive = page.url.pathname === item.href}
       <a
         href={item.href}
         class={cn(

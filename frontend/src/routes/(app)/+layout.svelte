@@ -1,7 +1,6 @@
 <script lang="ts">
   import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
   import { Menu } from "@lucide/svelte";
-  import "../../app.css";
 
   let { children } = $props();
   let isMobileMenuOpen = $state(false);
