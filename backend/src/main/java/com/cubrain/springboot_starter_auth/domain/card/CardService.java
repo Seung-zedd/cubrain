@@ -141,6 +141,9 @@ public class CardService {
                 AnnotationResultDto annotation = annotations.get(i);
 
                 // Throttling for FREE_USER to avoid Rate Limits (Batch System)
+                // NOTE: Using Thread.sleep() for simple rate limiting. For production,
+                // consider using reactive approaches, TaskScheduler, or queue-based systems
+                // (e.g., RabbitMQ, Redis) to avoid blocking thread pool threads.
                 if (userTier == FREE_USER) {
                     try {
                         Thread.sleep(2000); // 2 seconds delay
@@ -165,7 +168,9 @@ public class CardService {
             return flashcards;
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to process PDF file", e);
+            String filename = file.getOriginalFilename();
+            log.error("Failed to process PDF file: {} - {}", filename, e.getMessage(), e);
+            throw new RuntimeException("Failed to process PDF file: " + filename + " - " + e.getMessage(), e);
         }
     }
 

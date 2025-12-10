@@ -12,6 +12,17 @@
   let jobId = $state<string | null>(null);
   let jobStatus = $state("PROCESSING");
   let jobProgress = $state(0);
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+  // Cleanup polling interval when component unmounts
+  $effect(() => {
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    };
+  });
 
   function handleFileSelect(newFiles: File[]) {
     // Auth mode: Append new files to existing ones
@@ -56,7 +67,7 @@
         jobId = startData.jobId;
 
         // 2. Poll for Status
-        const pollInterval = setInterval(async () => {
+        pollInterval = setInterval(async () => {
           if (!jobId) return;
 
           try {
@@ -67,7 +78,8 @@
               jobProgress = statusData.progress;
 
               if (jobStatus === "COMPLETED") {
-                clearInterval(pollInterval);
+                if (pollInterval) clearInterval(pollInterval);
+                pollInterval = null;
                 isGenerating = false;
 
                 if (import.meta.env.LOCAL) {
@@ -84,7 +96,8 @@
                 }
                 files = [];
               } else if (jobStatus === "FAILED") {
-                clearInterval(pollInterval);
+                if (pollInterval) clearInterval(pollInterval);
+                pollInterval = null;
                 isGenerating = false;
                 if (import.meta.env.LOCAL) {
                   console.error("Job Failed");
@@ -92,8 +105,11 @@
               }
             }
           } catch (e) {
-            console.error("Polling error", e);
-            clearInterval(pollInterval);
+            if (import.meta.env.LOCAL) {
+              console.error("Polling error", e);
+            }
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = null;
             isGenerating = false;
           }
         }, 1000);

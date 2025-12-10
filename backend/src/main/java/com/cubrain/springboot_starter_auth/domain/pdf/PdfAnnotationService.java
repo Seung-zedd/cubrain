@@ -7,6 +7,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationTextMarkup;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,9 @@ import java.util.List;
 @Service
 public class PdfAnnotationService {
 
+    @Value("${pdf.annotation.min-text-length:2}")
+    private int minTextLength;
+
     public List<AnnotationResultDto> extractAnnotations(MultipartFile file) throws IOException {
         List<AnnotationResultDto> results = new ArrayList<>();
 
@@ -28,23 +32,23 @@ public class PdfAnnotationService {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
 
-                // 영역별 텍스트 추출기 준비
+                // Prepare text stripper by area
                 PDFTextStripperByArea stripper = new PDFTextStripperByArea();
                 stripper.setSortByPosition(true);
 
-                // 1. 해당 페이지의 모든 하이라이트/밑줄 찾기
+                // 1. Find all highlights/underlines on this page
                 List<PDAnnotationTextMarkup> markups = new ArrayList<>();
 
                 for (PDAnnotation annotation : annotations) {
                     try {
-                        // 하이라이트(Highlight) 또는 밑줄(Underline)인 경우만 처리
+                        // Process only Highlight or Underline annotations
                         if (annotation instanceof PDAnnotationTextMarkup markup) {
                             String subType = markup.getSubtype();
                             if (PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
                                     PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
 
                                 markups.add(markup);
-                                // 추출기에 영역 등록 (이름은 유니크하게)
+                                // Register region in the extractor (unique names)
                                 PDRectangle rect = markup.getRectangle();
                                 stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(
                                         rect.getLowerLeftX(),
@@ -69,24 +73,26 @@ public class PdfAnnotationService {
                     }
                 }
 
-                // 2. 텍스트 추출 실행 (좌표 기반)
+                // 2. Execute text extraction (coordinate-based)
                 if (!markups.isEmpty()) {
                     stripper.extractRegions(page);
                 }
 
-                // 3. 결과 저장
+                // 3. Save results
                 for (int j = 0; j < markups.size(); j++) {
                     PDAnnotationTextMarkup markup = markups.get(j);
                     PDRectangle rect = markup.getRectangle();
 
-                    // 좌표에 해당하는 텍스트 가져오기
+                    // Get text for coordinates
                     String extractedText = stripper.getTextForRegion("annotation_" + (j + 1)).trim();
                     String contextText = stripper.getTextForRegion("context_" + (j + 1)).trim();
 
-                    // 빈 텍스트나 너무 짧은 건 무시 (노이즈 제거)
-                    if (!extractedText.isEmpty() && extractedText.length() > 3) {
+                    // Ignore empty or very short text (noise reduction)
+                    // Configurable via pdf.annotation.min-text-length property (default: 2)
+                    // Can be lowered to 1-2 to capture valid short annotations like "AI", "ML", "DNA"
+                    if (!extractedText.isEmpty() && extractedText.length() > minTextLength) {
                         results.add(new AnnotationResultDto(
-                                i + 1, // 페이지 번호 (1부터 시작)
+                                i + 1, // Page number (1-based)
                                 markup.getSubtype(),
                                 extractedText,
                                 contextText,

@@ -39,8 +39,8 @@ public class PdfController {
     @PostMapping("/generate-cards")
     public ResponseEntity<Map<String, String>> generateCardsAsync(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "tier", defaultValue = "GUEST") UserTier tier) {
-        String jobId = cardService.generateCardsAsync(file, tier);
+            @RequestParam(value = "userTier", defaultValue = "GUEST") UserTier userTier) {
+        String jobId = cardService.generateCardsAsync(file, userTier);
         return ok(Map.of("jobId", jobId));
     }
 

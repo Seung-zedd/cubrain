@@ -3,8 +3,9 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
 
-  let files: File[] = [];
-  let isGenerating = false;
+  let files = $state<File[]>([]);
+  let isGenerating = $state(false);
+  let showSuccess = $state(false);
 
   function handleFileSelect(newFiles: File[]) {
     // Guest mode: Only allow 1 file
@@ -25,8 +26,6 @@
     // alert("This is a demo! In the full app, this would generate flashcards.");
     showSuccess = true;
   }
-
-  let showSuccess = false;
 </script>
 
 <div class="min-h-screen pt-32 pb-20 px-4">
@@ -68,7 +67,7 @@
 
           <!-- Generate Button -->
           <button
-            on:click={handleGenerate}
+            onclick={handleGenerate}
             disabled={isGenerating}
             class="w-full py-4 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold text-xl rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
