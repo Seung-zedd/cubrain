@@ -6,7 +6,8 @@
 
 When I need code generation, setup or configuration steps, or library/API documentation:
 
-1. **Primary:** Use Context7 MCP tools to resolve library id and get library docs
+1. **Primary:** Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+
 2. **Fallback:** If Context7 is unavailable, use web search to find the official documentation from:
    - GitHub repositories (README, docs folder)
    - Official documentation sites (e.g., docs.langchain4j.dev)
