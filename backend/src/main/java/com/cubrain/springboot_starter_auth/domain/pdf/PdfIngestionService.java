@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
@@ -27,6 +28,7 @@ public class PdfIngestionService {
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final JobManager jobManager;
+    private final Executor pdfProcessingExecutor;
     private final int chunkSize;
     private final int chunkOverlap;
 
@@ -34,11 +36,13 @@ public class PdfIngestionService {
             EmbeddingModel embeddingModel,
             EmbeddingStore<TextSegment> embeddingStore,
             JobManager jobManager,
+            Executor pdfProcessingExecutor,
             @Value("${langchain4j.document-splitter.chunk-size}") int chunkSize,
             @Value("${langchain4j.document-splitter.chunk-overlap}") int chunkOverlap) {
         this.embeddingModel = embeddingModel;
         this.embeddingStore = embeddingStore;
         this.jobManager = jobManager;
+        this.pdfProcessingExecutor = pdfProcessingExecutor;
         this.chunkSize = chunkSize;
         this.chunkOverlap = chunkOverlap;
     }
@@ -54,7 +58,7 @@ public class PdfIngestionService {
                 log.error("Async ingestion failed for job: {}", jobId, e);
                 jobManager.failJob(jobId);
             }
-        });
+        }, pdfProcessingExecutor);
 
         return jobId;
     }
@@ -62,7 +66,7 @@ public class PdfIngestionService {
     public void ingestPdf(MultipartFile file) {
         ingestPdf(file, null);
     }
-    
+
     public void ingestPdf(MultipartFile file, String jobId) {
         log.info("Starting PDF ingestion for file: {}", file.getOriginalFilename());
 

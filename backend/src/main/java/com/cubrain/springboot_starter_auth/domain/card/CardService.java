@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER;
 import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
@@ -32,6 +33,7 @@ public class CardService {
     private final ObjectMapper objectMapper; // Spring's default JSON parser
     private final PdfAnnotationService pdfAnnotationService;
     private final JobManager jobManager;
+    private final Executor pdfProcessingExecutor;
 
     public String generateCardsAsync(MultipartFile file, UserTier userTier) {
         String jobId = jobManager.createJob();
@@ -44,7 +46,7 @@ public class CardService {
                 log.error("Async job failed", e);
                 jobManager.failJob(jobId);
             }
-        });
+        }, pdfProcessingExecutor);
 
         return jobId;
     }

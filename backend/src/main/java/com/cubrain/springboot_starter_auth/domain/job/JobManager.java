@@ -1,9 +1,7 @@
 package com.cubrain.springboot_starter_auth.domain.job;
 
-import com.cubrain.springboot_starter_auth.domain.card.FlashcardResponseDto;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
