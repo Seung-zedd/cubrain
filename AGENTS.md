@@ -83,3 +83,33 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - **Effects ($effect):** Convert `$: { sideEffect(); }` to `$effect(() => { sideEffect(); });`.
 - **Events:** Prefer callback props over `createEventDispatcher`.
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
+
+### 7. Documentation Strategy (API & Code)
+
+- **Controllers (Endpoints):**
+
+  - MUST use **`@Operation`** to describe what the API does.
+  - **Example:**
+    ```java
+    @Operation(summary = "Generate Flashcards", description = "Generates Q&A cards from PDF highlights. Returns 429 if quota exceeded.")
+    @PostMapping("/generate")
+    public ResponseEntity<CardResponseDto> generate(...)
+    ```
+
+- **DTOs (Request/Response Bodies):**
+
+  - MUST use **`@Schema`** for fields to provide descriptions and examples.
+  - **Reason:** To populate "Body Params" and "Example Value" in Apidog/Swagger.
+  - **Example:**
+    ```java
+    public record CardRequestDto(
+        @Schema(description = "Extracted text from PDF", example = "TCP is a connection-oriented protocol...")
+        String sourceText,
+
+        @Schema(description = "User Type", example = "FREE_USER")
+        String userTier
+    ) {}
+    ```
+
+- **Internal Logic:**
+  - No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
