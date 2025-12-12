@@ -3,6 +3,11 @@ spring:
     activate:
       on-profile: prod
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
   # jpa 설정
   jpa:
     hibernate:
