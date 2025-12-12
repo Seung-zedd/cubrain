@@ -228,6 +228,13 @@
       isLoading = false;
     }
   }
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    console.log("🔍 Debug Info:");
+    console.log("API_BASE_URL:", API_BASE_URL);
+    console.log("import.meta.env:", import.meta.env);
+  });
 </script>
 
 <div
