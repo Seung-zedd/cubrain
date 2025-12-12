@@ -175,28 +175,19 @@
     <p class="text-white/60 text-lg mb-2 font-medium">or drop PDFs here</p>
 
     <!-- Limits / Info -->
-    <div class="text-white/40 text-sm flex items-center justify-center gap-2">
+    <p class="text-white/40 text-sm flex justify-center">
       {#if isGuest}
         Guest mode: First 3 pages only • Max {MAX_SIZE_MB}MB
       {:else}
-        <span class="group relative flex items-center gap-1.5 cursor-help">
-          Full PDF
-          <div class="relative">
-            <Info class="w-4 h-4" />
-            <div
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-zinc-900/95 backdrop-blur text-zinc-200 text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none border border-white/10 text-center shadow-xl z-10"
-            >
-              <p class="font-medium text-white mb-1">Free Plan Limits</p>
-              10 highlights + 10 underlines<br />per PDF
-              <div
-                class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900/95 border-r border-b border-white/10 rotate-45"
-              ></div>
-            </div>
-          </div>
+        <span
+          class="flex items-center gap-1.5 cursor-help transition-colors hover:text-white/60"
+          title="Includes 10 highlights & 10 underlines per document"
+        >
+          Free Plan: Analyzes up to 50 pages • Max {MAX_SIZE_MB}MB
+          <Info class="w-3.5 h-3.5" />
         </span>
-        • Max {MAX_SIZE_MB}MB
       {/if}
-    </div>
+    </p>
 
     <!-- Error Message -->
     {#if errorMessage}
