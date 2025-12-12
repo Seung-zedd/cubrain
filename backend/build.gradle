@@ -113,3 +113,7 @@ tasks.named('test') {
 tasks.named("jar") {
     enabled = false
 }
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add("-parameters")
+}

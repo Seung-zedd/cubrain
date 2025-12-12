@@ -33,6 +33,7 @@ public class CardService {
     private final ObjectMapper objectMapper; // Spring's default JSON parser
     private final PdfAnnotationService pdfAnnotationService;
     private final JobManager jobManager;
+    @org.springframework.beans.factory.annotation.Qualifier("pdfProcessingExecutor")
     private final Executor pdfProcessingExecutor;
 
     public String generateCardsAsync(MultipartFile file, UserTier userTier) {

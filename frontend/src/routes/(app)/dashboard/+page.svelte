@@ -71,7 +71,9 @@
           if (!jobId) return;
 
           try {
-            const statusResponse = await fetch(`/api/v1/pdf/jobs/${jobId}`);
+            const statusResponse = await fetch(
+              `/api/v1/pdf/jobs/${startData.jobId}`
+            );
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();
               jobStatus = statusData.status;

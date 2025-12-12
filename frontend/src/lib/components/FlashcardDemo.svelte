@@ -129,7 +129,7 @@
     currentContext = captureContext(range, text);
     if (!currentContext) return;
 
-    if (import.meta.env.LOCAL) {
+    if (import.meta.env.LOCAL || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Captured Context Data:", {
         Layer1_Selection: currentContext.selection,
         Layer2_LocalContext: currentContext.localContext,
