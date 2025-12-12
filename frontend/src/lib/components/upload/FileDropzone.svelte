@@ -10,6 +10,14 @@
   let isDragging = $state(false);
   let errorMessage = $state("");
   let fileInput = $state<HTMLInputElement>();
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  // Cleanup timeout when component unmounts
+  $effect(() => {
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  });
 
   const MAX_SIZE_MB = 20;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
@@ -65,7 +73,8 @@
         errorMessage = `${errors.length} files rejected (Invalid type or too large)`;
       }
       // Auto-clear error after 5 seconds
-      setTimeout(() => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
         errorMessage = "";
       }, 5000);
     }

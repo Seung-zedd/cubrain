@@ -106,6 +106,9 @@ lerna-debug.log*
 .yarn/build-state.yml
 .yarn/install-state.gz
 
+# npm lock file (pnpm is used for frontend)
+package-lock.json
+
 # Vite
 .vite/
 
