@@ -179,7 +179,7 @@
       {#if isGuest}
         Guest mode: First 3 pages only • Max {MAX_SIZE_MB}MB
       {:else}
-        Free Plan: Up to 10 highlights + 10 underlines • Max {MAX_SIZE_MB}MB
+        Free Plan: Analyzes up to 50 pages • Max {MAX_SIZE_MB}MB
       {/if}
     </p>
 
