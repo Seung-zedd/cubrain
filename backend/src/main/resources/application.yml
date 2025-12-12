@@ -4,6 +4,7 @@ spring:
     group:
       local: common, local
       prod: common, prod
+      dev: common, dev
   application:
     name: cubrainApp
   output:
