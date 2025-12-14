@@ -86,10 +86,13 @@
       />
     </a>
     <div class="hidden md:flex gap-8 items-center">
-      <a
-        href="#features"
-        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+      <a href="#features" class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Features</a
+      >
+      <a
+        href="/dashboard"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        >Dashboard</a
       >
       <a
         href="#waitlist"
