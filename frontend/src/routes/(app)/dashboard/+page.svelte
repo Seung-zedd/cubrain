@@ -3,9 +3,14 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { BookOpen } from "@lucide/svelte";
+  import { BookOpen, CircleCheck, RefreshCw } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
+
+  interface Flashcard {
+    question: string;
+    answer: string;
+  }
 
   let files = $state<File[]>([]);
   let isGenerating = $state(false);
@@ -13,6 +18,8 @@
   let jobId = $state<string | null>(null);
   let jobStatus = $state("PROCESSING");
   let jobProgress = $state(0);
+  let generatedCards = $state<Flashcard[]>([]);
+  let showResults = $state(false);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   // Cleanup polling interval when component unmounts
@@ -49,6 +56,8 @@
 
     isGenerating = true;
     isEmptyState = false;
+    showResults = false;
+    generatedCards = [];
     jobId = null;
     jobProgress = 0;
     jobStatus = "PROCESSING";
@@ -94,11 +103,19 @@
 
                 if (
                   Array.isArray(statusData.results) &&
-                  statusData.results.length === 0
+                  statusData.results.length > 0
                 ) {
-                  isEmptyState = true;
+                  generatedCards = statusData.results;
+                  showResults = true;
+                } else if (
+                  statusData.results &&
+                  !Array.isArray(statusData.results)
+                ) {
+                  // Handle single object response if backend returns just one card
+                  generatedCards = [statusData.results];
+                  showResults = true;
                 } else {
-                  // TODO: Navigate to deck view or show success
+                  isEmptyState = true;
                 }
                 files = [];
               } else if (jobStatus === "FAILED") {
@@ -135,6 +152,8 @@
 
   function resetView() {
     isEmptyState = false;
+    showResults = false;
+    generatedCards = [];
     files = [];
   }
 </script>
@@ -146,6 +165,35 @@
       Welcome back! Upload your PDFs to generate new flashcard decks.
     </p>
   </div>
+
+  <!-- Upload / Results Section -->
+  <section class="space-y-6">
+    {#if showResults}
+      <div
+        class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div
+              class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center"
+            >
+              <CircleCheck class="w-6 h-6 text-green-500" />
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-white">Generation Complete!</h2>
+              <p class="text-zinc-400 text-sm">
+                Created {generatedCards.length} flashcards
+              </p>
+            </div>
+          </div>
+          <button
+            onclick={resetView}
+            class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
+          >
+            <RefreshCw class="w-4 h-4" />
+            Start Over
+          </button>
+        </div>
 
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {#each generatedCards as card, i}
