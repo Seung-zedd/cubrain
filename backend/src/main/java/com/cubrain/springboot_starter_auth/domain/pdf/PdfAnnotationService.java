@@ -23,6 +23,7 @@ public class PdfAnnotationService {
     private int minTextLength;
 
     public List<AnnotationResultDto> extractAnnotations(MultipartFile file) throws IOException {
+        log.debug("Processing PDF file: {}", file.getOriginalFilename());
         List<AnnotationResultDto> results = new ArrayList<>();
 
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
@@ -59,13 +60,6 @@ public class PdfAnnotationService {
                                 float w = rect.getWidth();
                                 float h = rect.getHeight();
 
-                                // Debug logging for Page 3 (index 2)
-                                if (i == 2) {
-                                    log.info("Page 3 Debug - [{}]: Original Rect x={}, y={}, w={}, h={}", subType, x, y,
-                                            w, h);
-                                    log.info("Page 3 Debug - CropBox: {}", page.getCropBox());
-                                }
-
                                 // General expansion for all types to handle sloppy boundaries
                                 float expansion = 2.0f;
                                 x -= expansion;
@@ -75,28 +69,11 @@ public class PdfAnnotationService {
 
                                 // Specific logic for Underlines
                                 if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
-                                    // Underlines are usually at the bottom of the text.
-                                    // We need to capture the text ABOVE the line.
-                                    // In PDF coordinates (Y increases upwards), increasing height extends the box
-                                    // upwards.
-                                    // We add a significant amount to cover the font height.
                                     h += 15.0f;
-
-                                    // Also move Y down slightly more to ensure we catch the line itself and any
-                                    // descenders
                                     y -= 2.0f;
                                     h += 2.0f;
                                 }
 
-                                if (i == 2) {
-                                    log.info("Page 3 Debug - [{}]: Expanded Rect x={}, y={}, w={}, h={}", subType, x, y,
-                                            w, h);
-                                }
-
-                                // Convert to Top-Left coordinates for PDFTextStripperByArea
-                                // PDF: (0,0) at bottom-left. AWT: (0,0) at top-left.
-                                // The 'y' here is the bottom edge of the expanded box in PDF coords.
-                                // 'y+h' is the top edge in PDF coords.
                                 // We want the distance from the top of the page to the top edge of the box.
                                 float awtY = pageHeight - (y + h);
 
