@@ -54,11 +54,35 @@ public class PdfAnnotationService {
                                 markups.add(markup);
                                 // Register region in the extractor (unique names)
                                 PDRectangle rect = markup.getRectangle();
-                                stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(
-                                        rect.getLowerLeftX(),
-                                        rect.getLowerLeftY(),
-                                        rect.getWidth(),
-                                        rect.getHeight()));
+
+                                // Heuristic: Expand the box to catch text if the annotation is tight
+                                float x = rect.getLowerLeftX();
+                                float y = rect.getLowerLeftY();
+                                float w = rect.getWidth();
+                                float h = rect.getHeight();
+
+                                // If it's an underline and very thin, it likely only covers the line, not the
+                                // text.
+                                // Expand upwards to capture the text above it.
+                                if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType) && h < 5.0f) {
+                                    // PDF coordinates: Y increases upwards.
+                                    // But PDFTextStripperByArea might treat Y differently depending on
+                                    // implementation.
+                                    // Standard PDFBox Rect: LowerLeftY is the bottom.
+                                    // We want to capture text ABOVE the line.
+                                    // So we increase the height.
+                                    h += 15.0f; // Assume text is ~15pt high
+                                } else {
+                                    // General expansion for highlights to account for sloppy boundaries
+                                    float expansion = 2.0f;
+                                    x -= expansion;
+                                    y -= expansion;
+                                    w += (expansion * 2);
+                                    h += (expansion * 2);
+                                }
+
+                                stripper.addRegion("annotation_" + markups.size(),
+                                        new java.awt.geom.Rectangle2D.Float(x, y, w, h));
 
                                 // Context extraction region (expand vertically, full width)
                                 float padding = 150f;
