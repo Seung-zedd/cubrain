@@ -31,7 +31,7 @@ public class PdfAnnotationService {
             for (int i = 0; i < pageCount; i++) {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
-
+                
                 // Prepare text stripper by area
                 PDFTextStripperByArea stripper = new PDFTextStripperByArea();
                 stripper.setSortByPosition(true);
@@ -50,11 +50,17 @@ public class PdfAnnotationService {
                                 markups.add(markup);
                                 // Register region in the extractor (unique names)
                                 PDRectangle rect = markup.getRectangle();
-
+                                
                                 float x = rect.getLowerLeftX();
                                 float y = rect.getLowerLeftY();
                                 float w = rect.getWidth();
                                 float h = rect.getHeight();
+                                
+                                // Debug logging for Page 3 (index 2)
+                                if (i == 2) {
+                                    log.info("Page 3 Debug - [{}]: Original Rect x={}, y={}, w={}, h={}", subType, x, y, w, h);
+                                    log.info("Page 3 Debug - CropBox: {}", page.getCropBox());
+                                }
 
                                 // General expansion for all types to handle sloppy boundaries
                                 float expansion = 2.0f;
@@ -67,19 +73,20 @@ public class PdfAnnotationService {
                                 if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
                                     // Underlines are usually at the bottom of the text.
                                     // We need to capture the text ABOVE the line.
-                                    // In PDF coordinates (Y increases upwards), increasing height extends the box
-                                    // upwards.
+                                    // In PDF coordinates (Y increases upwards), increasing height extends the box upwards.
                                     // We add a significant amount to cover the font height.
-                                    h += 15.0f;
-
-                                    // Also move Y down slightly more to ensure we catch the line itself and any
-                                    // descenders
+                                    h += 15.0f; 
+                                    
+                                    // Also move Y down slightly more to ensure we catch the line itself and any descenders
                                     y -= 2.0f;
                                     h += 2.0f;
                                 }
 
-                                stripper.addRegion("annotation_" + markups.size(),
-                                        new java.awt.geom.Rectangle2D.Float(x, y, w, h));
+                                if (i == 2) {
+                                    log.info("Page 3 Debug - [{}]: Expanded Rect x={}, y={}, w={}, h={}", subType, x, y, w, h);
+                                }
+
+                                stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(x, y, w, h));
 
                                 // Context extraction region (expand vertically, full width)
                                 float padding = 150f;
@@ -126,8 +133,7 @@ public class PdfAnnotationService {
 
                         log.info("🔍 Found [{}]: Page {}, Text: \"{}\"", markup.getSubtype(), i + 1, extractedText);
                     } else {
-                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1,
-                                extractedText, extractedText.length());
+                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1, extractedText, extractedText.length());
                     }
                 }
             }
