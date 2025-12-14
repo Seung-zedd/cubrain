@@ -177,7 +177,7 @@
     <!-- Limits / Info -->
     <p class="text-white/40 text-sm flex justify-center">
       {#if isGuest}
-        Guest mode: First 3 pages only • Max {MAX_SIZE_MB}MB
+        Guest mode: First 10 pages only • Max {MAX_SIZE_MB}MB
       {:else}
         <span
           class="flex items-center gap-1.5 cursor-help transition-colors hover:text-white/60"

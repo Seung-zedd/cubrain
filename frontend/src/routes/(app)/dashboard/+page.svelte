@@ -150,6 +150,10 @@
     }
   }
 
+  function formatQuestion(text: string) {
+    return text.replace(/\{\{c\d+::.*?\}\}/g, "______");
+  }
+
   function resetView() {
     isEmptyState = false;
     showResults = false;
@@ -206,7 +210,9 @@
                   class="text-xs font-bold text-[#FFD700] uppercase tracking-wider"
                   >Question</span
                 >
-                <p class="text-zinc-100 mt-1">{card.question}</p>
+                <p class="text-zinc-100 mt-1">
+                  {formatQuestion(card.question)}
+                </p>
               </div>
               <div>
                 <span
