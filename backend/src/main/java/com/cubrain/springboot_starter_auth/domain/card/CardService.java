@@ -79,8 +79,8 @@ public class CardService {
                         2. IF type is 'Underline':
                            - User Psychology: "This word is the answer." or "I need to memorize this data."
                            - Action: Generate Factual Questions. Ask for definitions, specific dates, names, or numbers.
-                           - Use Cloze Deletion format ({{c1::answer}}) if the text is short.
-                           - Example Q: "The capital of France is {{c1::Paris}}."
+                           - Provide a direct, concise answer.
+                           - Example Q: "What is the capital of France?" Answer: "Paris"
 
                         3. OUTPUT LANGUAGE:
                            - Generate the Question and Answer in the SAME language as the Target Text.
