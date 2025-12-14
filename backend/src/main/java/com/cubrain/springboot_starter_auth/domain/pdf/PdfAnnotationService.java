@@ -32,8 +32,6 @@ public class PdfAnnotationService {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
 
-                // log.info("Page {} has {} annotations", i + 1, annotations.size());
-
                 // Prepare text stripper by area
                 PDFTextStripperByArea stripper = new PDFTextStripperByArea();
                 stripper.setSortByPosition(true);
@@ -43,8 +41,6 @@ public class PdfAnnotationService {
 
                 for (PDAnnotation annotation : annotations) {
                     try {
-                        // log.info("Processing annotation subtype: {}", annotation.getSubtype());
-
                         // Process only Highlight or Underline annotations
                         if (annotation instanceof PDAnnotationTextMarkup markup) {
                             String subType = markup.getSubtype();
@@ -55,30 +51,31 @@ public class PdfAnnotationService {
                                 // Register region in the extractor (unique names)
                                 PDRectangle rect = markup.getRectangle();
 
-                                // Heuristic: Expand the box to catch text if the annotation is tight
                                 float x = rect.getLowerLeftX();
                                 float y = rect.getLowerLeftY();
                                 float w = rect.getWidth();
                                 float h = rect.getHeight();
 
-                                // If it's an underline and very thin, it likely only covers the line, not the
-                                // text.
-                                // Expand upwards to capture the text above it.
-                                if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType) && h < 5.0f) {
-                                    // PDF coordinates: Y increases upwards.
-                                    // But PDFTextStripperByArea might treat Y differently depending on
-                                    // implementation.
-                                    // Standard PDFBox Rect: LowerLeftY is the bottom.
-                                    // We want to capture text ABOVE the line.
-                                    // So we increase the height.
-                                    h += 15.0f; // Assume text is ~15pt high
-                                } else {
-                                    // General expansion for highlights to account for sloppy boundaries
-                                    float expansion = 2.0f;
-                                    x -= expansion;
-                                    y -= expansion;
-                                    w += (expansion * 2);
-                                    h += (expansion * 2);
+                                // General expansion for all types to handle sloppy boundaries
+                                float expansion = 2.0f;
+                                x -= expansion;
+                                y -= expansion;
+                                w += (expansion * 2);
+                                h += (expansion * 2);
+
+                                // Specific logic for Underlines
+                                if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
+                                    // Underlines are usually at the bottom of the text.
+                                    // We need to capture the text ABOVE the line.
+                                    // In PDF coordinates (Y increases upwards), increasing height extends the box
+                                    // upwards.
+                                    // We add a significant amount to cover the font height.
+                                    h += 15.0f;
+
+                                    // Also move Y down slightly more to ensure we catch the line itself and any
+                                    // descenders
+                                    y -= 2.0f;
+                                    h += 2.0f;
                                 }
 
                                 stripper.addRegion("annotation_" + markups.size(),
@@ -94,12 +91,7 @@ public class PdfAnnotationService {
 
                                 stripper.addRegion("context_" + markups.size(),
                                         new java.awt.geom.Rectangle2D.Float(cX, cY, cW, cH));
-                            } else {
-                                log.info("Skipping annotation subtype: {}", subType);
                             }
-                        } else {
-                            // log.info("Skipping non-markup annotation: {}",
-                            // annotation.getClass().getSimpleName());
                         }
                     } catch (Exception e) {
                         log.warn("Skipping malformed annotation on page {}", i + 1, e);

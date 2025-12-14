@@ -35,6 +35,8 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 **Note:** Scope is optional and can be omitted as the branch name usually contains the issue number.
 
+**Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above. Focus on the most significant change. This allows the user to easily copy and paste it.
+
 ## Coding Standards & Design Principles
 
 ### 1. SOLID Principles (Strict Enforcement)

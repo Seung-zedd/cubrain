@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
-import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
+
 import static org.springframework.http.ResponseEntity.notFound;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -41,8 +41,8 @@ public class PdfController {
     @Operation(summary = "Generate Cards Async", description = "Starts an asynchronous job to generate flashcards from a PDF.")
     @PostMapping("/generate-cards")
     public ResponseEntity<Map<String, String>> generateCardsAsync(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "userTier", defaultValue = "GUEST") UserTier userTier) {
+            @RequestParam MultipartFile file,
+            @RequestParam(defaultValue = "GUEST") UserTier userTier) {
         String jobId = cardService.generateCardsAsync(file, userTier);
         return ok(Map.of("jobId", jobId));
     }

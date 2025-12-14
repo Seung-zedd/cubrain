@@ -10,3 +10,7 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+
+logging:
+  level:
+    "[org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation]": OFF
