@@ -26,7 +26,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - ✨ `:sparkles:` `feat`: New features
 - 🐛 `:bug:` `fix`: Bug fixes
 - 📚 `:books:` `docs`: Documentation changes
-- 🎨 `:art:` `style`: Code style changes (formatting, etc.)
+- 💄 `:lipstick:` `ui`: UI changes
 - ♻️ `:recycle:` `refactor`: Code refactoring
 - 🚀 `:rocket:` `deploy`: Deployment tasks
 - ⚙️ `:gear:` `chore`: Build/config changes

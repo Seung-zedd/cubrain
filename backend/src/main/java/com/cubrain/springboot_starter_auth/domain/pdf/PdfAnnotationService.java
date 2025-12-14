@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class PdfAnnotationService {
 
-    @Value("${pdf.annotation.min-text-length:2}")
+    @Value("${pdf.annotation.min-text-length:1}")
     private int minTextLength;
 
     public List<AnnotationResultDto> extractAnnotations(MultipartFile file) throws IOException {
@@ -32,6 +32,8 @@ public class PdfAnnotationService {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
 
+                // log.info("Page {} has {} annotations", i + 1, annotations.size());
+
                 // Prepare text stripper by area
                 PDFTextStripperByArea stripper = new PDFTextStripperByArea();
                 stripper.setSortByPosition(true);
@@ -41,6 +43,8 @@ public class PdfAnnotationService {
 
                 for (PDAnnotation annotation : annotations) {
                     try {
+                        // log.info("Processing annotation subtype: {}", annotation.getSubtype());
+
                         // Process only Highlight or Underline annotations
                         if (annotation instanceof PDAnnotationTextMarkup markup) {
                             String subType = markup.getSubtype();
@@ -66,7 +70,12 @@ public class PdfAnnotationService {
 
                                 stripper.addRegion("context_" + markups.size(),
                                         new java.awt.geom.Rectangle2D.Float(cX, cY, cW, cH));
+                            } else {
+                                log.info("Skipping annotation subtype: {}", subType);
                             }
+                        } else {
+                            // log.info("Skipping non-markup annotation: {}",
+                            // annotation.getClass().getSimpleName());
                         }
                     } catch (Exception e) {
                         log.warn("Skipping malformed annotation on page {}", i + 1, e);
@@ -88,8 +97,6 @@ public class PdfAnnotationService {
                     String contextText = stripper.getTextForRegion("context_" + (j + 1)).trim();
 
                     // Ignore empty or very short text (noise reduction)
-                    // Configurable via pdf.annotation.min-text-length property (default: 2)
-                    // Can be lowered to 1-2 to capture valid short annotations like "AI", "ML", "DNA"
                     if (!extractedText.isEmpty() && extractedText.length() > minTextLength) {
                         results.add(new AnnotationResultDto(
                                 i + 1, // Page number (1-based)
@@ -102,16 +109,18 @@ public class PdfAnnotationService {
                                 rect.getHeight()));
 
                         log.info("🔍 Found [{}]: Page {}, Text: \"{}\"", markup.getSubtype(), i + 1, extractedText);
+                    } else {
+                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1,
+                                extractedText, extractedText.length());
                     }
                 }
             }
         }
 
-        // Sort by Reading Order: Page (Asc) -> Y (Desc, Top-to-Bottom) -> X (Asc,
-        // Left-to-Right)
+        // Sort by Reading Order
         results.sort(java.util.Comparator
                 .comparingInt(AnnotationResultDto::pageIndex)
-                .thenComparing((a, b) -> Float.compare(b.y(), a.y())) // Descending Y (Top is higher Y in PDF)
+                .thenComparing((a, b) -> Float.compare(b.y(), a.y())) // Descending Y
                 .thenComparingDouble(AnnotationResultDto::x));
 
         if (results.isEmpty()) {
