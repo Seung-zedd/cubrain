@@ -60,7 +60,7 @@
             <span>✨</span>
             <span
               >Guest Mode Limit: We'll generate flashcards from the <strong
-                >first 3 pages</strong
+                >first 10 pages</strong
               > only.</span
             >
           </div>

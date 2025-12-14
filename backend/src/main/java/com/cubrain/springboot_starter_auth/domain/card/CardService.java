@@ -110,7 +110,7 @@ public class CardService {
             // 2. Filter based on User Tier
             if (userTier == GUEST) {
                 annotations = annotations.stream()
-                        .filter(a -> a.pageIndex() <= 3)
+                        .filter(a -> a.pageIndex() <= 10)
                         .toList();
             } else if (userTier == FREE_USER) {
                 // Safety Cap for Free Tier: Top 10 Highlights + Top 10 Underlines
