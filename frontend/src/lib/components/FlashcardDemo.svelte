@@ -231,9 +231,11 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    console.log("🔍 Debug Info:");
-    console.log("API_BASE_URL:", API_BASE_URL);
-    console.log("import.meta.env:", import.meta.env);
+    if (import.meta.env.LOCAL || import.meta.env.VITE_SHOW_LOGS === "true") {
+      console.log("🔍 Debug Info:");
+      console.log("API_BASE_URL:", API_BASE_URL);
+      console.log("import.meta.env:", import.meta.env);
+    }
   });
 </script>
 

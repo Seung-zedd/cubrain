@@ -5,6 +5,7 @@
   import { flip } from "svelte/animate";
   import { BookOpen } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
+  import { API_BASE_URL } from "$lib/config";
 
   let files = $state<File[]>([]);
   let isGenerating = $state(false);
@@ -57,10 +58,13 @@
       formData.append("file", files[0]);
 
       // 1. Start Async Job
-      const startResponse = await fetch("/api/v1/pdf/generate-cards", {
-        method: "POST",
-        body: formData,
-      });
+      const startResponse = await fetch(
+        `${API_BASE_URL}/api/v1/pdf/generate-cards`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (startResponse.ok) {
         const startData = await startResponse.json();
@@ -72,7 +76,7 @@
 
           try {
             const statusResponse = await fetch(
-              `/api/v1/pdf/jobs/${startData.jobId}`
+              `${API_BASE_URL}/api/v1/pdf/jobs/${startData.jobId}`
             );
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CloudUpload, FileText, AlertCircle, Info } from "@lucide/svelte";
+  import { CloudUpload, FileText, CircleAlert, Info } from "@lucide/svelte";
   import { fade } from "svelte/transition";
 
   let { isGuest = false, onFileSelect } = $props<{
@@ -195,7 +195,7 @@
         transition:fade
         class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 text-red-400 bg-red-950/50 px-4 py-2 rounded-lg border border-red-500/20"
       >
-        <AlertCircle class="w-4 h-4" />
+        <CircleAlert class="w-4 h-4" />
         <span class="text-sm font-medium">{errorMessage}</span>
       </div>
     {/if}

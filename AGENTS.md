@@ -102,6 +102,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
   - MUST use **`@Schema`** for fields to provide descriptions and examples.
   - **Reason:** To populate "Body Params" and "Example Value" in Apidog/Swagger.
   - **Example:**
+
     ```java
     public record CardRequestDto(
         @Schema(description = "Extracted text from PDF", example = "TCP is a connection-oriented protocol...")
@@ -114,3 +115,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 - **Internal Logic:**
   - No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
+
+### 8. Localization Rule
+
+- **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
