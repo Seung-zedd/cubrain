@@ -31,10 +31,13 @@ public class PdfAnnotationService {
             for (int i = 0; i < pageCount; i++) {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
-                
+
                 // Prepare text stripper by area
                 PDFTextStripperByArea stripper = new PDFTextStripperByArea();
                 stripper.setSortByPosition(true);
+
+                // Get Page Height for Coordinate Conversion (PDF Bottom-Left -> AWT Top-Left)
+                float pageHeight = page.getCropBox().getHeight();
 
                 // 1. Find all highlights/underlines on this page
                 List<PDAnnotationTextMarkup> markups = new ArrayList<>();
@@ -50,15 +53,16 @@ public class PdfAnnotationService {
                                 markups.add(markup);
                                 // Register region in the extractor (unique names)
                                 PDRectangle rect = markup.getRectangle();
-                                
+
                                 float x = rect.getLowerLeftX();
                                 float y = rect.getLowerLeftY();
                                 float w = rect.getWidth();
                                 float h = rect.getHeight();
-                                
+
                                 // Debug logging for Page 3 (index 2)
                                 if (i == 2) {
-                                    log.info("Page 3 Debug - [{}]: Original Rect x={}, y={}, w={}, h={}", subType, x, y, w, h);
+                                    log.info("Page 3 Debug - [{}]: Original Rect x={}, y={}, w={}, h={}", subType, x, y,
+                                            w, h);
                                     log.info("Page 3 Debug - CropBox: {}", page.getCropBox());
                                 }
 
@@ -73,31 +77,47 @@ public class PdfAnnotationService {
                                 if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
                                     // Underlines are usually at the bottom of the text.
                                     // We need to capture the text ABOVE the line.
-                                    // In PDF coordinates (Y increases upwards), increasing height extends the box upwards.
+                                    // In PDF coordinates (Y increases upwards), increasing height extends the box
+                                    // upwards.
                                     // We add a significant amount to cover the font height.
-                                    h += 15.0f; 
-                                    
-                                    // Also move Y down slightly more to ensure we catch the line itself and any descenders
+                                    h += 15.0f;
+
+                                    // Also move Y down slightly more to ensure we catch the line itself and any
+                                    // descenders
                                     y -= 2.0f;
                                     h += 2.0f;
                                 }
 
                                 if (i == 2) {
-                                    log.info("Page 3 Debug - [{}]: Expanded Rect x={}, y={}, w={}, h={}", subType, x, y, w, h);
+                                    log.info("Page 3 Debug - [{}]: Expanded Rect x={}, y={}, w={}, h={}", subType, x, y,
+                                            w, h);
                                 }
 
-                                stripper.addRegion("annotation_" + markups.size(), new java.awt.geom.Rectangle2D.Float(x, y, w, h));
+                                // Convert to Top-Left coordinates for PDFTextStripperByArea
+                                // PDF: (0,0) at bottom-left. AWT: (0,0) at top-left.
+                                // The 'y' here is the bottom edge of the expanded box in PDF coords.
+                                // 'y+h' is the top edge in PDF coords.
+                                // We want the distance from the top of the page to the top edge of the box.
+                                float awtY = pageHeight - (y + h);
+
+                                stripper.addRegion("annotation_" + markups.size(),
+                                        new java.awt.geom.Rectangle2D.Float(x, awtY, w, h));
 
                                 // Context extraction region (expand vertically, full width)
                                 float padding = 150f;
                                 PDRectangle pageRect = page.getCropBox();
                                 float cX = pageRect.getLowerLeftX();
-                                float cY = rect.getLowerLeftY() - padding;
                                 float cW = pageRect.getWidth();
-                                float cH = rect.getHeight() + (padding * 2);
+
+                                // Context Y (Bottom-Left in PDF)
+                                float pdfContextBottomY = rect.getLowerLeftY() - padding;
+                                float contextHeight = rect.getHeight() + (padding * 2);
+
+                                // Convert Context Y to Top-Left
+                                float awtContextY = pageHeight - (pdfContextBottomY + contextHeight);
 
                                 stripper.addRegion("context_" + markups.size(),
-                                        new java.awt.geom.Rectangle2D.Float(cX, cY, cW, cH));
+                                        new java.awt.geom.Rectangle2D.Float(cX, awtContextY, cW, contextHeight));
                             }
                         }
                     } catch (Exception e) {
@@ -133,7 +153,8 @@ public class PdfAnnotationService {
 
                         log.info("🔍 Found [{}]: Page {}, Text: \"{}\"", markup.getSubtype(), i + 1, extractedText);
                     } else {
-                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1, extractedText, extractedText.length());
+                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1,
+                                extractedText, extractedText.length());
                     }
                 }
             }
