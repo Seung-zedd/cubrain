@@ -82,6 +82,9 @@ public class CardService {
                            - Use Cloze Deletion format ({{c1::answer}}) if the text is short.
                            - Example Q: "The capital of France is {{c1::Paris}}."
 
+                        3. OUTPUT LANGUAGE:
+                           - Generate the Question and Answer in the SAME language as the Target Text.
+
                         Based on the Target Text and Context above, generate 1 Flashcard (Question & Answer).
                         Return ONLY JSON format: { "question": "...", "answer": "..." }
                         """
