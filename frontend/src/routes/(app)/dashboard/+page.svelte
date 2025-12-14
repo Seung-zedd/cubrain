@@ -147,9 +147,31 @@
     </p>
   </div>
 
-  <!-- Upload Section -->
-  <section class="space-y-6">
-    {#if isEmptyState}
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {#each generatedCards as card, i}
+            <div
+              class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl hover:border-[#FFD700]/30 transition-all"
+              in:fly={{ y: 20, duration: 300, delay: i * 50 }}
+            >
+              <div class="mb-4">
+                <span
+                  class="text-xs font-bold text-[#FFD700] uppercase tracking-wider"
+                  >Question</span
+                >
+                <p class="text-zinc-100 mt-1">{card.question}</p>
+              </div>
+              <div>
+                <span
+                  class="text-xs font-bold text-zinc-500 uppercase tracking-wider"
+                  >Answer</span
+                >
+                <p class="text-zinc-300 mt-1">{card.answer}</p>
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {:else if isEmptyState}
       <div
         class="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-300"
       >
