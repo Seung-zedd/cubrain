@@ -54,6 +54,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 ### 2. Spring Boot Best Practices
 
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs (suffix `Dto`).
+- **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `PdfExtractionResultDto`, `CardRequestDto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
 - **Import Style:**
   - **Class Imports:** NO Wildcards. Explicitly import each class (e.g., `import java.util.List;`).
@@ -88,6 +89,8 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
 ### 7. Documentation Strategy (API & Code)
+
+**Rule:** Whenever you create or modify a Controller or DTO class, you **MUST** immediately apply the following documentation annotations.
 
 - **Controllers (Endpoints):**
 

@@ -32,9 +32,10 @@ public class PdfController {
 
     @Operation(summary = "Extract Highlights", description = "Extracts highlights and underlines from a PDF file.")
     @PostMapping("/extract-highlights")
-    public ResponseEntity<List<AnnotationResultDto>> extractHighlights(@RequestParam("file") MultipartFile file)
+    public ResponseEntity<List<AnnotationResultDto>> extractHighlights(@RequestParam MultipartFile file)
             throws IOException {
-        List<AnnotationResultDto> results = pdfAnnotationService.extractAnnotations(file);
+        PdfExtractionResultDto result = pdfAnnotationService.extractAnnotations(file);
+        List<AnnotationResultDto> results = result.annotations();
         return ok(results);
     }
 

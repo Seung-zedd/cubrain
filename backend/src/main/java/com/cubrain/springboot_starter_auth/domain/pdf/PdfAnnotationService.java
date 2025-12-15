@@ -6,6 +6,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationTextMarkup;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,12 +23,36 @@ public class PdfAnnotationService {
     @Value("${pdf.annotation.min-text-length:1}")
     private int minTextLength;
 
-    public List<AnnotationResultDto> extractAnnotations(MultipartFile file) throws IOException {
+    public PdfExtractionResultDto extractAnnotations(MultipartFile file) throws IOException {
         log.debug("Processing PDF file: {}", file.getOriginalFilename());
         List<AnnotationResultDto> results = new ArrayList<>();
+        String detectionText = "";
 
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
             int pageCount = document.getNumberOfPages();
+
+            // Extract text from the first available page with sufficient content for
+            // language detection
+            // Scan up to the first 5 pages (or fewer if document is shorter)
+            int maxScanPages = Math.min(pageCount, 5);
+
+            for (int p = 1; p <= maxScanPages; p++) {
+                PDFTextStripper textStripper = new PDFTextStripper();
+                textStripper.setStartPage(p);
+                textStripper.setEndPage(p);
+                String pageText = textStripper.getText(document).trim();
+
+                // If page has sufficient text (e.g. > 50 chars), use it and stop scanning
+                if (pageText.length() > 50) {
+                    detectionText = pageText;
+                    // Limit text length to avoid excessive token usage
+                    if (detectionText.length() > 2000) {
+                        detectionText = detectionText.substring(0, 2000);
+                    }
+                    log.debug("Found sufficient text for language detection on page {}", p);
+                    break;
+                }
+            }
 
             for (int i = 0; i < pageCount; i++) {
                 PDPage page = document.getPage(i);
@@ -147,6 +172,6 @@ public class PdfAnnotationService {
             log.warn("User uploaded a clean PDF. No flashcards generated.");
         }
 
-        return results;
+        return new PdfExtractionResultDto(results, detectionText);
     }
 }

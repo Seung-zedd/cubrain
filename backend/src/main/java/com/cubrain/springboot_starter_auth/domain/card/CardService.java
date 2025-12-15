@@ -3,6 +3,7 @@ package com.cubrain.springboot_starter_auth.domain.card;
 import com.cubrain.springboot_starter_auth.domain.job.JobManager;
 import com.cubrain.springboot_starter_auth.domain.pdf.AnnotationResultDto;
 import com.cubrain.springboot_starter_auth.domain.pdf.PdfAnnotationService;
+import com.cubrain.springboot_starter_auth.domain.pdf.PdfExtractionResultDto;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
@@ -54,11 +55,18 @@ public class CardService {
 
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext) {
         // Default to "Highlight" behavior for manual demo
-        return generateCardDemo(selection, localContext, globalContext, "Highlight");
+        return generateCardDemo(selection, localContext, globalContext, "Highlight",
+                "the SAME language as the Target Text");
     }
 
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
             String annotationType) {
+        return generateCardDemo(selection, localContext, globalContext, annotationType,
+                "the SAME language as the Target Text");
+    }
+
+    public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
+            String annotationType, String targetLanguage) {
         // 1. The "Senior Tutor" Prompt
         SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating Anki flashcards.");
 
@@ -83,12 +91,12 @@ public class CardService {
                            - Example Q: "What is the capital of France?" Answer: "Paris"
 
                         3. OUTPUT LANGUAGE:
-                           - Generate the Question and Answer in the SAME language as the Target Text.
+                           - Generate the Question and Answer in %s.
 
                         Based on the Target Text and Context above, generate 1 Flashcard (Question & Answer).
                         Return ONLY JSON format: { "question": "...", "answer": "..." }
                         """
-                        .formatted(localContext, annotationType, selection));
+                        .formatted(localContext, annotationType, selection, targetLanguage));
 
         // 2. Call Gemini
         Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
@@ -108,7 +116,13 @@ public class CardService {
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
         try {
             // 1. Extract annotations
-            List<AnnotationResultDto> annotations = pdfAnnotationService.extractAnnotations(file);
+            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file);
+            List<AnnotationResultDto> annotations = extractionResult.annotations();
+            String firstPageText = extractionResult.detectionText();
+
+            // Detect Language
+            String targetLanguage = detectLanguage(firstPageText);
+            log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
             // 2. Filter based on User Tier
             if (userTier == GUEST) {
@@ -159,7 +173,7 @@ public class CardService {
                 // For PDF annotations, local context is the annotation text itself, global
                 // context is omitted for now or could be the page text if available
                 FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
-                        "Extracted from PDF Page " + annotation.pageIndex(), annotation.type());
+                        "Extracted from PDF Page " + annotation.pageIndex(), annotation.type(), targetLanguage);
                 flashcards.add(card);
 
                 // Update Progress
@@ -187,6 +201,29 @@ public class CardService {
             return objectMapper.readValue(cleanJson, FlashcardResponseDto.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse AI response: " + e.getMessage());
+        }
+    }
+
+    private String detectLanguage(String text) {
+        if (text == null || text.isBlank()) {
+            return "the SAME language as the Target Text"; // Fallback
+        }
+        try {
+            SystemMessage systemMessage = SystemMessage.from("You are a language detector.");
+            UserMessage userMessage = UserMessage.from("""
+                    Identify the primary language of the following text.
+                    Return ONLY the language name (e.g., English, Korean, French, etc.).
+                    Do not add any punctuation or extra words.
+
+                    Text:
+                    "%s"
+                    """.formatted(text));
+
+            Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
+            return response.content().text().trim();
+        } catch (Exception e) {
+            log.warn("Language detection failed, falling back to auto-detect", e);
+            return "the SAME language as the Target Text";
         }
     }
 }
