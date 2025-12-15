@@ -1,15 +1,23 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import FileDropzone from "$lib/components/upload/FileDropzone.svelte";
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { BookOpen, CircleCheck, RefreshCw } from "@lucide/svelte";
+  import { BookOpen, CircleCheck, RefreshCw, Plus } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
 
   interface Flashcard {
     question: string;
     answer: string;
+  }
+
+  interface Deck {
+    id: string;
+    title: string;
+    lastStudied: string;
+    cardCount: number;
   }
 
   let files = $state<File[]>([]);
@@ -20,7 +28,32 @@
   let jobProgress = $state(0);
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
+  // Mock persistence for demo purposes
+  let recentDecks = $state<Deck[]>([
+    {
+      id: "1",
+      title: "Introduction to AI - Part 1",
+      lastStudied: "2 hours ago",
+      cardCount: 15,
+    },
+    {
+      id: "2",
+      title: "Introduction to AI - Part 2",
+      lastStudied: "2 hours ago",
+      cardCount: 12,
+    },
+    {
+      id: "3",
+      title: "Introduction to AI - Part 3",
+      lastStudied: "2 hours ago",
+      cardCount: 20,
+    },
+  ]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+  let mode = $derived($page.url.searchParams.get("mode"));
+  let hasDecks = $derived(recentDecks.length > 0);
+  let showUpload = $derived(mode === "upload" || !hasDecks);
 
   // Cleanup polling interval when component unmounts
   $effect(() => {
@@ -101,19 +134,32 @@
                   console.log("Job Completed:", statusData.results);
                 }
 
+                let newCards: Flashcard[] = [];
                 if (
                   Array.isArray(statusData.results) &&
                   statusData.results.length > 0
                 ) {
-                  generatedCards = statusData.results;
-                  showResults = true;
+                  newCards = statusData.results;
                 } else if (
                   statusData.results &&
                   !Array.isArray(statusData.results)
                 ) {
-                  // Handle single object response if backend returns just one card
-                  generatedCards = [statusData.results];
+                  newCards = [statusData.results];
+                }
+
+                if (newCards.length > 0) {
+                  generatedCards = newCards;
                   showResults = true;
+                  // Add to recent decks (Mock)
+                  recentDecks = [
+                    {
+                      id: Date.now().toString(),
+                      title: files[0].name.replace(".pdf", ""),
+                      lastStudied: "Just now",
+                      cardCount: newCards.length,
+                    },
+                    ...recentDecks,
+                  ];
                 } else {
                   isEmptyState = true;
                 }
@@ -166,147 +212,186 @@
   <div>
     <h1 class="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
     <p class="text-zinc-400 mt-2">
-      Welcome back! Upload your PDFs to generate new flashcard decks.
+      {#if showUpload}
+        Upload your PDFs to generate new flashcard decks.
+      {:else}
+        Pick up where you left off.
+      {/if}
     </p>
   </div>
 
-  <!-- Upload / Results Section -->
-  <section class="space-y-6">
-    {#if showResults}
-      <div
-        class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div
-              class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center"
-            >
-              <CircleCheck class="w-6 h-6 text-green-500" />
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-white">Generation Complete!</h2>
-              <p class="text-zinc-400 text-sm">
-                Created {generatedCards.length} flashcards
-              </p>
-            </div>
-          </div>
-          <button
-            onclick={resetView}
-            class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
-          >
-            <RefreshCw class="w-4 h-4" />
-            Start Over
-          </button>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {#each generatedCards as card, i}
-            <div
-              class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl hover:border-[#FFD700]/30 transition-all"
-              in:fly={{ y: 20, duration: 300, delay: i * 50 }}
-            >
-              <div class="mb-4">
-                <span
-                  class="text-xs font-bold text-[#FFD700] uppercase tracking-wider"
-                  >Question</span
-                >
-                <p class="text-zinc-100 mt-1">
-                  {formatQuestion(card.question)}
-                </p>
+  {#if showUpload}
+    <!-- Upload / Results Section -->
+    <section class="space-y-6">
+      {#if showResults}
+        <div
+          class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center"
+              >
+                <CircleCheck class="w-6 h-6 text-green-500" />
               </div>
               <div>
-                <span
-                  class="text-xs font-bold text-zinc-500 uppercase tracking-wider"
-                  >Answer</span
-                >
-                <p class="text-zinc-300 mt-1">{card.answer}</p>
+                <h2 class="text-xl font-bold text-white">
+                  Generation Complete!
+                </h2>
+                <p class="text-zinc-400 text-sm">
+                  Created {generatedCards.length} flashcards
+                </p>
               </div>
             </div>
-          {/each}
-        </div>
-      </div>
-    {:else if isEmptyState}
-      <div
-        class="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-300"
-      >
-        <BookOpen class="w-16 h-16 text-zinc-500 mb-4" />
-        <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
-        <p class="text-zinc-400 mt-2">
-          We don't provide flashcards without your annotation.<br />
-          <span class="text-[#FFD700] font-bold">Go study and come back!</span>
-        </p>
-        <p class="text-sm text-zinc-500">
-          Please highlight or underline key concepts in your PDF and re-upload.
-        </p>
-        <button
-          onclick={resetView}
-          class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
-        >
-          Upload Another File
-        </button>
-      </div>
-    {:else}
-      <FileDropzone isGuest={false} onFileSelect={handleFileSelect} />
-
-      {#if files.length > 0}
-        <div class="space-y-4" transition:fade>
-          <div class="flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-white">
-              Upload Queue ({files.length})
-            </h2>
-            <button
-              onclick={handleGenerate}
-              disabled={isGenerating}
-              class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {#if isGenerating}
-                Generating...
-              {:else}
-                Generate All Decks
-              {/if}
-            </button>
+            <div class="flex gap-2">
+              <button
+                onclick={() => (window.location.href = "/dashboard")}
+                class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
+              >
+                View Decks
+              </button>
+              <button
+                onclick={resetView}
+                class="flex items-center gap-2 px-4 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg transition-colors"
+              >
+                <RefreshCw class="w-4 h-4" />
+                Start Over
+              </button>
+            </div>
           </div>
 
-          {#if isGenerating}
-            <div class="flex flex-col items-center justify-center py-12">
-              <div class="w-full max-w-md">
-                <ProgressBar progress={jobProgress} status={jobStatus} />
-              </div>
-              <p class="text-zinc-400 mt-4">Analyzing your document...</p>
-            </div>
-          {:else}
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {#each files as file, i (file.name + file.size)}
-                <div animate:flip={{ duration: 300 }}>
-                  <FileItemCard {file} onRemove={() => removeFile(i)} />
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {#each generatedCards as card, i}
+              <div
+                class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl hover:border-[#FFD700]/30 transition-all"
+                in:fly={{ y: 20, duration: 300, delay: i * 50 }}
+              >
+                <div class="mb-4">
+                  <span
+                    class="text-xs font-bold text-[#FFD700] uppercase tracking-wider"
+                    >Question</span
+                  >
+                  <p class="text-zinc-100 mt-1">
+                    {formatQuestion(card.question)}
+                  </p>
                 </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      {/if}
-    {/if}
-  </section>
-
-  <!-- Recent Activity Section (Placeholder) -->
-  <section class="pt-8 border-t border-white/10">
-    <h2 class="text-xl font-semibold text-white mb-6">Recent Decks</h2>
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {#each Array(3) as _, i}
-        <div
-          class="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-sm hover:border-[#FFD700]/30 transition-all hover:bg-zinc-900/80"
-        >
-          <div
-            class="h-10 w-10 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-4 group-hover:bg-[#FFD700]/20 transition-colors"
-          >
-            <span class="text-xl">📚</span>
+                <div>
+                  <span
+                    class="text-xs font-bold text-zinc-500 uppercase tracking-wider"
+                    >Answer</span
+                  >
+                  <p class="text-zinc-300 mt-1">{card.answer}</p>
+                </div>
+              </div>
+            {/each}
           </div>
-          <h3 class="text-lg font-semibold text-zinc-100">
-            Introduction to AI - Part {i + 1}
-          </h3>
-          <p class="text-sm text-zinc-400 mt-2">Last studied 2 hours ago</p>
         </div>
-      {/each}
-    </div>
-  </section>
+      {:else if isEmptyState}
+        <div
+          class="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-300"
+        >
+          <BookOpen class="w-16 h-16 text-zinc-500 mb-4" />
+          <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
+          <p class="text-zinc-400 mt-2">
+            We don't provide flashcards without your annotation.<br />
+            <span class="text-[#FFD700] font-bold">Go study and come back!</span
+            >
+          </p>
+          <p class="text-sm text-zinc-500">
+            Please highlight or underline key concepts in your PDF and
+            re-upload.
+          </p>
+          <button
+            onclick={resetView}
+            class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
+          >
+            Upload Another File
+          </button>
+        </div>
+      {:else}
+        <FileDropzone isGuest={false} onFileSelect={handleFileSelect} />
+
+        {#if files.length > 0}
+          <div class="space-y-4" transition:fade>
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-white">
+                Upload Queue ({files.length})
+              </h2>
+              <button
+                onclick={handleGenerate}
+                disabled={isGenerating}
+                class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {#if isGenerating}
+                  Generating...
+                {:else}
+                  Generate All Decks
+                {/if}
+              </button>
+            </div>
+
+            {#if isGenerating}
+              <div class="flex flex-col items-center justify-center py-12">
+                <div class="w-full max-w-md">
+                  <ProgressBar progress={jobProgress} status={jobStatus} />
+                </div>
+                <p class="text-zinc-400 mt-4">Analyzing your document...</p>
+              </div>
+            {:else}
+              <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {#each files as file, i (file.name + file.size)}
+                  <div animate:flip={{ duration: 300 }}>
+                    <FileItemCard {file} onRemove={() => removeFile(i)} />
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      {/if}
+    </section>
+  {:else}
+    <!-- Recent Decks Section -->
+    <section class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-white">Recent Decks</h2>
+        <a
+          href="/dashboard?mode=upload"
+          class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors text-sm font-medium"
+        >
+          <Plus class="w-4 h-4" />
+          New Deck
+        </a>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {#each recentDecks as deck}
+          <div
+            class="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-sm hover:border-[#FFD700]/30 transition-all hover:bg-zinc-900/80 cursor-pointer"
+          >
+            <div class="flex justify-between items-start mb-4">
+              <div
+                class="h-10 w-10 rounded-lg bg-[#FFD700]/10 flex items-center justify-center group-hover:bg-[#FFD700]/20 transition-colors"
+              >
+                <span class="text-xl">📚</span>
+              </div>
+              <span
+                class="text-xs font-medium px-2 py-1 rounded-full bg-zinc-800 text-zinc-400"
+              >
+                {deck.cardCount} cards
+              </span>
+            </div>
+            <h3
+              class="text-lg font-semibold text-zinc-100 group-hover:text-[#FFD700] transition-colors"
+            >
+              {deck.title}
+            </h3>
+            <p class="text-sm text-zinc-400 mt-2">
+              Last studied {deck.lastStudied}
+            </p>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
 </div>
