@@ -294,7 +294,7 @@
           <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
           <p class="text-zinc-400 mt-2">
             We don't provide flashcards without your annotation.<br />
-            <span class="text-[#FFD700] font-bold">Go study and come back!</span
+            <span class="text-[#FFD700] font-bold">👩‍🏫📢 Go study and come back!</span
             >
           </p>
           <p class="text-sm text-zinc-500">
@@ -305,7 +305,7 @@
             onclick={resetView}
             class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
           >
-            Upload Another File
+            Okay, I will study... 😔
           </button>
         </div>
       {:else}
