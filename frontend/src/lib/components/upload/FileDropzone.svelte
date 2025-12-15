@@ -22,17 +22,22 @@
   const MAX_SIZE_MB = 20;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
+  let dragCounter = 0;
+
   function handleDragEnter(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
-    isDragging = true;
+    dragCounter++;
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
+      isDragging = true;
+    }
   }
 
   function handleDragLeave(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
-    // Only set dragging to false if we're leaving the dropzone itself
-    if (e.currentTarget === e.target) {
+    dragCounter--;
+    if (dragCounter === 0) {
       isDragging = false;
     }
   }
@@ -40,7 +45,6 @@
   function handleDragOver(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
-    isDragging = true;
   }
 
   function validateFiles(files: FileList | null): File[] {
@@ -86,6 +90,7 @@
     e.preventDefault();
     e.stopPropagation();
     isDragging = false;
+    dragCounter = 0;
 
     const files = validateFiles(e.dataTransfer?.files || null);
     if (files.length > 0) {
@@ -109,7 +114,7 @@
 </script>
 
 <div
-  class="relative w-full max-w-4xl mx-auto transition-all duration-300 ease-out"
+  class="relative w-full max-w-3xl mx-auto transition-all duration-300 ease-out"
   role="region"
   aria-label="File Upload Dropzone"
   ondragenter={handleDragEnter}
