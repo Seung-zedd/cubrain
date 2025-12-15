@@ -11,9 +11,7 @@ import com.cubrain.springboot_starter_auth.domain.job.JobManager;
 import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
@@ -26,18 +24,8 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequiredArgsConstructor
 public class PdfController {
 
-    private final PdfAnnotationService pdfAnnotationService;
     private final CardService cardService;
     private final JobManager jobManager;
-
-    @Operation(summary = "Extract Highlights", description = "Extracts highlights and underlines from a PDF file.")
-    @PostMapping("/extract-highlights")
-    public ResponseEntity<List<AnnotationResultDto>> extractHighlights(@RequestParam MultipartFile file)
-            throws IOException {
-        PdfExtractionResultDto result = pdfAnnotationService.extractAnnotations(file);
-        List<AnnotationResultDto> results = result.annotations();
-        return ok(results);
-    }
 
     @Operation(summary = "Generate Cards Async", description = "Starts an asynchronous job to generate flashcards from a PDF.")
     @PostMapping("/generate-cards")

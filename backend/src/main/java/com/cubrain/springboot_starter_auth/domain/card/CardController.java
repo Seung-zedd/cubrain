@@ -36,7 +36,7 @@ public class CardController {
     @Operation(summary = "Generate Flashcards from PDF", description = "Generates Q&A cards from an uploaded PDF file. Returns 429 if quota exceeded.")
     @PostMapping("/from-pdf")
     public ResponseEntity<List<FlashcardResponseDto>> generateFromPdf(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam MultipartFile file,
             @RequestParam(value = "userTier", defaultValue = "GUEST") String userTierStr) {
 
         UserTier userTier;

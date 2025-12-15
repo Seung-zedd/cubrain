@@ -176,7 +176,7 @@ public class CardService {
                         "Extracted from PDF Page " + annotation.pageIndex(), annotation.type(), targetLanguage);
                 flashcards.add(card);
 
-                // Update Progress
+                // Update Progress, and this will be reflected on the +page.svelte component from 270 to 289 line
                 if (jobId != null) {
                     int progress = (int) (((double) (i + 1) / total) * 100);
                     jobManager.updateProgress(jobId, progress);

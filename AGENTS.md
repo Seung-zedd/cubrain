@@ -59,6 +59,8 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - **Import Style:**
   - **Class Imports:** NO Wildcards. Explicitly import each class (e.g., `import java.util.List;`).
   - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods to improve readability (e.g., `import static org.springframework.http.HttpStatus.OK;`).
+- **Annotation Style:**
+  - **Implicit Names:** If a `@RequestParam`, `@PathVariable`, or `@Header` name matches the variable name, omit the name parameter (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
 
 ### 3. Package Structure
 
