@@ -263,7 +263,7 @@
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each generatedCards as card, i}
               <div
-                class="rounded-xl p-px bg-linear-to-br from-amber-500/50 to-yellow-400/50 hover:from-amber-500 hover:to-yellow-400 transition-all duration-300"
+                class="rounded-xl p-px bg-linear-to-br from-[#fbbf24]/50 to-[#FFD700]/50 hover:from-[#fbbf24] hover:to-[#FFD700] transition-all duration-300"
                 in:fly={{ y: 20, duration: 300, delay: i * 50 }}
               >
                 <div
