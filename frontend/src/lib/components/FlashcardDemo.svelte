@@ -302,14 +302,26 @@
         <span class="icon">✨</span> Generated Flashcard
         <button class="close-btn" onclick={() => (flashcard = null)}>×</button>
       </div>
-      <div class="card-body">
-        <div class="qa-pair">
-          <div class="label">Q</div>
-          <div class="text">{flashcard.question}</div>
+      <div class="p-6 flex flex-col gap-6 text-left">
+        <div class="flex flex-col gap-2">
+          <span
+            class="text-amber-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Question
+          </span>
+          <p class="text-white text-lg font-medium leading-relaxed">
+            {flashcard.question}
+          </p>
         </div>
-        <div class="qa-pair">
-          <div class="label">A</div>
-          <div class="text">{flashcard.answer}</div>
+        <div class="flex flex-col gap-2">
+          <span
+            class="text-gray-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Answer
+          </span>
+          <p class="text-gray-300 text-base leading-relaxed">
+            {flashcard.answer}
+          </p>
         </div>
       </div>
     </div>
@@ -390,39 +402,6 @@
     cursor: pointer;
     padding: 0;
     line-height: 1;
-  }
-
-  .card-body {
-    padding: 1.5rem;
-  }
-
-  .qa-pair {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .qa-pair:last-child {
-    margin-bottom: 0;
-  }
-
-  .label {
-    background: #333;
-    color: #fbbf24;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-
-  .text {
-    color: #fff;
-    line-height: 1.5;
-    padding-top: 0.2rem;
   }
 
   .spinner {
