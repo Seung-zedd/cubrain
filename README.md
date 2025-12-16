@@ -1,1 +1,3 @@
-# 📢I'll merge into main branch until MVP product launched to global market.
+# 📢this branch has been used for web dev environment to test some features before shipping.
+
+🔗API endpoint: https://86o7xvdzj4.apidog.io
