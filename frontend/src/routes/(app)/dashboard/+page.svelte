@@ -263,24 +263,30 @@
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each generatedCards as card, i}
               <div
-                class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-xl hover:border-[#FFD700]/30 transition-all"
+                class="rounded-xl p-px bg-linear-to-br from-amber-500/50 to-yellow-400/50 hover:from-amber-500 hover:to-yellow-400 transition-all duration-300"
                 in:fly={{ y: 20, duration: 300, delay: i * 50 }}
               >
-                <div class="mb-4">
-                  <span
-                    class="text-xs font-bold text-[#FFD700] uppercase tracking-wider"
-                    >Question</span
-                  >
-                  <p class="text-zinc-100 mt-1">
-                    {formatQuestion(card.question)}
-                  </p>
-                </div>
-                <div>
-                  <span
-                    class="text-xs font-bold text-zinc-500 uppercase tracking-wider"
-                    >Answer</span
-                  >
-                  <p class="text-zinc-300 mt-1">{card.answer}</p>
+                <div
+                  class="rounded-xl bg-[#1a1a1a] p-6 flex flex-col gap-6 h-full"
+                >
+                  <div class="flex flex-col gap-2">
+                    <span
+                      class="text-amber-500 text-xs font-bold uppercase tracking-wider"
+                      >Question</span
+                    >
+                    <p class="text-white text-lg font-medium leading-relaxed">
+                      {formatQuestion(card.question)}
+                    </p>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <span
+                      class="text-gray-500 text-xs font-bold uppercase tracking-wider"
+                      >Answer</span
+                    >
+                    <p class="text-gray-300 text-base leading-relaxed">
+                      {card.answer}
+                    </p>
+                  </div>
                 </div>
               </div>
             {/each}
@@ -294,7 +300,8 @@
           <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
           <p class="text-zinc-400 mt-2">
             We don't provide flashcards without your annotation.<br />
-            <span class="text-[#FFD700] font-bold">👩‍🏫📢 Go study and come back!</span
+            <span class="text-[#FFD700] font-bold"
+              >👩‍🏫📢 Go study and come back!</span
             >
           </p>
           <p class="text-sm text-zinc-500">
