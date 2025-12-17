@@ -88,6 +88,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - **Derived ($derived):** Convert `$: double = count * 2;` to `let double = $derived(count * 2);`.
 - **Effects ($effect):** Convert `$: { sideEffect(); }` to `$effect(() => { sideEffect(); });`.
 - **Events:** Prefer callback props over `createEventDispatcher`.
+- **Icons:** Use `@lucide/svelte` for icon imports (e.g., `import { X } from "@lucide/svelte";`).
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
 ### 7. Documentation Strategy (API & Code)

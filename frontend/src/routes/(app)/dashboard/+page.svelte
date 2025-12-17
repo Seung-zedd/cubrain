@@ -7,6 +7,7 @@
   import { BookOpen, CircleCheck, RefreshCw, Plus, Save } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
 
   interface Flashcard {
     question: string;
@@ -28,6 +29,7 @@
   let jobProgress = $state(0);
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
+  let showLoginModal = $state(false);
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
     {
@@ -252,7 +254,7 @@
                 Start Over
               </button>
               <button
-                onclick={() => console.log("Trigger Login Modal")}
+                onclick={() => (showLoginModal = true)}
                 class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
               >
                 <Save class="w-4 h-4" />
@@ -403,3 +405,7 @@
     </section>
   {/if}
 </div>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
