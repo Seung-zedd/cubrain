@@ -8,6 +8,7 @@
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
+  import DeckList from "$lib/components/deck/DeckList.svelte";
 
   interface Flashcard {
     question: string;
@@ -19,6 +20,7 @@
     title: string;
     lastStudied: string;
     cardCount: number;
+    progress?: number;
   }
 
   let files = $state<File[]>([]);
@@ -37,18 +39,21 @@
       title: "Introduction to AI - Part 1",
       lastStudied: "2 hours ago",
       cardCount: 15,
+      progress: 45,
     },
     {
       id: "2",
       title: "Introduction to AI - Part 2",
       lastStudied: "2 hours ago",
       cardCount: 12,
+      progress: 10,
     },
     {
       id: "3",
       title: "Introduction to AI - Part 3",
       lastStudied: "2 hours ago",
       cardCount: 20,
+      progress: 80,
     },
   ]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -374,34 +379,7 @@
         </a>
       </div>
 
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {#each recentDecks as deck}
-          <div
-            class="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-sm hover:border-[#FFD700]/30 transition-all hover:bg-zinc-900/80 cursor-pointer"
-          >
-            <div class="flex justify-between items-start mb-4">
-              <div
-                class="h-10 w-10 rounded-lg bg-[#FFD700]/10 flex items-center justify-center group-hover:bg-[#FFD700]/20 transition-colors"
-              >
-                <span class="text-xl">📚</span>
-              </div>
-              <span
-                class="text-xs font-medium px-2 py-1 rounded-full bg-zinc-800 text-zinc-400"
-              >
-                {deck.cardCount} cards
-              </span>
-            </div>
-            <h3
-              class="text-lg font-semibold text-zinc-100 group-hover:text-[#FFD700] transition-colors"
-            >
-              {deck.title}
-            </h3>
-            <p class="text-sm text-zinc-400 mt-2">
-              Last studied {deck.lastStudied}
-            </p>
-          </div>
-        {/each}
-      </div>
+      <DeckList decks={recentDecks} />
     </section>
   {/if}
 </div>
