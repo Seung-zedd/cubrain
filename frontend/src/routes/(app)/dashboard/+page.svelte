@@ -4,7 +4,7 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { BookOpen, CircleCheck, RefreshCw, Plus } from "@lucide/svelte";
+  import { BookOpen, CircleCheck, RefreshCw, Plus, Save } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
 
@@ -243,19 +243,20 @@
                 </p>
               </div>
             </div>
-            <div class="flex gap-2">
-              <button
-                onclick={() => (window.location.href = "/dashboard")}
-                class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
-              >
-                View Decks
-              </button>
+            <div class="flex items-center gap-3">
               <button
                 onclick={resetView}
-                class="flex items-center gap-2 px-4 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg transition-colors"
+                class="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-white font-medium transition-colors"
               >
                 <RefreshCw class="w-4 h-4" />
                 Start Over
+              </button>
+              <button
+                onclick={() => console.log("Trigger Login Modal")}
+                class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+              >
+                <Save class="w-4 h-4" />
+                <span>Sign in to Save</span>
               </button>
             </div>
           </div>
