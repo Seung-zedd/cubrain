@@ -7,6 +7,8 @@ spring:
       dev: common, dev
   application:
     name: cubrainApp
+
+  # for logging colors
   output:
     ansi:
       enabled: ALWAYS
