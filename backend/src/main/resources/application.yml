@@ -13,6 +13,20 @@ spring:
     ansi:
       enabled: ALWAYS
 
+  # for mail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME} 
+    password: ${MAIL_PASSWORD} 
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# for logging
 logging:
   level:
     "[org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation]": OFF

@@ -143,7 +143,7 @@ public class PdfAnnotationService {
 
                     // Ignore empty or very short text (noise reduction)
                     if (!extractedText.isEmpty() && extractedText.length() > minTextLength) {
-                        results.add(new AnnotationResultDto(
+                        results.add(AnnotationResultDto.of(
                                 i + 1, // Page number (1-based)
                                 markup.getSubtype(),
                                 extractedText,
@@ -172,6 +172,6 @@ public class PdfAnnotationService {
             log.warn("User uploaded a clean PDF. No flashcards generated.");
         }
 
-        return new PdfExtractionResultDto(results, detectionText);
+        return PdfExtractionResultDto.of(results, detectionText);
     }
 }

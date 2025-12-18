@@ -35,7 +35,7 @@
 
       if (response.ok) {
         status = "success";
-        message = "Thanks for joining! We’ll be in touch soon.";
+        message = "Thanks for joining! We'll be in touch soon.";
         email = "";
       } else {
         const text = await response.text();

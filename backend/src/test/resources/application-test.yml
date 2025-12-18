@@ -38,6 +38,16 @@ langchain4j:
     embedding-model:
       api-key: "test-api-key"
       model-name: "text-embedding-004"
+
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
+
+# JWT 설정 (테스트용)
+jwt:
+  secret: "e5V1vprqaXAy/yPCemmDZgEY7ciIEMZDDsGjH7tRBmgJI7nKmpLAMMx7irdw/2nzcheuXHVIB7XYqqSsVKi0pw==" # 256-bit (32-byte) 이상의 Base64 인코딩된 문자열
+  access-token-expiration: 3600000 # 1 hour
+  refresh-token-expiration: 1209600000 # 14 days
+  cookie:
+    secure: false
+    samesite: Lax
