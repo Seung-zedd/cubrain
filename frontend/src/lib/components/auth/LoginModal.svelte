@@ -143,11 +143,12 @@
     </button>
 
     <div class="p-8">
-      <div class="text-center mb-8 h-20 flex flex-col justify-center">
+      <div class="text-center mb-8 h-20 relative overflow-hidden">
         {#key isSignUpMode}
           <div
-            in:fly={{ y: 10, duration: 300, delay: 150 }}
-            out:fade={{ duration: 150 }}
+            class="absolute inset-0 flex flex-col justify-center"
+            in:fly={{ y: 20, duration: 400, delay: 200 }}
+            out:fly={{ y: -20, duration: 200 }}
           >
             <h2 class="text-2xl font-bold text-white mb-2">
               {isSignUpMode ? "Join Cubrain" : "Save your progress"}
@@ -242,23 +243,32 @@
             {/if}
           </div>
 
-          {#key isSignUpMode}
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              in:fly={{ y: 5, duration: 300, delay: 150 }}
-              out:fade={{ duration: 150 }}
-              class="w-full rounded-lg bg-[#FFD700] px-4 py-3 font-bold text-black shadow-[0_0_15px_rgba(255,215,0,0.1)] hover:bg-[#FDB931] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all disabled:opacity-50"
-            >
-              {#if status === "loading"}
-                Processing...
-              {:else if showVerification}
-                Verify Code
-              {:else}
-                {isSignUpMode ? "Create Account" : "Sign In"}
-              {/if}
-            </button>
-          {/key}
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            class="relative w-full h-12 overflow-hidden rounded-lg bg-[#FFD700] font-bold text-black shadow-[0_0_15px_rgba(255,215,0,0.1)] hover:bg-[#FDB931] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all disabled:opacity-50"
+          >
+            {#key isSignUpMode + showVerification + (status === "loading")}
+              <div
+                class="absolute inset-0 flex items-center justify-center"
+                in:fly={{ y: 15, duration: 300, delay: 150 }}
+                out:fly={{ y: -15, duration: 150 }}
+              >
+                {#if status === "loading"}
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent"
+                    ></div>
+                    Processing...
+                  </div>
+                {:else if showVerification}
+                  Verify Code
+                {:else}
+                  {isSignUpMode ? "Create Account" : "Sign In"}
+                {/if}
+              </div>
+            {/key}
+          </button>
         </form>
 
         <div class="text-center pt-2">
