@@ -21,7 +21,7 @@
     try {
       const apiBaseUrl = API_BASE_URL;
 
-      if (import.meta.env.LOCAL) {
+      if (import.meta.env.DEV) {
         console.log("Using API URL:", apiBaseUrl);
       }
 
@@ -51,7 +51,7 @@
         }
       }
     } catch (err) {
-      if (import.meta.env.LOCAL) {
+      if (import.meta.env.DEV) {
         console.error(err);
       }
       status = "error";
@@ -86,7 +86,9 @@
       />
     </a>
     <div class="hidden md:flex gap-8 items-center">
-      <a href="#features" class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+      <a
+        href="#features"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Features</a
       >
       <a

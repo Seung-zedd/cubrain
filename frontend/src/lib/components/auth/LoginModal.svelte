@@ -27,31 +27,46 @@
     message = "";
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const response = await fetch(
-        `${API_BASE_URL}/api/auth/request-code?mode=${mode}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const url = `${API_BASE_URL}/api/auth/request-code?mode=${mode}`;
+      if (import.meta.env.DEV) {
+        console.log(`Requesting code from: ${url}`);
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
       if (response.ok) {
         showVerification = true;
         status = "success";
         message = "Verification code sent to your email!";
       } else {
-        const errorText = await response.text();
+        const errorData = await response.text();
+        if (import.meta.env.DEV) {
+          console.error("Auth error response:", errorData);
+        }
         status = "error";
-        message =
-          errorText ||
-          (isSignUpMode
-            ? "Account already exists."
-            : "Account not found. Please sign up below.");
+
+        try {
+          // Try to parse as JSON if it's a structured error
+          const json = JSON.parse(errorData);
+          message = json.message || json.details || "Request failed.";
+        } catch (e) {
+          message =
+            errorData ||
+            (isSignUpMode ? "Account already exists." : "Account not found.");
+        }
       }
     } catch (err) {
+      if (import.meta.env.DEV) {
+        console.error("Fetch error:", err);
+      }
       status = "error";
-      message = "Something went wrong. Please try again.";
+      message = "Connection failed. Please check your network.";
+    } finally {
+      if (status === "loading") status = "error";
     }
   }
 
@@ -59,26 +74,34 @@
     status = "loading";
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const response = await fetch(
-        `${API_BASE_URL}/api/auth/verify?mode=${mode}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code: verificationCode }),
-        }
-      );
+      const url = `${API_BASE_URL}/api/auth/verify?mode=${mode}`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: verificationCode }),
+      });
 
       if (response.ok) {
-        // Success! Redirect or update state
         window.location.href = "/dashboard";
       } else {
-        const errorText = await response.text();
+        const errorData = await response.text();
         status = "error";
-        message = errorText || "Invalid verification code.";
+        try {
+          const json = JSON.parse(errorData);
+          message = json.message || "Invalid verification code.";
+        } catch (e) {
+          message = errorData || "Invalid verification code.";
+        }
       }
     } catch (err) {
+      if (import.meta.env.DEV) {
+        console.error("Verify error:", err);
+      }
       status = "error";
       message = "Verification failed. Please try again.";
+    } finally {
+      if (status === "loading") status = "error";
     }
   }
 

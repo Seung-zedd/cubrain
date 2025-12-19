@@ -1,6 +1,6 @@
 # Agent Behavioral Rules
 
-♻️ *This markdown file can be re-used anytime you wanna build a new app*
+♻️ _This markdown file can be re-used anytime you wanna build a new app_
 
 ## 1. Documentation Lookup
 
@@ -75,108 +75,73 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
       .userNickname(userNickname)
       .sentence(sentence)
       .build();
+  ```
 
-B. DTO Creation (Response Layer)
+**B. DTO Creation (Response Layer)**
 
-Context: Converting Entities to DTOs to return data to the Controller/Frontend.
+- **Context:** Converting Entities to DTOs to return data to the Controller/Frontend.
+- **Rule:** Do NOT expose the .builder() of a DTO directly in the Service layer. Instead, use Static Factory Methods inside the DTO (Record).
+- **Naming:**
+  - `from(Entity entity)`: Mandatory for mapping an Entity to a DTO.
+  - `of(params...)`: For creating a DTO from individual arguments.
+- **Implementation:** Use Java record and `@Builder` together.
+- **Example:**
+  ```java
+  @Builder(access = AccessLevel.PRIVATE)
+  public record MyDto(String name, int age) {
+      public static MyDto from(MyEntity entity) {
+          return MyDto.builder()
+                  .name(entity.getName())
+                  .age(entity.getAge())
+                  .build();
+      }
+  }
+  ```
 
-Rule: Do NOT expose the .builder() of a DTO directly in the Service layer. Instead, use Static Factory Methods inside the DTO (Record).
+### 3.4 Package Structure
 
-Naming:
+- **Flat Architecture:** Keep domain packages flat (e.g., `domain/pdf` contains Controller, Service, Repository, DTOs).
+- **Refactoring Rule:** Only split a domain package into subpackages (`dto`, `service`, `controller`, etc.) when the file count in that package exceeds 15.
 
-from(Entity entity): Mandatory for mapping an Entity to a DTO.
+### 3.5 API Versioning Strategy
 
-of(params...): For creating a DTO from individual arguments.
+- **URI Versioning:** Use URI versioning for all REST API endpoints (e.g., `/api/v1/cards`).
+- **Evolution:** Start with v1 for the MVP. When breaking changes are introduced, create a new controller/endpoint with v2. Maintain v1 for backward compatibility.
 
-Implementation: Use Java record and @Builder together.
+### 3.6 Frontend Integration
 
-Code Example: DTO Implementation (Record)
-```java
-@Builder(access = AccessLevel.PRIVATE) // Hide builder to force usage of factory methods
-public record MyDto(String name, int age) {
-    
-    // ✅ Usage: MyDto.from(entity)
-    public static MyDto from(MyEntity entity) {
-        return MyDto.builder()
-                .name(entity.getName())
-                .age(entity.getAge())
-                .build();
-    }
-}
-```
+- **Syncing:** When backend API endpoints change, IMMEDIATELY update the corresponding frontend API calls.
+- **Search:** Grep for the old endpoint path in the frontend directory to find all occurrences.
 
-Code Example: Service Layer Usage
-```java
-// ✅ Good (Clean & Expressive)
-return entityList.stream().map(MyDto::from).toList();
-```
+### 3.7 Svelte 5 Refactoring Rules (Runes)
 
-3.4 Package Structure
-Flat Architecture: Keep domain packages flat (e.g., domain/pdf contains Controller, Service, Repository, DTOs).
+- **State ($state):** Convert `let var = val;` to `let var = $state(val);`.
+- **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`.
+- **Derived ($derived):** Convert `$: double = count * 2;` to `let double = $derived(count * 2);`.
+- **Effects ($effect):** Convert `$: { sideEffect(); }` to `$effect(() => { sideEffect(); });`.
+- **Events:** Prefer callback props over `createEventDispatcher`.
+- **Icons:** Use `@lucide/svelte` for icon imports.
+- **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
-Refactoring Rule: Only split a domain package into subpackages (dto, service, controller, etc.) when the file count in that package exceeds 15.
+### 3.8 Frontend Logging & Environment Checks
 
-3.5 API Versioning Strategy
-URI Versioning: Use URI versioning for all REST API endpoints (e.g., /api/v1/cards).
+- **Logging:** All `console.log`, `console.error`, and other debug logs MUST be wrapped in an environment check to prevent leaking information in production.
+- **Environment Check:** Use `import.meta.env.DEV` (Vite standard) to check if the app is running in development mode.
+- **Example:**
+  ```javascript
+  if (import.meta.env.DEV) {
+    console.log("Debug info:", data);
+  }
+  ```
 
-Evolution:
+## 4. Documentation Strategy (API & Code)
 
-Start with v1 for the MVP.
-
-When breaking changes are introduced, create a new controller/endpoint with v2.
-
-Maintain v1 for backward compatibility until it can be safely deprecated.
-
-Consistency: Ensure all related endpoints share the same version prefix.
-
-3.6 Frontend Integration
-Syncing: When backend API endpoints change (e.g., versioning updates), IMMEDIATELY update the corresponding frontend API calls.
-
-Search: Grep for the old endpoint path in the frontend directory to find all occurrences.
-
-3.7 Svelte 5 Refactoring Rules (Runes)
-State ($state): Convert let var = val; to let var = $state(val);.
-
-Props ($props): Replace export let prop; with let { prop } = $props();. Use $bindable() only if necessary.
-
-**Derived ($derived):** Convert $: double = count \* 2;tolet double = $derived(count \* 2);\.
-
-**Effects ($effect):** Convert $: { sideEffect(); }to$effect(() =\> { sideEffect(); });\.
-
-Events: Prefer callback props over createEventDispatcher.
-
-Icons: Use @lucide/svelte for icon imports (e.g., import { X } from "@lucide/svelte";).
-
-Cleanup: Remove unused imports and ensure lang="ts".
-
-4. Documentation Strategy (API & Code)
 Rule: Whenever you create or modify a Controller or DTO class, you MUST immediately apply the following documentation annotations.
 
-Controllers (Endpoints):
+- **Controllers (Endpoints):** MUST use `@Operation` to describe what the API does.
+- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
+- **Internal Logic:** No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
 
-MUST use @Operation to describe what the API does.
+## 5. Localization Rule
 
-Example:
-```java
-@Operation(summary = "Generate Flashcards", description = "Generate flashcards from a PDF file")
-@PostMapping("/generate")
-public ResponseEntity<CardResponseDto> generate(...)
-```
-
-DTOs (Request/Response Bodies):
-
-MUST use @Schema for fields to provide descriptions and examples.
-
-Example:
-```java
-public record CardRequestDto(
-    @Schema(description = "Extracted text", example = "TCP is...")
-    String sourceText
-) {}
-```
-Internal Logic:
-
-No boilerplate Javadoc. Use inline comments (//) only for complex business logic.
-
-5. Localization Rule
-English Only: All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
+- **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).

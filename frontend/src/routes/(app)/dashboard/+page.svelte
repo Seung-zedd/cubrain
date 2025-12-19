@@ -137,7 +137,7 @@
                 pollInterval = null;
                 isGenerating = false;
 
-                if (import.meta.env.LOCAL) {
+                if (import.meta.env.DEV) {
                   console.log("Job Completed:", statusData.results);
                 }
 
@@ -175,13 +175,13 @@
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
                 isGenerating = false;
-                if (import.meta.env.LOCAL) {
+                if (import.meta.env.DEV) {
                   console.error("Job Failed");
                 }
               }
             }
           } catch (e) {
-            if (import.meta.env.LOCAL) {
+            if (import.meta.env.DEV) {
               console.error("Polling error", e);
             }
             if (pollInterval) clearInterval(pollInterval);
@@ -190,13 +190,13 @@
           }
         }, 1000);
       } else {
-        if (import.meta.env.LOCAL) {
+        if (import.meta.env.DEV) {
           console.error("Failed to start generation job");
         }
         isGenerating = false;
       }
     } catch (error) {
-      if (import.meta.env.LOCAL) {
+      if (import.meta.env.DEV) {
         console.error("Error:", error);
       }
       isGenerating = false;
