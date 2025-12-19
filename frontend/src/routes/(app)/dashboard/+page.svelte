@@ -31,7 +31,7 @@
   let jobProgress = $state(0);
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
-  let showLoginModal = $state(true);
+  let showLoginModal = $state(false);
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
     {

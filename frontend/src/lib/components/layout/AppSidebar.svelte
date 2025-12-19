@@ -22,7 +22,7 @@
 >
   <!-- Brand Logo -->
   <div class="flex h-16 items-center px-6 border-b border-zinc-800/50">
-    <a href="/dashboard" class="flex items-center gap-2">
+    <a href="/" class="flex items-center gap-2">
       <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
     </a>
   </div>
