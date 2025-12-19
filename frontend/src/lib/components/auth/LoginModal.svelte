@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { API_BASE_URL } from "$lib/config";
   import { X, CircleAlert, CircleCheck } from "@lucide/svelte";
   import { fade, scale, slide, fly } from "svelte/transition";
 
@@ -26,11 +27,14 @@
     message = "";
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const response = await fetch(`/api/auth/request-code?mode=${mode}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/request-code?mode=${mode}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       if (response.ok) {
         showVerification = true;
@@ -55,11 +59,14 @@
     status = "loading";
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const response = await fetch(`/api/auth/verify?mode=${mode}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: verificationCode }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/verify?mode=${mode}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code: verificationCode }),
+        }
+      );
 
       if (response.ok) {
         // Success! Redirect or update state
