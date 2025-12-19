@@ -32,7 +32,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - ✅ `:white_check_mark:` `test`: Adding/fixing tests
 - 🚑 `:ambulance:` `hotfix`: Critical hotfixes
 
-**Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above. Focus on the most significant change.
+**Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
 ## 3. Coding Standards & Design Principles
 
