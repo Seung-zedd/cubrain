@@ -11,7 +11,6 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +25,6 @@ import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER
 import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
 
 @Service
-// @RequiredArgsConstructor removed
 @Slf4j
 public class CardService {
 
@@ -34,7 +32,6 @@ public class CardService {
     private final ObjectMapper objectMapper;
     private final PdfAnnotationService pdfAnnotationService;
     private final JobManager jobManager;
-    // @Qualifier removed from field
     private final Executor pdfProcessingExecutor;
 
     public CardService(
