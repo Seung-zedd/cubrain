@@ -11,6 +11,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +37,7 @@ public class PdfIngestionService {
             EmbeddingModel embeddingModel,
             EmbeddingStore<TextSegment> embeddingStore,
             JobManager jobManager,
-            Executor pdfProcessingExecutor,
+            @Qualifier("pdfProcessingExecutor") Executor pdfProcessingExecutor,
             @Value("${langchain4j.document-splitter.chunk-size}") int chunkSize,
             @Value("${langchain4j.document-splitter.chunk-overlap}") int chunkOverlap) {
         this.embeddingModel = embeddingModel;

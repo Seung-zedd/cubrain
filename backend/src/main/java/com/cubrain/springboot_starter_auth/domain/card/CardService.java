@@ -26,16 +26,29 @@ import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER
 import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
 
 @Service
-@RequiredArgsConstructor
+// @RequiredArgsConstructor removed
 @Slf4j
 public class CardService {
 
     private final ChatLanguageModel chatModel;
-    private final ObjectMapper objectMapper; // Spring's default JSON parser
+    private final ObjectMapper objectMapper;
     private final PdfAnnotationService pdfAnnotationService;
     private final JobManager jobManager;
-    @org.springframework.beans.factory.annotation.Qualifier("pdfProcessingExecutor")
+    // @Qualifier removed from field
     private final Executor pdfProcessingExecutor;
+
+    public CardService(
+            ChatLanguageModel chatModel,
+            ObjectMapper objectMapper,
+            PdfAnnotationService pdfAnnotationService,
+            JobManager jobManager,
+            @org.springframework.beans.factory.annotation.Qualifier("pdfProcessingExecutor") Executor pdfProcessingExecutor) {
+        this.chatModel = chatModel;
+        this.objectMapper = objectMapper;
+        this.pdfAnnotationService = pdfAnnotationService;
+        this.jobManager = jobManager;
+        this.pdfProcessingExecutor = pdfProcessingExecutor;
+    }
 
     public String generateCardsAsync(MultipartFile file, UserTier userTier) {
         String jobId = jobManager.createJob();
@@ -176,7 +189,8 @@ public class CardService {
                         "Extracted from PDF Page " + annotation.pageIndex(), annotation.type(), targetLanguage);
                 flashcards.add(card);
 
-                // Update Progress, and this will be reflected on the +page.svelte component from 270 to 289 line
+                // Update Progress, and this will be reflected on the +page.svelte component
+                // from 270 to 289 line
                 if (jobId != null) {
                     int progress = (int) (((double) (i + 1) / total) * 100);
                     jobManager.updateProgress(jobId, progress);
