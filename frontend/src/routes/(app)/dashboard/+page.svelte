@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import FileDropzone from "$lib/components/upload/FileDropzone.svelte";
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
@@ -58,7 +58,7 @@
   ]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-  let mode = $derived($page.url.searchParams.get("mode"));
+  let mode = $derived(page.url.searchParams.get("mode"));
   let hasDecks = $derived(recentDecks.length > 0);
   let showUpload = $derived(mode === "upload" || !hasDecks);
 

@@ -31,8 +31,8 @@
   <nav class="flex-1 space-y-1 px-3 py-4">
     {#each navItems as item}
       {@const isActive = item.href.includes("?")
-        ? $page.url.search === new URL("http://dummy" + item.href).search
-        : $page.url.pathname === item.href && $page.url.search === ""}
+        ? page.url.search === new URL("http://dummy" + item.href).search
+        : page.url.pathname === item.href && page.url.search === ""}
       <a
         href={item.href}
         class={cn(
