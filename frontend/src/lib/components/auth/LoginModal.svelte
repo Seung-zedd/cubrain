@@ -12,6 +12,7 @@
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
   let emailError = $state(false);
+  let codeError = $state(false);
 
   function validateEmail(email: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -115,6 +116,8 @@
       } else {
         const errorData = await response.text();
         status = "error";
+        codeError = true;
+        setTimeout(() => (codeError = false), 500);
         try {
           const json = JSON.parse(errorData);
           message = json.message || "Invalid verification code.";
@@ -276,14 +279,41 @@
             </div>
 
             {#if showVerification}
-              <div transition:slide={{ duration: 300 }}>
+              <div transition:slide={{ duration: 300 }} class="relative">
                 <input
                   type="text"
                   placeholder="6-digit code"
                   bind:value={verificationCode}
+                  oninput={() => {
+                    codeError = false;
+                    if (status === "error") {
+                      status = "idle";
+                      message = "";
+                    }
+                  }}
                   maxlength="6"
-                  class="w-full rounded-lg bg-zinc-800/50 border border-zinc-700 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700] transition-all"
+                  class="w-full rounded-lg bg-zinc-800/50 border {codeError
+                    ? 'border-red-500 ring-1 ring-red-500'
+                    : 'border-zinc-700'} px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700] transition-all {codeError
+                    ? 'animate-shake'
+                    : ''}"
                 />
+
+                {#if codeError && message}
+                  <div
+                    transition:fly={{ y: 5, duration: 200 }}
+                    class="absolute -top-10 left-0 z-20 w-full"
+                  >
+                    <div
+                      class="bg-red-500 text-white text-xs font-bold px-3 py-2 rounded shadow-lg relative"
+                    >
+                      {message}
+                      <div
+                        class="absolute -bottom-1 left-4 w-2 h-2 bg-red-500 rotate-45"
+                      ></div>
+                    </div>
+                  </div>
+                {/if}
               </div>
             {/if}
 

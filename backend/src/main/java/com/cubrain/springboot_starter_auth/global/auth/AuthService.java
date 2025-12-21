@@ -57,14 +57,14 @@ public class AuthService {
     @Transactional
     public AuthDto.TokenResponseDto verifyAndAuthenticate(String email, String code, AuthMode mode) {
         EmailVerification verification = verificationRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Verification code not found."));
+                .orElseThrow(() -> new IllegalArgumentException("Verification code not found."));
 
         if (verification.isExpired()) {
             verificationRepository.delete(verification);
-            throw new RuntimeException("Verification code expired.");
+            throw new IllegalArgumentException("Verification code expired.");
         }
         if (!verification.getCode().equals(code)) {
-            throw new RuntimeException("Invalid verification code.");
+            throw new IllegalArgumentException("Please enter the accurate verification code.");
         }
 
         verificationRepository.delete(verification);
