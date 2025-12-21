@@ -3,6 +3,7 @@ package com.cubrain.springboot_starter_auth.global.auth;
 import com.cubrain.springboot_starter_auth.global.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -18,30 +19,22 @@ public class AuthController {
 
     @Operation(summary = "Request verification code", description = "Sends a 6-digit verification code to the user's email.")
     @PostMapping("/request-code")
-    public ResponseEntity<?> requestCode(@RequestBody AuthDto.AuthRequestDto request,
+    public ResponseEntity<?> requestCode(@Valid @RequestBody AuthDto.AuthRequestDto request,
             @RequestParam AuthService.AuthMode mode) {
-        try {
-            authService.requestVerification(request.email(), mode);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        authService.requestVerification(request.email(), mode);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Verify code and authenticate", description = "Verifies the 6-digit code and issues JWT tokens if successful.")
     @PostMapping("/verify")
-    public ResponseEntity<?> verify(@RequestBody AuthDto.VerifyRequestDto request,
+    public ResponseEntity<?> verify(@Valid @RequestBody AuthDto.VerifyRequestDto request,
             @RequestParam AuthService.AuthMode mode,
             HttpServletResponse response) {
-        try {
-            AuthDto.TokenResponseDto tokenResponse = authService.verifyAndAuthenticate(request.email(),
-                    request.code(),
-                    mode);
-            setTokenCookies(response, tokenResponse);
-            return ResponseEntity.ok(tokenResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        AuthDto.TokenResponseDto tokenResponse = authService.verifyAndAuthenticate(request.email(),
+                request.code(),
+                mode);
+        setTokenCookies(response, tokenResponse);
+        return ResponseEntity.ok(tokenResponse);
     }
 
     @Operation(summary = "Refresh JWT tokens", description = "Issues new access and refresh tokens using a valid refresh token.")

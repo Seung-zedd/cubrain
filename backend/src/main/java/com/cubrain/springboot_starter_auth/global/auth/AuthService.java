@@ -77,7 +77,7 @@ public class AuthService {
                     .tier(UserTier.FREE_USER)
                     .isVerified(true)
                     .build();
-            member = Objects.requireNonNull(memberRepository.save(member));
+            member = memberRepository.save(member);
         } else {
             member = memberRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found."));
