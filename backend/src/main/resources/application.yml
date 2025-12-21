@@ -13,18 +13,7 @@ spring:
     ansi:
       enabled: ALWAYS
 
-  # for mail
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME} # google email
-    password: ${MAIL_PASSWORD} # google app password
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  
 
 # for logging
 logging:
