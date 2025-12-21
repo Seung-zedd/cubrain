@@ -28,6 +28,6 @@ spring:
     baseline-version: 1 # Starting version
 
   # for Resend API
-  resend:
-    api-key: ${RESEND_API_KEY}
-    from: onboarding@resend.dev # Default for testing, change to your verified domain later
+resend:
+  api-key: ${RESEND_API_KEY}
+  from: onboarding@resend.dev # Default for testing, change to your verified domain later
