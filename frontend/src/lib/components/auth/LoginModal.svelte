@@ -25,6 +25,9 @@
   async function handleRequestCode() {
     status = "loading";
     message = "";
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
       const url = `${API_BASE_URL}/api/auth/request-code?mode=${mode}`;
@@ -36,7 +39,9 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         showVerification = true;
@@ -59,12 +64,17 @@
             (isSignUpMode ? "Account already exists." : "Account not found.");
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       if (import.meta.env.DEV) {
         console.error("Fetch error:", err);
       }
       status = "error";
-      message = "Connection failed. Please check your network.";
+      if (err.name === "AbortError") {
+        message = "Request timed out. Please try again.";
+      } else {
+        message = "Connection failed. Please check your network.";
+      }
     } finally {
       if (status === "loading") status = "error";
     }
@@ -72,6 +82,9 @@
 
   async function handleVerify() {
     status = "loading";
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
       const url = `${API_BASE_URL}/api/auth/verify?mode=${mode}`;
@@ -80,7 +93,9 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: verificationCode }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         window.location.href = "/dashboard";
@@ -94,12 +109,17 @@
           message = errorData || "Invalid verification code.";
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       if (import.meta.env.DEV) {
         console.error("Verify error:", err);
       }
       status = "error";
-      message = "Verification failed. Please try again.";
+      if (err.name === "AbortError") {
+        message = "Verification timed out. Please try again.";
+      } else {
+        message = "Verification failed. Please try again.";
+      }
     } finally {
       if (status === "loading") status = "error";
     }
@@ -248,7 +268,7 @@
             disabled={status === "loading"}
             class="relative w-full h-12 overflow-hidden rounded-lg bg-[#FFD700] font-bold text-black shadow-[0_0_15px_rgba(255,215,0,0.1)] hover:bg-[#FDB931] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all disabled:opacity-50"
           >
-            {#key isSignUpMode + showVerification + (status === "loading")}
+            {#key `${isSignUpMode}-${showVerification}-${status === "loading"}`}
               <div
                 class="absolute inset-0 flex items-center justify-center"
                 in:fly={{ y: 15, duration: 300, delay: 150 }}
