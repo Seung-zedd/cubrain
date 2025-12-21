@@ -30,12 +30,16 @@ spring:
   # for mail
   mail:
     host: smtp.gmail.com
-    port: 587 # since the option 1 didn't work
-    username: ${MAIL_USERNAME} # google email
-    password: ${MAIL_PASSWORD} # google app password
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
-          starttls:
+          ssl:
             enable: true
+            trust: smtp.gmail.com
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
