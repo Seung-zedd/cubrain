@@ -11,6 +11,11 @@
   let showVerification = $state(false);
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
+  let emailError = $state(false);
+
+  function validateEmail(email: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
   function close() {
     onclose();
@@ -23,6 +28,14 @@
   }
 
   async function handleRequestCode() {
+    if (!email || !validateEmail(email)) {
+      emailError = true;
+      status = "error";
+      message = "Please enter a valid email address.";
+      setTimeout(() => (emailError = false), 500); // Reset shake animation
+      return;
+    }
+
     status = "loading";
     message = "";
     const controller = new AbortController();
@@ -225,13 +238,42 @@
           }}
         >
           <div class="space-y-4">
-            <input
-              type="email"
-              placeholder="Email address"
-              bind:value={email}
-              disabled={showVerification}
-              class="w-full rounded-lg bg-zinc-800/50 border border-zinc-700 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700] transition-all disabled:opacity-50"
-            />
+            <div class="relative">
+              <input
+                type="email"
+                placeholder="Email address"
+                bind:value={email}
+                oninput={() => {
+                  emailError = false;
+                  if (status === "error") {
+                    status = "idle";
+                    message = "";
+                  }
+                }}
+                disabled={showVerification}
+                class="w-full rounded-lg bg-zinc-800/50 border {emailError
+                  ? 'border-red-500 ring-1 ring-red-500'
+                  : 'border-zinc-700'} px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700] transition-all disabled:opacity-50 {emailError
+                  ? 'animate-shake'
+                  : ''}"
+              />
+
+              {#if emailError && message}
+                <div
+                  transition:fly={{ y: 5, duration: 200 }}
+                  class="absolute -top-10 left-0 z-20 w-full"
+                >
+                  <div
+                    class="bg-red-500 text-white text-xs font-bold px-3 py-2 rounded shadow-lg relative"
+                  >
+                    {message}
+                    <div
+                      class="absolute -bottom-1 left-4 w-2 h-2 bg-red-500 rotate-45"
+                    ></div>
+                  </div>
+                </div>
+              {/if}
+            </div>
 
             {#if showVerification}
               <div transition:slide={{ duration: 300 }}>
@@ -308,3 +350,21 @@
     </div>
   </div>
 </div>
+
+<style>
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+  .animate-shake {
+    animation: shake 0.2s ease-in-out 0s 2;
+  }
+</style>
