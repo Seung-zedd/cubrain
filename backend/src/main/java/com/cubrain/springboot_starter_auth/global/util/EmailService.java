@@ -14,11 +14,15 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.from}")
+    private String fromEmail;
+
     @Async("emailExecutor")
     public void sendVerificationCode(String to, String code) {
         try {
             log.info("Sending verification code to {}", to);
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(to);
             message.setSubject("[Cubrain] Your Verification Code");
             message.setText("Your verification code is: " + code + "\nIt will expire in 5 minutes.");

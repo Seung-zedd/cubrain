@@ -29,10 +29,10 @@ spring:
 
   # for mail
   mail:
-    host: smtp.gmail.com
+    host: smtp.resend.com
     port: 465
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: resend
+    password: ${RESEND_API_KEY}
     properties:
       mail:
         debug: true
@@ -50,3 +50,4 @@ spring:
           timeout: 15000
           connectiontimeout: 15000
           writetimeout: 15000
+    from: onboarding@resend.dev # Default for testing, change to your verified domain later
