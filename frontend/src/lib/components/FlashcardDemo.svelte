@@ -13,15 +13,15 @@
     globalContext: string;
   }
 
-  let showButton = false;
-  let btnX = 0;
-  let btnY = 0;
-  let selectedText = "";
-  let isLoading = false;
-  let flashcard: Flashcard | null = null;
-  let currentContext: ContextData | null = null;
-  let demoContainer: HTMLElement; // Reference to the container
-  let errorMessage = "";
+  let showButton = $state(false);
+  let btnX = $state(0);
+  let btnY = $state(0);
+  let selectedText = $state("");
+  let isLoading = $state(false);
+  let flashcard = $state<Flashcard | null>(null);
+  let currentContext = $state<ContextData | null>(null);
+  let demoContainer = $state<HTMLElement>(); // Reference to the container
+  let errorMessage = $state("");
   let errorTimeout: ReturnType<typeof setTimeout>;
 
   const MAX_LOCAL_CONTEXT_LENGTH = 2000;
@@ -129,7 +129,7 @@
     currentContext = captureContext(range, text);
     if (!currentContext) return;
 
-    if (import.meta.env.LOCAL) {
+    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Captured Context Data:", {
         Layer1_Selection: currentContext.selection,
         Layer2_LocalContext: currentContext.localContext,
@@ -177,7 +177,7 @@
       // Use shared API URL configuration
       const apiBaseUrl = API_BASE_URL;
 
-      const response = await fetch(`${apiBaseUrl}/api/cards/generate`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/cards/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(currentContext),
@@ -228,13 +228,22 @@
       isLoading = false;
     }
   }
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
+      console.log("🔍 Debug Info:");
+      console.log("API_BASE_URL:", API_BASE_URL);
+      console.log("import.meta.env:", import.meta.env);
+    }
+  });
 </script>
 
 <div
   class="demo-wrapper relative bg-zinc-950/50 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl max-w-3xl mx-auto my-8"
   bind:this={demoContainer}
-  on:mouseup={handleMouseUp}
-  on:mousedown={handleMouseDown}
+  onmouseup={handleMouseUp}
+  onmousedown={handleMouseDown}
   role="presentation"
 >
   <div class="flex items-center gap-4 mb-8">
@@ -275,7 +284,7 @@
     <button
       class="cubrain-float-btn"
       style="left: {btnX}px; top: {btnY}px;"
-      on:click={createFlashcard}
+      onclick={createFlashcard}
       disabled={isLoading}
       transition:fade={{ duration: 150 }}
     >
@@ -291,16 +300,28 @@
     <div class="result-card" transition:fly={{ y: 20, duration: 300 }}>
       <div class="card-header">
         <span class="icon">✨</span> Generated Flashcard
-        <button class="close-btn" on:click={() => (flashcard = null)}>×</button>
+        <button class="close-btn" onclick={() => (flashcard = null)}>×</button>
       </div>
-      <div class="card-body">
-        <div class="qa-pair">
-          <div class="label">Q</div>
-          <div class="text">{flashcard.question}</div>
+      <div class="p-6 flex flex-col gap-6 text-left">
+        <div class="flex flex-col gap-2">
+          <span
+            class="text-amber-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Question
+          </span>
+          <p class="text-white text-lg font-medium leading-relaxed">
+            {flashcard.question}
+          </p>
         </div>
-        <div class="qa-pair">
-          <div class="label">A</div>
-          <div class="text">{flashcard.answer}</div>
+        <div class="flex flex-col gap-2">
+          <span
+            class="text-gray-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Answer
+          </span>
+          <p class="text-gray-300 text-base leading-relaxed">
+            {flashcard.answer}
+          </p>
         </div>
       </div>
     </div>
@@ -310,7 +331,7 @@
     <div class="error-toast" transition:fade={{ duration: 200 }}>
       <span class="icon">⚠️</span>
       {errorMessage}
-      <button class="close-btn-small" on:click={() => (errorMessage = "")}
+      <button class="close-btn-small" onclick={() => (errorMessage = "")}
         >×</button
       >
     </div>
@@ -381,39 +402,6 @@
     cursor: pointer;
     padding: 0;
     line-height: 1;
-  }
-
-  .card-body {
-    padding: 1.5rem;
-  }
-
-  .qa-pair {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .qa-pair:last-child {
-    margin-bottom: 0;
-  }
-
-  .label {
-    background: #333;
-    color: #fbbf24;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-
-  .text {
-    color: #fff;
-    line-height: 1.5;
-    padding-top: 0.2rem;
   }
 
   .spinner {

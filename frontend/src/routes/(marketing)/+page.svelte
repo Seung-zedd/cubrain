@@ -1,14 +1,14 @@
-<script>
+<script lang="ts">
   import heroImage from "$lib/assets/hero.png";
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import { API_BASE_URL } from "$lib/config";
 
-  let email = "";
-  let status = "idle"; // 'idle' | 'loading' | 'success' | 'error'
-  let message = "";
+  let email = $state("");
+  let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
+  let message = $state("");
 
-  async function joinWaitlist() {
+  const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
       status = "error";
       message = "Please enter a valid email address.";
@@ -21,9 +21,11 @@
     try {
       const apiBaseUrl = API_BASE_URL;
 
-      console.log("Using API URL:", apiBaseUrl);
+      if (import.meta.env.DEV) {
+        console.log("Using API URL:", apiBaseUrl);
+      }
 
-      const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/waitlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,7 +35,7 @@
 
       if (response.ok) {
         status = "success";
-        message = "Thanks for joining! We’ll be in touch soon.";
+        message = "Thanks for joining! We'll be in touch soon.";
         email = "";
       } else {
         const text = await response.text();
@@ -49,12 +51,14 @@
         }
       }
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.DEV) {
+        console.error(err);
+      }
       status = "error";
       message =
         "Failed to connect to the server. Please check your connection.";
     }
-  }
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -86,6 +90,11 @@
         href="#features"
         class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Features</a
+      >
+      <a
+        href="/dashboard"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        >Dashboard</a
       >
       <a
         href="#waitlist"

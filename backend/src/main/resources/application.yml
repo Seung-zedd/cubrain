@@ -4,10 +4,18 @@ spring:
     group:
       local: common, local
       prod: common, prod
+      dev: common, dev
   application:
     name: cubrainApp
+
+  # for logging colors
   output:
     ansi:
       enabled: ALWAYS
-# ✅ AI 설정 추가
 
+  
+
+# for logging
+logging:
+  level:
+    "[org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation]": OFF

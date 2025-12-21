@@ -7,7 +7,6 @@
 .temp/
 Thumbs.db
 HELP.md
-AGENT.md
 *.pdf
 
 # IntelliJ (기존 설정)
@@ -106,6 +105,9 @@ lerna-debug.log*
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
+
+# npm lock file (pnpm is used for frontend)
+package-lock.json
 
 # Vite
 .vite/

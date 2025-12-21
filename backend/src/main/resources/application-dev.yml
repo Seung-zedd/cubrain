@@ -1,0 +1,68 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  # JPA 설정 (Dev: Prod와 유사하게 하되 디버깅 용이)
+  jpa:
+    hibernate:
+      ddl-auto: none # Flyway로 관리 (Prod 환경 시뮬레이션)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        "[format_sql]": true # 쿼리 보기 편하게 포맷팅
+        "[show_sql]": true # 콘솔에 쿼리 출력
+
+  # 데이터베이스 설정 (Railway 환경변수 사용)
+  datasource:
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/postgres
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
+
+  # Flyway 활성화 (마이그레이션 테스트)
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# 로깅 레벨 설정 (디버깅용)
+logging:
+  level:
+    "[org.hibernate.SQL]": debug
+    "[org.hibernate.type.descriptor.sql]": trace # 바인딩 변수 값 확인
+    "[com.cubrain]": debug # 내 애플리케이션 로그
+
+# Swagger 설정(개발, 운영 환경에서는 비활성화)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# AI 설정 (Railway 변수 사용)
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: "${GEMINI_API_KEY_LOCAL}"
+      model-name: gemini-2.0-flash-exp
+      temperature: 0.7
+    embedding-model:
+      api-key: "${GEMINI_API_KEY_LOCAL}"
+      model-name: text-embedding-004
+  document-splitter:
+    chunk-size: 1000
+    chunk-overlap: 200
+
+# JWT 설정
+jwt:
+  secret: ${DEV_JWT_SECRET}
+  access-token-expiration: 3600000 # 1 hour
+  refresh-token-expiration: 1209600000 # 14 days
+  cookie:
+    secure: true
+    samesite: None

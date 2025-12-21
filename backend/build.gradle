@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.8'
+	id 'org.springframework.boot' version '3.5.9'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -56,21 +56,27 @@ dependencies {
     // 3. RAG Features (역시 버전 번호 지움)
     implementation 'dev.langchain4j:langchain4j-pgvector'
     implementation 'dev.langchain4j:langchain4j-document-parser-apache-pdfbox'
+    
+    // ✅ PDF 처리를 위한 Apache PDFBox (LangChain4j가 쓰지만, 명시적으로 추가)
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30' 
+    // (참고: 3.0 버전은 구조가 많이 달라서, 자료가 많은 2.x 버전을 추천합니다)
 
     // 4. Core (DocumentSplitters용)
     implementation 'dev.langchain4j:langchain4j'
 	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-	// implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	// implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.resend:resend-java:4.11.0'
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
+
     // in-memory 테스트용
     testRuntimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -82,16 +88,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // JWT 라이브러리 의존성을 추가
-    // implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    // runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    // runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
     // p6spy 디펜던시 (쿼리 파라미터 출력) - exclude from tests
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.github.gavlyukovskiy', module: 'p6spy-spring-boot-starter'
     }
-	// testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 
     // Lombok (must come before MapStruct)
     compileOnly 'org.projectlombok:lombok'
@@ -108,4 +114,8 @@ tasks.named('test') {
 // Disable the generation of the 'plain' jar so only the executable 'bootJar' is created.
 tasks.named("jar") {
     enabled = false
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add("-parameters")
 }

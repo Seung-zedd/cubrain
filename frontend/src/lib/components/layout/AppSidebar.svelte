@@ -11,7 +11,7 @@
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/upload", label: "Upload PDF", icon: CloudUpload },
+    { href: "/dashboard?mode=upload", label: "Upload PDF", icon: CloudUpload },
     { href: "/library", label: "Library", icon: Library },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
@@ -22,7 +22,7 @@
 >
   <!-- Brand Logo -->
   <div class="flex h-16 items-center px-6 border-b border-zinc-800/50">
-    <a href="/dashboard" class="flex items-center gap-2">
+    <a href="/" class="flex items-center gap-2">
       <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
     </a>
   </div>
@@ -30,7 +30,9 @@
   <!-- Navigation -->
   <nav class="flex-1 space-y-1 px-3 py-4">
     {#each navItems as item}
-      {@const isActive = page.url.pathname === item.href}
+      {@const isActive = item.href.includes("?")
+        ? $page.url.search === new URL("http://dummy" + item.href).search
+        : $page.url.pathname === item.href && $page.url.search === ""}
       <a
         href={item.href}
         class={cn(

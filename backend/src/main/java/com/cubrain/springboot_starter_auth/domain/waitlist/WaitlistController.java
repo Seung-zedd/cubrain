@@ -6,15 +6,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/waitlist")
+@RequestMapping("/api/v1/waitlist")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // Allow Svelte to call this
 public class WaitlistController {
 
     private final WaitlistService waitlistService;
 
+    @Operation(summary = "Join Waitlist", description = "Adds a user to the waitlist.")
     @PostMapping
     public ResponseEntity<String> joinWaitlist(@RequestBody @Valid WaitlistRequestDto requestDto) {
         try {
