@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     // IllegalArgumentException 처리
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.", e.getMessage());
+        return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null);
     }
 
     // 클라이언트 연결 중단 예외 처리 (ClientAbortException)

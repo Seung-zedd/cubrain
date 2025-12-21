@@ -37,10 +37,10 @@ public class AuthService {
         boolean exists = memberRepository.existsByEmail(email);
 
         if (mode == AuthMode.SIGN_IN && !exists) {
-            throw new RuntimeException("Account not found. Please sign up below.");
+            throw new IllegalArgumentException("Account not found. Please sign up below.");
         }
         if (mode == AuthMode.SIGN_UP && exists) {
-            throw new RuntimeException("Account already exists. Please sign in.");
+            throw new IllegalArgumentException("Account already exists. Please sign in.");
         }
 
         String code = String.format("%06d", new Random().nextInt(1000000));
