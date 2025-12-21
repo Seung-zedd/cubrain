@@ -30,4 +30,4 @@ spring:
   # for Resend API
 resend:
   api-key: ${RESEND_API_KEY}
-  from: onboarding@resend.dev # Default for testing, change to your verified domain later
+  from: cubrain.app # Default for testing, change to your verified domain later
