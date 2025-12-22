@@ -7,10 +7,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -19,18 +24,18 @@ public class AuthController {
 
     @Operation(summary = "Request verification code", description = "Sends a 6-digit verification code to the user's email.")
     @PostMapping("/request-code")
-    public ResponseEntity<?> requestCode(@Valid @RequestBody AuthDto.AuthRequestDto request,
-            @RequestParam AuthService.AuthMode mode) {
+    public ResponseEntity<Void> requestCode(@Valid @RequestBody AuthRequestDto request,
+            @RequestParam AuthMode mode) {
         authService.requestVerification(request.email(), mode);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Verify code and authenticate", description = "Verifies the 6-digit code and issues JWT tokens if successful.")
     @PostMapping("/verify")
-    public ResponseEntity<?> verify(@Valid @RequestBody AuthDto.VerifyRequestDto request,
-            @RequestParam AuthService.AuthMode mode,
+    public ResponseEntity<TokenResponseDto> verify(@Valid @RequestBody VerifyRequestDto request,
+            @RequestParam AuthMode mode,
             HttpServletResponse response) {
-        AuthDto.TokenResponseDto tokenResponse = authService.verifyAndAuthenticate(request.email(),
+        TokenResponseDto tokenResponse = authService.verifyAndAuthenticate(request.email(),
                 request.code(),
                 mode);
         setTokenCookies(response, tokenResponse);
@@ -42,7 +47,7 @@ public class AuthController {
     public ResponseEntity<?> refresh(@CookieValue(name = "refreshToken") String refreshToken,
             HttpServletResponse response) {
         try {
-            AuthDto.TokenResponseDto tokenResponse = authService.refreshTokens(refreshToken);
+            TokenResponseDto tokenResponse = authService.refreshTokens(refreshToken);
             setTokenCookies(response, tokenResponse);
             return ResponseEntity.ok(tokenResponse);
         } catch (Exception e) {
@@ -50,7 +55,7 @@ public class AuthController {
         }
     }
 
-    private void setTokenCookies(HttpServletResponse response, AuthDto.TokenResponseDto tokenResponse) {
+    private void setTokenCookies(HttpServletResponse response, TokenResponseDto tokenResponse) {
         ResponseCookie accessCookie = jwtTokenProvider.createAccessTokenCookie(tokenResponse.accessToken());
         ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie(tokenResponse.refreshToken());
 

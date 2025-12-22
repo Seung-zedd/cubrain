@@ -1,9 +1,10 @@
-package com.cubrain.springboot_starter_auth.domain.card;
+package com.cubrain.springboot_starter_auth.domain.card.v1;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
 import lombok.Builder;
 
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public record FlashcardResponseDto(
                 @Schema(description = "Generated question", example = "What is TCP?") String question,
 

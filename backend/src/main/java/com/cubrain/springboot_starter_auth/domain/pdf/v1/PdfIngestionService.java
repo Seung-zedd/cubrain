@@ -1,6 +1,6 @@
-package com.cubrain.springboot_starter_auth.domain.pdf;
+package com.cubrain.springboot_starter_auth.domain.pdf.v1;
 
-import com.cubrain.springboot_starter_auth.domain.job.JobManager;
+import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;

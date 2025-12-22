@@ -1,12 +1,12 @@
-package com.cubrain.springboot_starter_auth.domain.card;
+package com.cubrain.springboot_starter_auth.domain.card.v1;
 
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 
 @RestController
@@ -20,13 +20,11 @@ public class CardController {
     @Operation(summary = "Generate Flashcards", description = "Generates a Q&A card from the selected text and context.")
     @PostMapping("/generate")
     public ResponseEntity<FlashcardResponseDto> generate(@RequestBody CardRequestDto request) {
-        // Input validation
         if (request.selection() == null || request.selection().trim().isEmpty() ||
                 request.localContext() == null || request.localContext().trim().isEmpty() ||
                 request.globalContext() == null || request.globalContext().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
-        // Call Service
         FlashcardResponseDto flashcard = cardService.generateCardDemo(request.selection(), request.localContext(),
                 request.globalContext());
 
@@ -43,7 +41,7 @@ public class CardController {
         try {
             userTier = UserTier.valueOf(userTierStr.toUpperCase());
         } catch (IllegalArgumentException e) {
-            userTier = UserTier.GUEST; // Fallback
+            userTier = UserTier.GUEST;
         }
 
         List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, userTier);

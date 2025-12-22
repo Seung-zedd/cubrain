@@ -46,7 +46,11 @@ We follow a convention combining Gitmoji and Conventional Commits.
   - Do not use `if-else` blocks for switching logic; use Strategy Pattern or Polymorphism.
 - **DIP (Dependency Inversion):**
   - Always depend on abstractions (Interfaces), not concretions.
-  - Inject dependencies via Constructor Injection (`@RequiredArgsConstructor`).
+  - **Package-based Versioning**: Organize all version-specific logic into sub-packages: `domain/{domain_name}/v1`, `domain/{domain_name}/v2`.
+  - **Naming Convention**: Do NOT include version numbers in class names (e.g., use `PdfRequestDto`, not `PdfRequestDtoV1`). The version context must be provided ONLY by the package path. This applies to Controllers, Services, and DTOs.
+  - **Encapsulation**: Keep the `v1` package as a completely independent "Actor". Shared JPA Entities remain in the root of the domain package.
+  - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15.
+  - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
 ### 3.2 Spring Boot Best Practices
 
@@ -84,7 +88,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
 - **Naming:**
   - `from(Entity entity)`: Mandatory for mapping an Entity to a DTO.
   - `of(params...)`: For creating a DTO from individual arguments.
-- **Implementation:** Use Java record and `@Builder` together.
+    -- **Implementation:** Use Java record and `@Builder` together.
 - **Example:**
   ```java
   @Builder(access = AccessLevel.PRIVATE)
@@ -139,7 +143,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
 Rule: Whenever you create or modify a Controller or DTO class, you MUST immediately apply the following documentation annotations.
 
 - **Controllers (Endpoints):** MUST use `@Operation` to describe what the API does.
-- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
+  -- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
 - **Internal Logic:** No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
 
 ## 5. Localization Rule

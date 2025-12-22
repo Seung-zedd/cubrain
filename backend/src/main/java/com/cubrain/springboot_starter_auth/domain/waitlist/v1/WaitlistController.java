@@ -1,12 +1,10 @@
-package com.cubrain.springboot_starter_auth.domain.waitlist;
+package com.cubrain.springboot_starter_auth.domain.waitlist.v1;
 
-import com.cubrain.springboot_starter_auth.domain.waitlist.dto.WaitlistRequestDto;
-
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/v1/waitlist")

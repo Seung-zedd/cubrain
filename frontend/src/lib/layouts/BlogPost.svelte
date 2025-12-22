@@ -1,9 +1,12 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   // mdsvex passes frontmatter (title, date, etc.) as props
-  let { title, description, date } = $props<{
+  let { title, description, date, children } = $props<{
     title: string;
     description: string;
     date: string;
+    children: Snippet;
   }>();
 
   // Default fallback for social image
@@ -32,7 +35,7 @@
   </header>
 
   <div class="content">
-    <slot />
+    {@render children()}
   </div>
 </article>
 

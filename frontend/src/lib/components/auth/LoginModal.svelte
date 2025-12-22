@@ -44,7 +44,7 @@
 
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const url = `${API_BASE_URL}/api/auth/request-code?mode=${mode}`;
+      const url = `${API_BASE_URL}/api/v1/auth/request-code?mode=${mode}`;
       if (import.meta.env.DEV) {
         console.log(`Requesting code from: ${url}`);
       }
@@ -103,7 +103,7 @@
 
     try {
       const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const url = `${API_BASE_URL}/api/auth/verify?mode=${mode}`;
+      const url = `${API_BASE_URL}/api/v1/auth/verify?mode=${mode}`;
 
       const response = await fetch(url, {
         method: "POST",

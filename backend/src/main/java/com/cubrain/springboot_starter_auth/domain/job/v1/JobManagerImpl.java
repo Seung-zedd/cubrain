@@ -1,31 +1,33 @@
-package com.cubrain.springboot_starter_auth.domain.job;
+package com.cubrain.springboot_starter_auth.domain.job.v1;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
+
+import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
+import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.FAILED;
+import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.PROCESSING;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
-import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.FAILED;
-import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.PROCESSING;
-
 @Slf4j
 @Component
-public class JobManager {
+public class JobManagerImpl implements JobManager {
 
     private final Map<String, JobStatus> jobStatuses = new ConcurrentHashMap<>();
     private final Map<String, Object> jobResults = new ConcurrentHashMap<>();
-    private final Map<String, Integer> jobProgress = new ConcurrentHashMap<>(); // 0 to 100
+    private final Map<String, Integer> jobProgress = new ConcurrentHashMap<>();
     private final Map<String, Instant> jobCompletionTimes = new ConcurrentHashMap<>();
 
-    // Cleanup completed jobs older than 1 hour
     private static final long JOB_RETENTION_SECONDS = 3600;
 
-    @Scheduled(fixedRate = 300000) // Run every 5 minutes
+    @Override
+    @Scheduled(fixedRate = 300000)
     public void cleanupOldJobs() {
         Instant now = Instant.now();
         int removedCount = 0;
@@ -48,6 +50,7 @@ public class JobManager {
         }
     }
 
+    @Override
     public String createJob() {
         String jobId = UUID.randomUUID().toString();
         jobStatuses.put(jobId, PROCESSING);
@@ -55,10 +58,12 @@ public class JobManager {
         return jobId;
     }
 
+    @Override
     public void updateProgress(String jobId, int progress) {
         jobProgress.put(jobId, progress);
     }
 
+    @Override
     public void completeJob(String jobId, Object result) {
         jobResults.put(jobId, result);
         jobStatuses.put(jobId, COMPLETED);
@@ -66,23 +71,28 @@ public class JobManager {
         jobCompletionTimes.put(jobId, Instant.now());
     }
 
+    @Override
     public void completeJob(String jobId) {
         completeJob(jobId, "Success");
     }
 
+    @Override
     public void failJob(String jobId) {
         jobStatuses.put(jobId, FAILED);
         jobCompletionTimes.put(jobId, Instant.now());
     }
 
+    @Override
     public JobStatus getStatus(String jobId) {
         return jobStatuses.get(jobId);
     }
 
+    @Override
     public Integer getProgress(String jobId) {
         return jobProgress.getOrDefault(jobId, 0);
     }
 
+    @Override
     public Object getResults(String jobId) {
         return jobResults.get(jobId);
     }

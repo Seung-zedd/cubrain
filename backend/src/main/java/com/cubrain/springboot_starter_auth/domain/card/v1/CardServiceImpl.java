@@ -1,9 +1,9 @@
-package com.cubrain.springboot_starter_auth.domain.card;
+package com.cubrain.springboot_starter_auth.domain.card.v1;
 
-import com.cubrain.springboot_starter_auth.domain.job.JobManager;
-import com.cubrain.springboot_starter_auth.domain.pdf.AnnotationResultDto;
-import com.cubrain.springboot_starter_auth.domain.pdf.PdfAnnotationService;
-import com.cubrain.springboot_starter_auth.domain.pdf.PdfExtractionResultDto;
+import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
+import com.cubrain.springboot_starter_auth.domain.pdf.v1.AnnotationResultDto;
+import com.cubrain.springboot_starter_auth.domain.pdf.v1.PdfExtractionResultDto;
+import com.cubrain.springboot_starter_auth.domain.pdf.v1.PdfAnnotationService;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
@@ -11,8 +11,11 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,27 +29,19 @@ import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
 
 @Service
 @Slf4j
-public class CardService {
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class CardServiceImpl implements CardService {
 
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper;
     private final PdfAnnotationService pdfAnnotationService;
     private final JobManager jobManager;
+
+    @Qualifier("pdfProcessingExecutor")
     private final Executor pdfProcessingExecutor;
 
-    public CardService(
-            ChatLanguageModel chatModel,
-            ObjectMapper objectMapper,
-            PdfAnnotationService pdfAnnotationService,
-            JobManager jobManager,
-            @org.springframework.beans.factory.annotation.Qualifier("pdfProcessingExecutor") Executor pdfProcessingExecutor) {
-        this.chatModel = chatModel;
-        this.objectMapper = objectMapper;
-        this.pdfAnnotationService = pdfAnnotationService;
-        this.jobManager = jobManager;
-        this.pdfProcessingExecutor = pdfProcessingExecutor;
-    }
-
+    @Override
     public String generateCardsAsync(MultipartFile file, UserTier userTier) {
         String jobId = jobManager.createJob();
 
@@ -63,21 +58,22 @@ public class CardService {
         return jobId;
     }
 
+    @Override
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext) {
-        // Default to "Highlight" behavior for manual demo
         return generateCardDemo(selection, localContext, globalContext, "Highlight",
                 "the SAME language as the Target Text");
     }
 
+    @Override
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
             String annotationType) {
         return generateCardDemo(selection, localContext, globalContext, annotationType,
                 "the SAME language as the Target Text");
     }
 
+    @Override
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
             String annotationType, String targetLanguage) {
-        // 1. The "Senior Tutor" Prompt
         SystemMessage systemMessage = SystemMessage.from("You are an expert tutor creating Anki flashcards.");
 
         UserMessage userMessage = UserMessage
@@ -108,39 +104,33 @@ public class CardService {
                         """
                         .formatted(localContext, annotationType, selection, targetLanguage));
 
-        // 2. Call Gemini
         Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
         String responseText = response.content().text();
-        log.info("🤖 Raw AI Response: " + responseText); // Debug log
+        log.info("🤖 Raw AI Response: " + responseText);
 
-        // 3. Clean & Parse JSON
         return parseResponse(responseText);
     }
 
-    // Overloaded for backward compatibility if needed, but modified to support
-    // progress tracking
+    @Override
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier) {
         return generateCardsFromPdf(file, userTier, null);
     }
 
+    @Override
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
         try {
-            // 1. Extract annotations
             PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file);
             List<AnnotationResultDto> annotations = extractionResult.annotations();
             String firstPageText = extractionResult.detectionText();
 
-            // Detect Language
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
-            // 2. Filter based on User Tier
             if (userTier == GUEST) {
                 annotations = annotations.stream()
                         .filter(a -> a.pageIndex() <= 10)
                         .toList();
             } else if (userTier == FREE_USER) {
-                // Safety Cap for Free Tier: Top 10 Highlights + Top 10 Underlines
                 List<AnnotationResultDto> highlights = annotations.stream()
                         .filter(a -> "Highlight".equalsIgnoreCase(a.type()))
                         .limit(10)
@@ -151,11 +141,6 @@ public class CardService {
                         .limit(10)
                         .toList();
 
-                if (annotations.size() > (highlights.size() + underlines.size())) {
-                    log.warn(
-                            "⚠️ Free Tier Limit: Processing capped at 10 Highlights + 10 Underlines to prevent timeout.");
-                }
-
                 annotations = new ArrayList<>();
                 annotations.addAll(highlights);
                 annotations.addAll(underlines);
@@ -164,30 +149,21 @@ public class CardService {
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
             int total = annotations.size();
 
-            // 3. Generate Flashcards for each annotation
             for (int i = 0; i < total; i++) {
                 AnnotationResultDto annotation = annotations.get(i);
 
-                // Throttling for FREE_USER to avoid Rate Limits (Batch System)
-                // NOTE: Using Thread.sleep() for simple rate limiting. For production,
-                // consider using reactive approaches, TaskScheduler, or queue-based systems
-                // (e.g., RabbitMQ, Redis) to avoid blocking thread pool threads.
                 if (userTier == FREE_USER) {
                     try {
-                        Thread.sleep(2000); // 2 seconds delay
+                        Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
 
-                // For PDF annotations, local context is the annotation text itself, global
-                // context is omitted for now or could be the page text if available
                 FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
                         "Extracted from PDF Page " + annotation.pageIndex(), annotation.type(), targetLanguage);
                 flashcards.add(card);
 
-                // Update Progress, and this will be reflected on the +page.svelte component
-                // from 270 to 289 line
                 if (jobId != null) {
                     int progress = (int) (((double) (i + 1) / total) * 100);
                     jobManager.updateProgress(jobId, progress);
@@ -205,10 +181,7 @@ public class CardService {
 
     private FlashcardResponseDto parseResponse(String rawResponse) {
         try {
-            // Remove markdown code blocks if Gemini adds them (e.g., ```json ... ```)
             String cleanJson = rawResponse.replace("```json", "").replace("```", "").trim();
-
-            // Convert String -> Java Object
             return objectMapper.readValue(cleanJson, FlashcardResponseDto.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse AI response: " + e.getMessage());
@@ -217,7 +190,7 @@ public class CardService {
 
     private String detectLanguage(String text) {
         if (text == null || text.isBlank()) {
-            return "the SAME language as the Target Text"; // Fallback
+            return "the SAME language as the Target Text";
         }
         try {
             SystemMessage systemMessage = SystemMessage.from("You are a language detector.");
