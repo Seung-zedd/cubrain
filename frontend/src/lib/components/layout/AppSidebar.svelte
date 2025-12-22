@@ -8,6 +8,7 @@
     LogOut,
   } from "@lucide/svelte";
   import { cn } from "$lib/utils";
+  import { user, logout } from "$lib/stores/user";
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -58,19 +59,27 @@
       <div
         class="h-10 w-10 rounded-full bg-linear-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black font-bold shadow-lg"
       >
-        ST
+        {$user ? $user.email.substring(0, 2).toUpperCase() : "G"}
       </div>
       <div class="flex-1 overflow-hidden">
         <p
           class="truncate text-sm font-medium text-zinc-200 group-hover:text-white"
         >
-          Student User
+          {$user ? $user.email.split("@")[0] : "Guest"}
         </p>
-        <p class="truncate text-xs text-zinc-500">student@cubrain.app</p>
+        <p class="truncate text-xs text-zinc-500">
+          {$user ? $user.email : "Sign in to save progress"}
+        </p>
       </div>
-      <LogOut
-        class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
-      />
+      <button
+        onclick={logout}
+        class="p-1 hover:bg-zinc-800 rounded-full transition-colors"
+        aria-label="Logout"
+      >
+        <LogOut
+          class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
+        />
+      </button>
     </div>
   </div>
 </aside>

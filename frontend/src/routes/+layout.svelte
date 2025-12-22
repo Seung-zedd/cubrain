@@ -3,10 +3,17 @@
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
 
+  import { onMount } from "svelte";
+  import { fetchUser } from "$lib/stores/user";
+
   injectSpeedInsights();
   injectAnalytics();
 
   let { children } = $props();
+
+  onMount(() => {
+    fetchUser();
+  });
 
   // SEO Configuration
   const title = "Cubrain - Study Smarter with AI Flashcards";

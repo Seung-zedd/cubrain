@@ -110,6 +110,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: verificationCode }),
         signal: controller.signal,
+        credentials: "include",
       });
       clearTimeout(timeoutId);
 

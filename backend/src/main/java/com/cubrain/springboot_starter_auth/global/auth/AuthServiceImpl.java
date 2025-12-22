@@ -105,4 +105,11 @@ public class AuthServiceImpl implements AuthService {
 
         return TokenResponseDto.of(newAccessToken, newRefreshToken);
     }
+
+    @Override
+    public UserResponseDto getMe(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        return UserResponseDto.from(member);
+    }
 }

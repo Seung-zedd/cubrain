@@ -6,4 +6,6 @@ public interface AuthService {
     TokenResponseDto verifyAndAuthenticate(String email, String code, AuthMode mode);
 
     TokenResponseDto refreshTokens(String refreshToken);
+
+    UserResponseDto getMe(String email);
 }

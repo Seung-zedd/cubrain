@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -53,6 +55,42 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @Operation(summary = "Get current user info", description = "Returns the profile of the currently authenticated user.")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getMe(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(authService.getMe(principal.getName()));
+    }
+
+    @Operation(summary = "Logout", description = "Clears the authentication cookies.")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        ResponseCookie accessCookie = jwtTokenProvider.createAccessTokenCookie("");
+        ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie("");
+
+        // Overwrite with max-age 0
+        accessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(false) // Should match the original setting, but false is safe for dev
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        refreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok().build();
     }
 
     private void setTokenCookies(HttpServletResponse response, TokenResponseDto tokenResponse) {
