@@ -29,5 +29,5 @@ spring:
 
   # for Resend API
 resend:
-  api-key: ${RESEND_API_KEY}
-  from: Cubrain <noreply@cubrain.app> # Default for testing, change to your verified domain later
+  api-key: ${RESEND_API_KEY:re_default_key_for_local_startup}
+  from: Cubrain <noreply@cubrain.app> # changed to my verified domain
