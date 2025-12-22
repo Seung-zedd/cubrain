@@ -2,8 +2,7 @@
   import { FileText, X, CheckCircle2 } from "@lucide/svelte";
   import { fly } from "svelte/transition";
 
-  export let file: File;
-  export let onRemove: () => void;
+  let { file, onRemove } = $props<{ file: File; onRemove: () => void }>();
 
   function formatSize(bytes: number): string {
     if (bytes === 0) return "0 B";
@@ -44,7 +43,7 @@
 
     <!-- Remove Button -->
     <button
-      on:click={onRemove}
+      onclick={onRemove}
       class="absolute top-2 right-2 p-1.5 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100"
       aria-label="Remove file"
     >

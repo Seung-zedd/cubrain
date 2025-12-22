@@ -222,7 +222,9 @@
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error:", error);
+      }
       showError("Network error: Could not connect to server.");
     } finally {
       isLoading = false;

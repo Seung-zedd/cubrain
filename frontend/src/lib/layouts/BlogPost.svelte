@@ -1,23 +1,25 @@
-<script>
+<script lang="ts">
   // mdsvex passes frontmatter (title, date, etc.) as props
-  export let title;
-  export let description;
-  export let date;
-  
+  let { title, description, date } = $props<{
+    title: string;
+    description: string;
+    date: string;
+  }>();
+
   // Default fallback for social image
-  const imageUrl = "https://cubrain.app/og-image.png"; 
+  const imageUrl = "https://cubrain.app/og-image.png";
 </script>
 
 <svelte:head>
   <title>{title} | Cubrain Blog</title>
-  
+
   <meta name="description" content={description} />
-  
+
   <meta property="og:type" content="article" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={imageUrl} />
-  
+
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:title" content={title} />
   <meta property="twitter:description" content={description} />
@@ -28,7 +30,7 @@
     <h1>{title}</h1>
     <p class="date">{date}</p>
   </header>
-  
+
   <div class="content">
     <slot />
   </div>
@@ -37,9 +39,9 @@
 <style>
   .blog-post {
     max-width: 48rem; /* max-w-3xl */
-    margin: 0 auto;   /* mx-auto */
+    margin: 0 auto; /* mx-auto */
     padding: 2.5rem 1rem; /* py-10 px-4 */
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     color: var(--text-color);
   }
 
@@ -50,7 +52,7 @@
 
   h1 {
     font-size: 2.25rem; /* text-4xl */
-    font-weight: 700;   /* font-bold */
+    font-weight: 700; /* font-bold */
     margin-bottom: 0.5rem; /* mb-2 */
     line-height: 1.2;
     color: var(--text-color);
@@ -84,7 +86,8 @@
     color: var(--text-color);
   }
 
-  .content :global(ul), .content :global(ol) {
+  .content :global(ul),
+  .content :global(ol) {
     margin-bottom: 1.25rem;
     padding-left: 1.5rem;
     color: var(--text-color);
