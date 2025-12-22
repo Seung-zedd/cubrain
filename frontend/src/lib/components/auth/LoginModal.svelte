@@ -60,7 +60,7 @@
       if (response.ok) {
         showVerification = true;
         status = "success";
-        message = "Verification code sent to your email!";
+        message = "Your verification code is sent to your email!";
       } else {
         const errorData = await response.text();
         if (import.meta.env.DEV) {
@@ -90,7 +90,9 @@
         message = "Connection failed. Please check your network.";
       }
     } finally {
-      if (status === "loading") status = "error";
+      if (status === "loading") {
+        status = "error";
+      }
     }
   }
 
@@ -112,7 +114,11 @@
       clearTimeout(timeoutId);
 
       if (response.ok) {
-        window.location.href = "/dashboard";
+        status = "success";
+        message = "Successful verification done!";
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 800);
       } else {
         const errorData = await response.text();
         status = "error";
@@ -137,7 +143,9 @@
         message = "Verification failed. Please try again.";
       }
     } finally {
-      if (status === "loading") status = "error";
+      if (status === "loading") {
+        status = "error";
+      }
     }
   }
 
