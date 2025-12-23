@@ -27,7 +27,6 @@ public class WaitlistServiceImpl implements WaitlistService {
             throw new IllegalStateException("⚠️ You are already on the list!");
         }
 
-        @SuppressWarnings("null")
         WaitlistUser user = WaitlistUser.builder().email(email).build();
         waitlistRepository.save(user);
         log.info("🎉 New Waitlist User: {}", email);

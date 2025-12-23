@@ -74,7 +74,6 @@ public class AuthServiceImpl implements AuthService {
                     .tier(UserTier.FREE_USER)
                     .isVerified(true)
                     .build();
-            @SuppressWarnings("null")
             Member savedMember = memberRepository.save(member);
             member = savedMember;
         } else {
