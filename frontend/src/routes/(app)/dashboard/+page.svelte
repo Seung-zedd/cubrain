@@ -9,6 +9,7 @@
   import { API_BASE_URL } from "$lib/config";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
+  import { user } from "$lib/stores/user";
 
   interface Flashcard {
     question: string;
@@ -270,13 +271,22 @@
                 <RefreshCw class="w-4 h-4" />
                 Start Over
               </button>
-              <button
-                onclick={() => (showLoginModal = true)}
-                class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
-              >
-                <Save class="w-4 h-4" />
-                <span>Sign in to Save</span>
-              </button>
+              {#if !$user}
+                <button
+                  onclick={() => (showLoginModal = true)}
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Sign in to Save</span>
+                </button>
+              {:else}
+                <button
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 bg-amber-500 text-black hover:bg-amber-400"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Save to Library</span>
+                </button>
+              {/if}
             </div>
           </div>
 

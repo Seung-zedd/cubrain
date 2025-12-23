@@ -9,6 +9,9 @@
   } from "@lucide/svelte";
   import { cn } from "$lib/utils";
   import { user, logout } from "$lib/stores/user";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
+
+  let showLoginModal = $state(false);
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -54,7 +57,11 @@
   <!-- User Profile -->
   <div class="border-t border-zinc-800 p-4">
     <div
+      onclick={() => !$user && (showLoginModal = true)}
       class="flex items-center gap-3 rounded-lg bg-zinc-950/50 p-3 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer group"
+      role="button"
+      tabindex="0"
+      onkeydown={(e) => e.key === "Enter" && !$user && (showLoginModal = true)}
     >
       <div
         class="h-10 w-10 rounded-full bg-linear-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black font-bold shadow-lg"
@@ -68,18 +75,27 @@
           {$user ? $user.email.split("@")[0] : "Guest"}
         </p>
         <p class="truncate text-xs text-zinc-500">
-          {$user ? $user.email : "Sign in to save progress"}
+          {$user ? $user.email : "Click to sign in"}
         </p>
       </div>
-      <button
-        onclick={logout}
-        class="p-1 hover:bg-zinc-800 rounded-full transition-colors"
-        aria-label="Logout"
-      >
-        <LogOut
-          class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
-        />
-      </button>
+      {#if $user}
+        <button
+          onclick={(e) => {
+            e.stopPropagation();
+            logout();
+          }}
+          class="p-1 hover:bg-zinc-800 rounded-full transition-colors"
+          aria-label="Logout"
+        >
+          <LogOut
+            class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
+          />
+        </button>
+      {/if}
     </div>
   </div>
 </aside>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
