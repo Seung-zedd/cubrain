@@ -125,6 +125,12 @@ public class CardServiceImpl implements CardService {
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
+            // Filter annotations based on UserTier (Enforce limits by filtering instead of rejecting)
+            int pageLimit = (userTier == FREE_USER) ? 50 : 10;
+            annotations = annotations.stream()
+                    .filter(a -> a.pageIndex() <= pageLimit)
+                    .toList();
+
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
             int total = annotations.size();
 
