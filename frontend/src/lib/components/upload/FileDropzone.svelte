@@ -62,11 +62,6 @@
         continue;
       }
 
-      if (file.size > MAX_SIZE_BYTES) {
-        errors.push(`"${file.name}" is too large (> ${MAX_SIZE_MB}MB)`);
-        continue;
-      }
-
       validFiles.push(file);
     }
 

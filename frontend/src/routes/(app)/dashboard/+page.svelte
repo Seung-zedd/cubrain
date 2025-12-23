@@ -10,6 +10,7 @@
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
   import { user } from "$lib/stores/user";
+  import Toast from "$lib/components/ui/Toast.svelte";
 
   interface Flashcard {
     question: string;
@@ -59,6 +60,28 @@
     },
   ]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+  // Validation Logic
+  const MAX_SIZE_MB = 20;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+  let totalSize = $derived(files.reduce((acc, f) => acc + f.size, 0));
+  let isTotalSizeExceeded = $derived(totalSize > MAX_SIZE_BYTES);
+  let hasOversizedFiles = $derived(files.some((f) => f.size > MAX_SIZE_BYTES));
+  let isGenerationBlocked = $derived(
+    isTotalSizeExceeded || hasOversizedFiles || files.length === 0
+  );
+
+  let showTotalSizeToast = $state(false);
+
+  // Show toast when total size is exceeded
+  $effect(() => {
+    if (isTotalSizeExceeded) {
+      showTotalSizeToast = true;
+    } else {
+      showTotalSizeToast = false;
+    }
+  });
 
   let mode = $derived(page.url.searchParams.get("mode"));
   let hasDecks = $derived(recentDecks.length > 0);
@@ -356,7 +379,7 @@
               </h2>
               <button
                 onclick={handleGenerate}
-                disabled={isGenerating}
+                disabled={isGenerating || isGenerationBlocked}
                 class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {#if isGenerating}
@@ -378,7 +401,11 @@
               <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {#each files as file, i (file.name + file.size)}
                   <div animate:flip={{ duration: 300 }}>
-                    <FileItemCard {file} onRemove={() => removeFile(i)} />
+                    <FileItemCard
+                      {file}
+                      isOversized={file.size > MAX_SIZE_BYTES}
+                      onRemove={() => removeFile(i)}
+                    />
                   </div>
                 {/each}
               </div>
@@ -408,4 +435,11 @@
 
 {#if showLoginModal}
   <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
+
+{#if showTotalSizeToast}
+  <Toast
+    message="The total file size exceeds the 20MB limit. Please remove some files."
+    onclose={() => (showTotalSizeToast = false)}
+  />
 {/if}

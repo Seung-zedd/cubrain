@@ -149,3 +149,11 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 ## 5. Localization Rule
 
 - **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
+
+## 📁 File Upload & Validation Rules
+- **Size Limit:** The maximum allowed size is **20MB** (Total and individual files).
+- **Validation Logic:** - If any file or the total size exceeds 20MB, prevent the "Generate All Decks" action.
+- **UI/UX Feedback:**
+  - **Global Error:** Show a **Red Toast notification** with a message like "Total file size exceeds the 20MB limit."
+  - **Individual File Feedback:** For specific files exceeding the limit, highlight the file card with a **Red Border** and display a **Red Exclamation Icon (Tooltip)** explaining the error.
+- **Implementation Note:** Use Svelte 5 Runes for state management and ensure smooth transitions for toast/tooltip visibility.

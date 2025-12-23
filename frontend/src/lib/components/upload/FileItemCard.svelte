@@ -1,8 +1,16 @@
 <script lang="ts">
-  import { FileText, X, CheckCircle2 } from "@lucide/svelte";
+  import { FileText, X, CheckCircle2, CircleAlert } from "@lucide/svelte";
   import { fly } from "svelte/transition";
 
-  let { file, onRemove } = $props<{ file: File; onRemove: () => void }>();
+  let {
+    file,
+    isOversized = false,
+    onRemove,
+  } = $props<{
+    file: File;
+    isOversized?: boolean;
+    onRemove: () => void;
+  }>();
 
   function formatSize(bytes: number): string {
     if (bytes === 0) return "0 B";
@@ -14,15 +22,21 @@
 </script>
 
 <div
-  class="group relative bg-zinc-900/50 border border-white/10 hover:border-[#FFD700]/30 rounded-xl p-4 transition-all duration-300 hover:bg-zinc-900/80"
+  class="group relative bg-zinc-900/50 border rounded-xl p-4 transition-all duration-300 hover:bg-zinc-900/80 {isOversized
+    ? 'border-red-500/50 bg-red-500/5'
+    : 'border-white/10 hover:border-[#FFD700]/30'}"
   transition:fly={{ y: 10, duration: 200 }}
 >
   <div class="flex items-start gap-4">
     <!-- Icon -->
     <div
-      class="w-10 h-10 rounded-lg bg-[#FFD700]/10 flex items-center justify-center shrink-0 group-hover:bg-[#FFD700]/20 transition-colors"
+      class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors {isOversized
+        ? 'bg-red-500/10'
+        : 'bg-[#FFD700]/10 group-hover:bg-[#FFD700]/20'}"
     >
-      <FileText class="w-5 h-5 text-[#FFD700]" />
+      <FileText
+        class="w-5 h-5 {isOversized ? 'text-red-500' : 'text-[#FFD700]'}"
+      />
     </div>
 
     <!-- Content -->
@@ -31,13 +45,24 @@
         {file.name}
       </h4>
       <div class="flex items-center gap-2 mt-1">
-        <span class="text-xs text-white/40 font-mono"
-          >{formatSize(file.size)}</span
+        <span
+          class="text-xs font-mono {isOversized
+            ? 'text-red-400'
+            : 'text-white/40'}">{formatSize(file.size)}</span
         >
         <span class="text-white/20">•</span>
-        <span class="text-xs text-[#FFD700]/80 flex items-center gap-1">
-          <CheckCircle2 class="w-3 h-3" /> Ready
-        </span>
+        {#if isOversized}
+          <span
+            class="text-xs text-red-500 flex items-center gap-1 font-bold"
+            title="File size exceeds the 20MB limit"
+          >
+            <CircleAlert class="w-3 h-3" /> Too Large
+          </span>
+        {:else}
+          <span class="text-xs text-[#FFD700]/80 flex items-center gap-1">
+            <CheckCircle2 class="w-3 h-3" /> Ready
+          </span>
+        {/if}
       </div>
     </div>
 
