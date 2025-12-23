@@ -23,13 +23,15 @@ public class WaitlistServiceImpl implements WaitlistService {
             throw new IllegalArgumentException("❌ Invalid email format.");
         }
 
-        if (waitlistRepository.existsByEmail(email)) {
+        String normalizedEmail = email.toLowerCase();
+
+        if (waitlistRepository.existsByEmail(normalizedEmail)) {
             throw new IllegalStateException("⚠️ You are already on the list!");
         }
 
-        WaitlistUser user = WaitlistUser.builder().email(email).build();
+        WaitlistUser user = WaitlistUser.builder().email(normalizedEmail).build();
         waitlistRepository.save(user);
-        log.info("🎉 New Waitlist User: {}", email);
+        log.info("🎉 New Waitlist User: {}", normalizedEmail);
 
         return "✅ You're in! Welcome to the future of study.";
     }

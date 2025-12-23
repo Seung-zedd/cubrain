@@ -29,8 +29,10 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
+    @Transactional
     public void requestVerification(String email, AuthMode mode) {
-        boolean exists = memberRepository.existsByEmail(email);
+        String normalizedEmail = email.toLowerCase();
+        boolean exists = memberRepository.existsByEmail(normalizedEmail);
 
         if (mode == AuthMode.SIGN_IN && !exists) {
             throw new IllegalArgumentException("Account not found. Please sign up below.");
@@ -41,19 +43,20 @@ public class AuthServiceImpl implements AuthService {
 
         String code = String.format("%06d", new Random().nextInt(1000000));
         EmailVerification verification = EmailVerification.builder()
-                .email(email)
+                .email(normalizedEmail)
                 .code(code)
                 .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .build();
 
         verificationRepository.save(Objects.requireNonNull(verification));
-        emailService.sendVerificationCode(email, code);
+        emailService.sendVerificationCode(normalizedEmail, code);
     }
 
     @Override
     @Transactional
     public TokenResponseDto verifyAndAuthenticate(String email, String code, AuthMode mode) {
-        EmailVerification verification = verificationRepository.findByEmail(email)
+        String normalizedEmail = email.toLowerCase();
+        EmailVerification verification = verificationRepository.findById(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Verification code not found."));
 
         if (verification.isExpired()) {
@@ -69,15 +72,14 @@ public class AuthServiceImpl implements AuthService {
         Member member;
         if (mode == AuthMode.SIGN_UP) {
             member = Member.builder()
-                    .email(email)
+                    .email(normalizedEmail)
                     .role(Role.USER)
                     .tier(UserTier.FREE_USER)
                     .isVerified(true)
                     .build();
-            Member savedMember = memberRepository.save(member);
-            member = savedMember;
+            member = memberRepository.save(member);
         } else {
-            member = memberRepository.findByEmail(email)
+            member = memberRepository.findByEmail(normalizedEmail)
                     .orElseThrow(() -> new RuntimeException("User not found."));
         }
 
@@ -107,7 +109,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponseDto getMe(String email) {
-        Member member = memberRepository.findByEmail(email)
+        String normalizedEmail = email.toLowerCase();
+        Member member = memberRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found."));
         return UserResponseDto.from(member);
     }
