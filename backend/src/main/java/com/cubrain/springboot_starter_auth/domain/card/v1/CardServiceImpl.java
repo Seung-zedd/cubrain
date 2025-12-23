@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER;
-import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
 
 @Service
 @Slf4j
@@ -125,16 +124,6 @@ public class CardServiceImpl implements CardService {
 
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
-
-            if (userTier == GUEST) {
-                annotations = annotations.stream()
-                        .filter(a -> a.pageIndex() <= 10)
-                        .toList();
-            } else if (userTier == FREE_USER) {
-                annotations = annotations.stream()
-                        .filter(a -> a.pageIndex() <= 50)
-                        .toList();
-            }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
             int total = annotations.size();

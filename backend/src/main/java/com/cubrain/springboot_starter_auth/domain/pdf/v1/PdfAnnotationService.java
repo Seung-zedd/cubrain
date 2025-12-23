@@ -5,4 +5,6 @@ import java.io.IOException;
 
 public interface PdfAnnotationService {
     PdfExtractionResultDto extractAnnotations(MultipartFile file) throws IOException;
+
+    int getPageCount(MultipartFile file) throws IOException;
 }

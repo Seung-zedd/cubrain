@@ -155,4 +155,11 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
 
         return PdfExtractionResultDto.of(results, detectionText);
     }
+
+    @Override
+    public int getPageCount(MultipartFile file) throws IOException {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+            return document.getNumberOfPages();
+        }
+    }
 }

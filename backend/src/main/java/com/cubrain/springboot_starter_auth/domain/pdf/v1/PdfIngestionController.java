@@ -37,6 +37,7 @@ public class PdfIngestionController {
     private final JobManager jobManager;
     private final UsageLimitService usageLimitService;
     private final MemberRepository memberRepository;
+    private final PdfAnnotationService pdfAnnotationService;
 
     @Operation(summary = "Generate Flashcards from PDF", description = "Uploads and processes a PDF file asynchronously to generate flashcards.")
     @PostMapping("/generate-cards")
@@ -60,25 +61,42 @@ public class PdfIngestionController {
 
         UserTier userTier = UserTier.GUEST;
         String ownerId = request.getRemoteAddr();
+        Member member = null;
 
         if (principal != null) {
             Optional<Member> memberOpt = memberRepository.findByEmail(principal.getName());
             if (memberOpt.isPresent()) {
-                Member member = memberOpt.get();
+                member = memberOpt.get();
                 userTier = member.getTier();
                 ownerId = member.getEmail();
-                try {
-                    usageLimitService.checkAndIncrement(member);
-                } catch (IllegalStateException e) {
-                    return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
-                }
             }
-        } else {
-            try {
+        }
+
+        // 1. Validate Page Count First (Best Practice: Validate before Cost Incurred)
+        int pageCount;
+        try {
+            pageCount = pdfAnnotationService.getPageCount(file);
+        } catch (Exception e) {
+            log.error("Failed to read PDF page count", e);
+            return badRequest().body(Map.of("error", "Failed to read PDF file"));
+        }
+
+        int pageLimit = (userTier == UserTier.FREE_USER) ? 50 : 10;
+        if (pageCount > pageLimit) {
+            return badRequest().body(Map.of("error",
+                    String.format("PDF exceeds page limit for %s. (Your file: %d pages, Limit: %d pages)",
+                            userTier, pageCount, pageLimit)));
+        }
+
+        // 2. Check and Increment Usage (Cost Defense)
+        try {
+            if (member != null) {
+                usageLimitService.checkAndIncrement(member);
+            } else {
                 usageLimitService.checkAndIncrementGuest(ownerId);
-            } catch (IllegalStateException e) {
-                return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
             }
+        } catch (IllegalStateException e) {
+            return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
         }
 
         String jobId = cardService.generateCardsAsync(file, userTier, ownerId);
