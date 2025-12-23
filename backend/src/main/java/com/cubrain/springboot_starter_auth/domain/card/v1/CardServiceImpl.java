@@ -125,7 +125,8 @@ public class CardServiceImpl implements CardService {
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
-            // Filter annotations based on UserTier (Enforce limits by filtering instead of rejecting)
+            // Filter annotations based on UserTier (Enforce limits by filtering instead of
+            // rejecting)
             int pageLimit = (userTier == FREE_USER) ? 50 : 10;
             annotations = annotations.stream()
                     .filter(a -> a.pageIndex() <= pageLimit)
@@ -137,12 +138,11 @@ public class CardServiceImpl implements CardService {
             for (int i = 0; i < total; i++) {
                 AnnotationResultDto annotation = annotations.get(i);
 
-                if (userTier == FREE_USER) {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
+                // Rate limiting protection: 1s delay between requests
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
 
                 FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
