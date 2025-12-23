@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import java.time.LocalDate;
+import com.cubrain.springboot_starter_auth.global.config.audit.BaseEntity;
 
 @Entity
 @Getter
@@ -22,7 +23,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Table(name = "members")
-public class Member {
+public class Member extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
