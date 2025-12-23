@@ -11,10 +11,11 @@ spring:
   # JPA 설정 (로컬: create로 초기화)
   # hibernate와 flyway schema가 일치하지 않기 때문에 local에서만 사용
   jpa:
+    hibernate:
+      ddl-auto: create # 매번 테이블 재생성 (테스트용)
     properties:
       hibernate:
         "[format_sql]": true
-        ddl-auto: create # 매번 테이블 재생성 (테스트용)
       naming:
         physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
 
