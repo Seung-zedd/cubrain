@@ -42,8 +42,8 @@ public class CardServiceImpl implements CardService {
     private final Executor pdfProcessingExecutor;
 
     @Override
-    public String generateCardsAsync(MultipartFile file, UserTier userTier) {
-        String jobId = jobManager.createJob();
+    public String generateCardsAsync(MultipartFile file, UserTier userTier, String ownerId) {
+        String jobId = jobManager.createJob(ownerId);
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -131,19 +131,9 @@ public class CardServiceImpl implements CardService {
                         .filter(a -> a.pageIndex() <= 10)
                         .toList();
             } else if (userTier == FREE_USER) {
-                List<AnnotationResultDto> highlights = annotations.stream()
-                        .filter(a -> "Highlight".equalsIgnoreCase(a.type()))
-                        .limit(10)
+                annotations = annotations.stream()
+                        .filter(a -> a.pageIndex() <= 50)
                         .toList();
-
-                List<AnnotationResultDto> underlines = annotations.stream()
-                        .filter(a -> "Underline".equalsIgnoreCase(a.type()))
-                        .limit(10)
-                        .toList();
-
-                annotations = new ArrayList<>();
-                annotations.addAll(highlights);
-                annotations.addAll(underlines);
             }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();

@@ -9,14 +9,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import java.time.LocalDate;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name = "members")
 public class Member {
 
@@ -27,6 +31,7 @@ public class Member {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isVerified = false;
 
@@ -38,15 +43,27 @@ public class Member {
     @Column(nullable = false)
     private UserTier tier;
 
-    @Builder
-    public Member(String email, Role role, UserTier tier, boolean isVerified) {
-        this.email = email;
-        this.role = role;
-        this.tier = tier;
-        this.isVerified = isVerified;
-    }
+    @Builder.Default
+    @Column(nullable = false)
+    private int dailyUploadCount = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private LocalDate lastUploadDate = LocalDate.now();
 
     public void updateTier(UserTier tier) {
         this.tier = tier;
+    }
+
+    public void incrementUploadCount() {
+        resetCountIfNewDay();
+        this.dailyUploadCount++;
+    }
+
+    public void resetCountIfNewDay() {
+        if (!LocalDate.now().equals(this.lastUploadDate)) {
+            this.dailyUploadCount = 0;
+            this.lastUploadDate = LocalDate.now();
+        }
     }
 }

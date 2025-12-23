@@ -4,6 +4,10 @@ import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
 import com.cubrain.springboot_starter_auth.domain.card.v1.CardService;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import com.cubrain.springboot_starter_auth.domain.member.Member;
+import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
+import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +22,10 @@ import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED
 import static org.springframework.http.ResponseEntity.notFound;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.status;
+import org.springframework.http.HttpStatus;
+import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/pdf")
@@ -27,10 +35,15 @@ public class PdfIngestionController {
 
     private final CardService cardService;
     private final JobManager jobManager;
+    private final UsageLimitService usageLimitService;
+    private final MemberRepository memberRepository;
 
     @Operation(summary = "Generate Flashcards from PDF", description = "Uploads and processes a PDF file asynchronously to generate flashcards.")
     @PostMapping("/generate-cards")
-    public ResponseEntity<?> generateCards(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> generateCards(
+            @RequestParam("file") MultipartFile file,
+            Principal principal,
+            HttpServletRequest request) {
         if (file.isEmpty()) {
             return badRequest().body(Map.of("error", "File is empty"));
         }
@@ -45,8 +58,30 @@ public class PdfIngestionController {
             return badRequest().body(Map.of("error", "Invalid file type. Only PDF files are allowed."));
         }
 
-        // Default to GUEST for now, or extract from auth context if available
-        String jobId = cardService.generateCardsAsync(file, UserTier.GUEST);
+        UserTier userTier = UserTier.GUEST;
+        String ownerId = request.getRemoteAddr();
+
+        if (principal != null) {
+            Optional<Member> memberOpt = memberRepository.findByEmail(principal.getName());
+            if (memberOpt.isPresent()) {
+                Member member = memberOpt.get();
+                userTier = member.getTier();
+                ownerId = member.getEmail();
+                try {
+                    usageLimitService.checkAndIncrement(member);
+                } catch (IllegalStateException e) {
+                    return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
+                }
+            }
+        } else {
+            try {
+                usageLimitService.checkAndIncrementGuest(ownerId);
+            } catch (IllegalStateException e) {
+                return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
+            }
+        }
+
+        String jobId = cardService.generateCardsAsync(file, userTier, ownerId);
         return ok(JobStartResponseDto.of(jobId));
     }
 

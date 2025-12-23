@@ -32,6 +32,7 @@
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
+  let errorMessage = $state<string | null>(null);
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
     {
@@ -101,6 +102,7 @@
     jobId = null;
     jobProgress = 0;
     jobStatus = "PROCESSING";
+    errorMessage = null;
 
     try {
       const formData = new FormData();
@@ -190,8 +192,10 @@
           }
         }, 1000);
       } else {
+        const errorData = await startResponse.json();
+        errorMessage = errorData.error || "Failed to start generation job";
         if (import.meta.env.DEV) {
-          console.error("Failed to start generation job");
+          console.error("Failed to start generation job:", errorMessage);
         }
         isGenerating = false;
       }
@@ -212,6 +216,7 @@
     showResults = false;
     generatedCards = [];
     files = [];
+    errorMessage = null;
   }
 </script>
 
@@ -230,6 +235,13 @@
   {#if showUpload}
     <!-- Upload / Results Section -->
     <section class="space-y-6">
+      {#if errorMessage}
+        <div
+          class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-in fade-in slide-in-from-top-2"
+        >
+          {errorMessage}
+        </div>
+      {/if}
       {#if showResults}
         <div
           class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"

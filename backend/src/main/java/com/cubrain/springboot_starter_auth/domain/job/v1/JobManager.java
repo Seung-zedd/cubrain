@@ -7,6 +7,10 @@ public interface JobManager {
 
     String createJob();
 
+    String createJob(String ownerId);
+
+    boolean hasActiveJob(String ownerId);
+
     void updateProgress(String jobId, int progress);
 
     void completeJob(String jobId, Object result);

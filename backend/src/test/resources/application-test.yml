@@ -51,3 +51,8 @@ jwt:
   cookie:
     secure: false
     samesite: Lax
+
+# Resend 설정 (테스트용)
+resend:
+  api-key: "re_test_123456789"
+  from: "onboarding@resend.dev"

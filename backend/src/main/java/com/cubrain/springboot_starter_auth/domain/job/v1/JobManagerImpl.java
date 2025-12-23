@@ -23,6 +23,7 @@ public class JobManagerImpl implements JobManager {
     private final Map<String, Object> jobResults = new ConcurrentHashMap<>();
     private final Map<String, Integer> jobProgress = new ConcurrentHashMap<>();
     private final Map<String, Instant> jobCompletionTimes = new ConcurrentHashMap<>();
+    private final Map<String, String> jobOwners = new ConcurrentHashMap<>();
 
     private static final long JOB_RETENTION_SECONDS = 3600;
 
@@ -41,6 +42,7 @@ public class JobManagerImpl implements JobManager {
                 jobResults.remove(jobId);
                 jobProgress.remove(jobId);
                 jobCompletionTimes.remove(jobId);
+                jobOwners.remove(jobId);
                 removedCount++;
             }
         }
@@ -52,10 +54,26 @@ public class JobManagerImpl implements JobManager {
 
     @Override
     public String createJob() {
+        return createJob("anonymous");
+    }
+
+    @Override
+    public String createJob(String ownerId) {
         String jobId = UUID.randomUUID().toString();
         jobStatuses.put(jobId, PROCESSING);
         jobProgress.put(jobId, 0);
+        jobOwners.put(jobId, ownerId);
         return jobId;
+    }
+
+    @Override
+    public boolean hasActiveJob(String ownerId) {
+        if ("anonymous".equals(ownerId))
+            return false; // Allow multiple anonymous jobs for now or handle differently
+        return jobOwners.entrySet().stream()
+                .filter(e -> e.getValue().equals(ownerId))
+                .map(e -> jobStatuses.get(e.getKey()))
+                .anyMatch(status -> status == PROCESSING);
     }
 
     @Override
