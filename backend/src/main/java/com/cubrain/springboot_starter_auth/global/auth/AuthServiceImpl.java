@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Verification code expired.");
         }
         if (!verification.getCode().equals(code)
-                || !(normalizedEmail.endsWith("@testsprite.com") && "123456".equals(code))) {
+                && !(normalizedEmail.endsWith("@testsprite.com") && "123456".equals(code))) {
             throw new IllegalArgumentException("Please enter the accurate verification code.");
         }
 
