@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import static com.cubrain.springboot_starter_auth.domain.user.UserTier.FREE_USER;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -125,12 +127,7 @@ public class CardServiceImpl implements CardService {
 
             // Filter annotations based on UserTier (Enforce limits by filtering instead of
             // rejecting)
-            int pageLimit = switch (userTier) {
-                case PRO_USER -> 1000;
-                case FREE_USER -> 50;
-                case GUEST -> 10;
-            };
-
+            int pageLimit = (userTier == FREE_USER) ? 50 : 10;
             annotations = annotations.stream()
                     .filter(a -> a.pageIndex() <= pageLimit)
                     .toList();

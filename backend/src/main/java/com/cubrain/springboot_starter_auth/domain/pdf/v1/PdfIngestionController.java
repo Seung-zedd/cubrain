@@ -72,20 +72,12 @@ public class PdfIngestionController {
             }
         }
 
-        // 1. Validate Page Count
+        // 1. Validate Page Count (Optional: Log for analytics)
         try {
             int pageCount = pdfAnnotationService.getPageCount(file);
             log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
-
-            int pageLimit = (userTier == UserTier.PRO_USER) ? 200 : 50;
-            if (pageCount > pageLimit) {
-                return status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error",
-                                "Page limit exceeded. " + userTier + " limit is " + pageLimit + " pages."));
-            }
         } catch (Exception e) {
-            log.warn("Could not read PDF page count", e);
-            return badRequest().body(Map.of("error", "Could not read PDF page count"));
+            log.warn("Could not read PDF page count for logging", e);
         }
 
         // 2. Check and Increment Usage (Cost Defense)

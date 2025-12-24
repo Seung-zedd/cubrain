@@ -4,7 +4,7 @@
 
   let { onclose, type = "daily_limit" } = $props<{
     onclose: () => void;
-    type?: "daily_limit" | "page_limit";
+    type?: "daily_limit";
   }>();
 
   function close() {
@@ -18,7 +18,7 @@
   }
 
   const content: Record<
-    "daily_limit" | "page_limit",
+    "daily_limit",
     {
       title: string;
       description: string;
@@ -37,21 +37,9 @@
         "Advanced study modes",
       ],
     },
-    page_limit: {
-      title: "Unlock Full Document",
-      description:
-        "Free users can process up to 50 pages. Go Pro to process entire textbooks and long documents.",
-      highlight: "Page limit exceeded (>50 pages)",
-      features: [
-        "Unlimited pages per file",
-        "Batch processing",
-        "OCR for scanned documents",
-        "Cloud storage for all decks",
-      ],
-    },
   };
 
-  let activeContent = $derived(content[type as "daily_limit" | "page_limit"]);
+  let activeContent = $derived(content[type as "daily_limit"]);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

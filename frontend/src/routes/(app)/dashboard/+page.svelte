@@ -36,7 +36,7 @@
   let showResults = $state(false);
   let showLoginModal = $state(false);
   let showProModal = $state(false);
-  let proModalType = $state<"daily_limit" | "page_limit">("daily_limit");
+  let proModalType = $state<"daily_limit">("daily_limit");
   let errorMessage = $state<string | null>(null);
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
@@ -230,11 +230,7 @@
         const errorData = await startResponse.json();
         errorMessage = errorData.error || "Failed to start generation job";
 
-        if (errorMessage && errorMessage.includes("Page limit exceeded")) {
-          proModalType = "page_limit";
-          showProModal = true;
-          errorMessage = null;
-        } else if (
+        if (
           errorMessage &&
           errorMessage.includes("Daily upload limit reached")
         ) {
