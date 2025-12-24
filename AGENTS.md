@@ -34,9 +34,24 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 **Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
-## 3. Coding Standards & Design Principles
+## 3. Testing Strategy (TestSprite Priority)
 
-### 3.1 SOLID Principles (Strict Enforcement)
+We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
+
+1. **Primary:** Always use **TestSprite** for test generation and execution (Frontend & Backend).
+   - Use `testsprite_bootstrap_tests` to initialize.
+   - Use `testsprite_generate_backend_test_plan` or `testsprite_generate_frontend_test_plan`.
+   - Use `testsprite_generate_code_and_execute` to run tests and generate reports.
+2. **Secondary:** Use conventional testing frameworks (JUnit 5, Mockito for Java; Vitest/Svelte Testing Library for Frontend) only when:
+   - TestSprite test generation or execution has failed for **3 consecutive attempts**.
+   - TestSprite is unavailable or unable to cover specific edge cases.
+   - Writing simple unit tests that don't require full environment orchestration.
+
+Always provide the TestSprite markdown report after running tests.
+
+## 4. Coding Standards & Design Principles
+
+### 4.1 SOLID Principles (Strict Enforcement)
 
 - **SRP (Single Responsibility Principle):**
   - Each class must have **one and only one reason to change**.
@@ -52,7 +67,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
   - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15.
   - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
-### 3.2 Spring Boot Best Practices
+### 4.2 Spring Boot Best Practices
 
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs.
 - **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `CardRequestDto`).
@@ -63,7 +78,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - **Annotation Style:**
   - **Implicit Names:** Omit the name parameter if the variable name matches (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
 
-### 3.3 Object Creation & Mapping Strategy (Entity vs. DTO)
+### 4.3 Object Creation & Mapping Strategy (Entity vs. DTO)
 
 To maintain consistency, readability, and encapsulation, we will distinguish how Entities and DTOs are instantiated.
 
@@ -102,22 +117,22 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
   }
   ```
 
-### 3.4 Package Structure
+### 4.4 Package Structure
 
 - **Flat Architecture:** Keep domain packages flat (e.g., `domain/pdf` contains Controller, Service, Repository, DTOs).
 - **Refactoring Rule:** Only split a domain package into subpackages (`dto`, `service`, `controller`, etc.) when the file count in that package exceeds 15.
 
-### 3.5 API Versioning Strategy
+### 4.5 API Versioning Strategy
 
 - **URI Versioning:** Use URI versioning for all REST API endpoints (e.g., `/api/v1/cards`).
 - **Evolution:** Start with v1 for the MVP. When breaking changes are introduced, create a new controller/endpoint with v2. Maintain v1 for backward compatibility.
 
-### 3.6 Frontend Integration
+### 4.6 Frontend Integration
 
 - **Syncing:** When backend API endpoints change, IMMEDIATELY update the corresponding frontend API calls.
 - **Search:** Grep for the old endpoint path in the frontend directory to find all occurrences.
 
-### 3.7 Svelte 5 Refactoring Rules (Runes)
+### 4.7 Svelte 5 Refactoring Rules (Runes)
 
 - **State ($state):** Convert `let var = val;` to `let var = $state(val);`.
 - **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`.
@@ -127,7 +142,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
 - **Icons:** Use `@lucide/svelte` for icon imports.
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
-### 3.8 Frontend Logging & Environment Checks
+### 4.8 Frontend Logging & Environment Checks
 
 - **Logging:** All `console.log`, `console.error`, and other debug logs MUST be wrapped in an environment check to prevent leaking information in production.
 - **Environment Check:** Use `import.meta.env.DEV` (Vite standard) to check if the app is running in development mode.
@@ -138,7 +153,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
   }
   ```
 
-## 4. Documentation Strategy (API & Code)
+## 5. Documentation Strategy (API & Code)
 
 Rule: Whenever you create or modify a Controller or DTO class, you MUST immediately apply the following documentation annotations.
 
@@ -146,11 +161,12 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
   -- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
 - **Internal Logic:** No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
 
-## 5. Localization Rule
+## 6. Localization Rule
 
 - **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
 
 ## 📁 File Upload & Validation Rules
+
 - **Size Limit:** The maximum allowed size is **20MB** (Total and individual files).
 - **Validation Logic:** - If any file or the total size exceeds 20MB, prevent the "Generate All Decks" action.
 - **UI/UX Feedback:**

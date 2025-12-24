@@ -51,6 +51,9 @@ local.properties
 /nbdist/
 /.nb-gradle/
 
+# 테스트스프라이트
+testsprite_tests/
+
 ### [Frontend - Node/JS/TS] (프론트엔드 설정) ###
 # Dependencies
 node_modules/
