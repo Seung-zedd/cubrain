@@ -25,7 +25,7 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
     private int minTextLength;
 
     @Override
-    public PdfExtractionResultDto extractAnnotations(MultipartFile file) throws IOException {
+    public PdfExtractionResultDto extractAnnotations(MultipartFile file, int maxPages) throws IOException {
         log.debug("Processing PDF file: {}", file.getOriginalFilename());
         List<AnnotationResultDto> results = new ArrayList<>();
         String detectionText = "";
@@ -51,7 +51,8 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                 }
             }
 
-            for (int i = 0; i < pageCount; i++) {
+            int pagesToProcess = Math.min(pageCount, maxPages);
+            for (int i = 0; i < pagesToProcess; i++) {
                 PDPage page = document.getPage(i);
                 List<PDAnnotation> annotations = page.getAnnotations();
 

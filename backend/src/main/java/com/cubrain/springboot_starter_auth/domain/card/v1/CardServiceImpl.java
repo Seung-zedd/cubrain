@@ -116,24 +116,28 @@ public class CardServiceImpl implements CardService {
     @Override
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
         try {
-            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file);
-            List<AnnotationResultDto> annotations = extractionResult.annotations();
-            String firstPageText = extractionResult.detectionText();
-
-            String targetLanguage = detectLanguage(firstPageText);
-            log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
-
-            // Filter annotations based on UserTier (Enforce limits by filtering instead of
-            // rejecting)
+            // 1. Determine limits based on UserTier
             int pageLimit = switch (userTier) {
                 case PRO_USER -> 1000;
                 case FREE_USER -> 50;
                 case GUEST -> 10;
             };
 
-            annotations = annotations.stream()
-                    .filter(a -> a.pageIndex() <= pageLimit)
-                    .toList();
+            // 2. Extract annotations up to the page limit
+            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file, pageLimit);
+            List<AnnotationResultDto> annotations = extractionResult.annotations();
+            String firstPageText = extractionResult.detectionText();
+
+            String targetLanguage = detectLanguage(firstPageText);
+            log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
+
+            // 3. Limit total cards to be proportional to pages (e.g., 3 cards per page)
+            int maxCards = pageLimit * 3;
+            if (annotations.size() > maxCards) {
+                log.info("Limiting annotations from {} to {} (proportional to {} pages)",
+                        annotations.size(), maxCards, pageLimit);
+                annotations = annotations.subList(0, maxCards);
+            }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
             int total = annotations.size();
