@@ -1,5 +1,6 @@
 <script lang="ts">
   import { API_BASE_URL } from "$lib/config";
+  import { fetchUser } from "$lib/stores/user";
   import { X, CircleAlert, CircleCheck } from "@lucide/svelte";
   import { fade, scale, slide, fly } from "svelte/transition";
 
@@ -117,6 +118,7 @@
       if (response.ok) {
         status = "success";
         message = "Successful verification done!";
+        await fetchUser();
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 800);

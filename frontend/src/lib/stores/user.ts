@@ -22,7 +22,9 @@ export async function fetchUser() {
       user.set(null);
     }
   } catch (e) {
-    console.error("Failed to fetch user", e);
+    if (import.meta.env.DEV) {
+      console.error("Failed to fetch user", e);
+    }
     user.set(null);
   }
 }
@@ -36,6 +38,8 @@ export async function logout() {
     user.set(null);
     window.location.href = "/";
   } catch (e) {
-    console.error("Failed to logout", e);
+    if (import.meta.env.DEV) {
+      console.error("Failed to logout", e);
+    }
   }
 }

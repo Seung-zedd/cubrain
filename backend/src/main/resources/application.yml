@@ -13,7 +13,9 @@ spring:
     ansi:
       enabled: ALWAYS
 
-  
+# for proxies like Railway to correctly handle Secure and SameSite cookie
+server:
+  forward-headers-strategy: native
 
 # for logging
 logging:
