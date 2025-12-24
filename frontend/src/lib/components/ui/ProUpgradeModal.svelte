@@ -77,7 +77,7 @@
   >
     <!-- Premium Gradient Top -->
     <div
-      class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500"
+      class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-500 via-yellow-300 to-amber-500"
     ></div>
 
     <!-- Close button -->
@@ -137,7 +137,7 @@
 
           <!-- Shine effect -->
           <div
-            class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"
+            class="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"
           ></div>
         </button>
 
