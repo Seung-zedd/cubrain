@@ -2,7 +2,6 @@ package com.cubrain.springboot_starter_auth.global.usage;
 
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
-import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,11 @@ public class UsageLimitService {
         }
 
         member.resetCountIfNewDay();
-        int limit = (member.getTier() == UserTier.FREE_USER) ? 5 : 3; // Free: 5, Guest: 3 (though Guest uses IP)
+        int limit = switch (member.getTier()) {
+            case FREE_USER -> 3;
+            case PRO_USER -> 100; // High limit for Pro
+            case GUEST -> 3;
+        };
 
         if (member.getDailyUploadCount() >= limit) {
             throw new IllegalStateException("Daily upload limit reached for " + member.getTier());

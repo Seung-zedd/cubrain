@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: string;
   tier: string;
+  dailyUploadCount: number;
 }
 
 export const user = writable<User | null>(null);

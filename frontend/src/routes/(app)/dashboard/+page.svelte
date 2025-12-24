@@ -9,8 +9,9 @@
   import { API_BASE_URL } from "$lib/config";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
-  import { user } from "$lib/stores/user";
+  import { user, fetchUser } from "$lib/stores/user";
   import Toast from "$lib/components/ui/Toast.svelte";
+  import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
 
   interface Flashcard {
     question: string;
@@ -34,6 +35,8 @@
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
+  let showProModal = $state(false);
+  let proModalType = $state<"daily_limit" | "page_limit">("daily_limit");
   let errorMessage = $state<string | null>(null);
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
@@ -129,6 +132,14 @@
     errorMessage = null;
 
     try {
+      // Check daily limit for Free Users
+      if ($user && $user.tier === "FREE_USER" && $user.dailyUploadCount >= 3) {
+        proModalType = "daily_limit";
+        showProModal = true;
+        isGenerating = false;
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", files[0]);
 
@@ -218,10 +229,29 @@
       } else {
         const errorData = await startResponse.json();
         errorMessage = errorData.error || "Failed to start generation job";
-        if (import.meta.env.DEV) {
+
+        if (errorMessage && errorMessage.includes("Page limit exceeded")) {
+          proModalType = "page_limit";
+          showProModal = true;
+          errorMessage = null;
+        } else if (
+          errorMessage &&
+          errorMessage.includes("Daily upload limit reached")
+        ) {
+          proModalType = "daily_limit";
+          showProModal = true;
+          errorMessage = null;
+        }
+
+        if (import.meta.env.DEV && errorMessage) {
           console.error("Failed to start generation job:", errorMessage);
         }
         isGenerating = false;
+      }
+
+      // Refresh user data to get updated upload count
+      if ($user) {
+        await fetchUser();
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -442,4 +472,8 @@
     message="The total file size exceeds the 20MB limit. Please remove some files."
     onclose={() => (showTotalSizeToast = false)}
   />
+{/if}
+
+{#if showProModal}
+  <ProUpgradeModal type={proModalType} onclose={() => (showProModal = false)} />
 {/if}
