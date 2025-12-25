@@ -34,7 +34,7 @@ public class AiConfig {
                 .apiKey(chatApiKey)
                 .modelName(chatModelName)
                 .temperature(chatTemperature)
-                .timeout(Duration.ofSeconds(120))
+                .timeout(Duration.ofSeconds(300))
                 .build();
     }
 

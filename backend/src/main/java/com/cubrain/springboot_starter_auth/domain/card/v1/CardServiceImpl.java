@@ -172,6 +172,11 @@ public class CardServiceImpl implements CardService {
                 }
             }
 
+            if (allFlashcards.isEmpty() && !annotations.isEmpty()) {
+                throw new RuntimeException(
+                        "Failed to generate any flashcards from the provided annotations. This might be due to API timeouts or rate limits.");
+            }
+
             return allFlashcards;
 
         } catch (IOException e) {
@@ -265,8 +270,13 @@ public class CardServiceImpl implements CardService {
                 return chatModel.generate(systemMessage, userMessage);
             } catch (Exception e) {
                 String errorMsg = e.getMessage();
-                if (errorMsg != null && (errorMsg.contains("429") || errorMsg.contains("RESOURCE_EXHAUSTED"))) {
-                    log.warn("Rate limit hit (429), retrying in {}ms... (Attempt {}/{})", delayMs, i + 1, maxRetries);
+                boolean isRetryable = errorMsg != null && (errorMsg.contains("429") ||
+                        errorMsg.contains("RESOURCE_EXHAUSTED") ||
+                        errorMsg.toLowerCase().contains("timeout"));
+
+                if (isRetryable) {
+                    log.warn("Retryable error occurred: {}. Retrying in {}ms... (Attempt {}/{})",
+                            errorMsg, delayMs, i + 1, maxRetries);
                     try {
                         Thread.sleep(delayMs);
                     } catch (InterruptedException ie) {
