@@ -91,7 +91,39 @@
   let hasDecks = $derived(recentDecks.length > 0);
   let showUpload = $derived(mode === "upload" || !hasDecks);
 
-  let dailyUploadCount = $derived($user?.dailyUploadCount ?? 1);
+  let guestUploadCount = $state(0);
+
+  $effect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const stored = localStorage.getItem("guest_usage");
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.date === today) {
+          guestUploadCount = data.count;
+        } else {
+          guestUploadCount = 0;
+        }
+      } catch (e) {
+        guestUploadCount = 0;
+      }
+    }
+    // Cleanup old key if it exists
+    localStorage.removeItem("guest_upload_count");
+  });
+
+  $effect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    localStorage.setItem(
+      "guest_usage",
+      JSON.stringify({
+        count: guestUploadCount,
+        date: today,
+      })
+    );
+  });
+
+  let dailyUploadCount = $derived($user?.dailyUploadCount ?? guestUploadCount);
   let maxLimit = 3;
   let badgeColor = $derived(
     dailyUploadCount >= maxLimit
@@ -145,6 +177,14 @@
     try {
       // Check daily limit for Free Users
       if ($user && $user.tier === "FREE_USER" && $user.dailyUploadCount >= 3) {
+        proModalType = "daily_limit";
+        showProModal = true;
+        isGenerating = false;
+        return;
+      }
+
+      // Check daily limit for Guests
+      if (!$user && guestUploadCount >= 3) {
         proModalType = "daily_limit";
         showProModal = true;
         isGenerating = false;
@@ -225,6 +265,8 @@
                 // Refresh user data to get updated upload count
                 if ($user) {
                   fetchUser();
+                } else {
+                  guestUploadCount += 1;
                 }
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
@@ -425,7 +467,7 @@
                 Upload Queue ({files.length})
               </h2>
               <div class="flex items-center gap-4">
-                {#if $user && $user.tier === "FREE_USER"}
+                {#if !$user || $user?.tier === "FREE_USER"}
                   <div class="text-right">
                     <p
                       class="text-zinc-500 text-[10px] font-bold uppercase tracking-wider"
