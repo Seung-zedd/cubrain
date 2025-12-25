@@ -313,12 +313,12 @@
                   <h2 class="text-xl font-bold text-white">
                     Generation Complete!
                   </h2>
-                  {#if jobMetadata.isLimited}
-                    <span
-                      class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider"
+                  {#if $user && $user.tier === "FREE_USER"}
+                    <div
+                      class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-wider"
                     >
-                      Partial
-                    </span>
+                      {$user.dailyUploadCount} / 3 Uploads
+                    </div>
                   {/if}
                 </div>
                 <p class="text-zinc-400 text-sm">
@@ -367,8 +367,14 @@
                   Partial Processing Active
                 </p>
                 <p class="text-amber-200/60 text-xs mt-0.5">
-                  To ensure fast results, we processed the first {jobMetadata.pageLimit}
-                  pages. Upgrade to Pro to analyze entire documents up to 1,000 pages.
+                  {#if !$user}
+                    Sign in to analyze up to 50 pages and save your generated
+                    flashcards.
+                  {:else}
+                    To ensure fast results, we processed the first {jobMetadata.pageLimit}
+                    pages. Upgrade to Pro to analyze entire documents up to 1,000
+                    pages.
+                  {/if}
                 </p>
               </div>
               <button
@@ -378,7 +384,11 @@
                 }}
                 class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-xs font-bold rounded-lg transition-colors"
               >
-                Upgrade
+                {#if !$user}
+                  Sign Up
+                {:else}
+                  Upgrade
+                {/if}
               </button>
             </div>
           {/if}

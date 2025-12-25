@@ -140,23 +140,18 @@ public class CardServiceImpl implements CardService {
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();
             int total = annotations.size();
+            int batchSize = 5;
 
-            for (int i = 0; i < total; i++) {
-                AnnotationResultDto annotation = annotations.get(i);
+            for (int i = 0; i < total; i += batchSize) {
+                int end = Math.min(i + batchSize, total);
+                List<AnnotationResultDto> batch = annotations.subList(i, end);
 
-                // Rate limiting protection: 1s delay between requests
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-
-                FlashcardResponseDto card = generateCardDemo(annotation.text(), annotation.context(),
-                        "Extracted from PDF Page " + annotation.pageIndex(), annotation.type(), targetLanguage);
-                flashcards.add(card);
+                log.info("Processing batch {} to {} of {}", i, end, total);
+                List<FlashcardResponseDto> batchCards = generateCardsBatch(batch, targetLanguage);
+                flashcards.addAll(batchCards);
 
                 if (jobId != null) {
-                    int progress = (int) (((double) (i + 1) / total) * 100);
+                    int progress = (int) (((double) end / total) * 100);
                     jobManager.updateProgress(jobId, progress);
                 }
             }
@@ -167,6 +162,59 @@ public class CardServiceImpl implements CardService {
             String filename = file.getOriginalFilename();
             log.error("Failed to process PDF file: {} - {}", filename, e.getMessage(), e);
             throw new RuntimeException("Failed to process PDF file: " + filename + " - " + e.getMessage(), e);
+        }
+    }
+
+    private List<FlashcardResponseDto> generateCardsBatch(List<AnnotationResultDto> batch, String targetLanguage) {
+        StringBuilder annotationsJson = new StringBuilder("[");
+        for (int i = 0; i < batch.size(); i++) {
+            AnnotationResultDto a = batch.get(i);
+            annotationsJson.append(String.format(
+                    "{\"id\": %d, \"text\": \"%s\", \"context\": \"%s\", \"type\": \"%s\", \"page\": %d}",
+                    i, a.text().replace("\"", "\\\""), a.context().replace("\"", "\\\""), a.type(), a.pageIndex()));
+            if (i < batch.size() - 1)
+                annotationsJson.append(",");
+        }
+        annotationsJson.append("]");
+
+        SystemMessage systemMessage = SystemMessage
+                .from("You are an expert tutor creating Anki flashcards from PDF annotations.");
+
+        UserMessage userMessage = UserMessage
+                .from("""
+                        **Annotations:**
+                        %s
+
+                        **Instructions:**
+                        For each annotation in the list:
+                        1. IF type is 'Highlight':
+                           - User Psychology: "I understand the big picture here." or "This is the main idea."
+                           - Action: Generate Conceptual Questions. Ask 'Why', 'How', or 'Summarize'. Focus on logic, cause-and-effect, and the main argument.
+                        2. IF type is 'Underline':
+                           - User Psychology: "This word is the answer." or "I need to memorize this data."
+                           - Action: Generate Factual Questions. Ask for definitions, specific dates, names, or numbers.
+                        3. OUTPUT LANGUAGE:
+                           - Generate the Question and Answer in %s.
+
+                        Return a JSON array of flashcards:
+                        [
+                          { "question": "...", "answer": "..." },
+                          ...
+                        ]
+                        """
+                        .formatted(annotationsJson.toString(), targetLanguage));
+
+        Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
+        String responseText = response.content().text();
+        log.info("🤖 Raw AI Batch Response: " + responseText);
+
+        try {
+            String cleanJson = responseText.replace("```json", "").replace("```", "").trim();
+            return objectMapper.readValue(cleanJson,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, FlashcardResponseDto.class));
+        } catch (Exception e) {
+            log.error("Failed to parse AI batch response", e);
+            return new ArrayList<>();
         }
     }
 
