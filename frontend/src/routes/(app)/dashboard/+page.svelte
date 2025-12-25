@@ -313,13 +313,11 @@
                   <h2 class="text-xl font-bold text-white">
                     Generation Complete!
                   </h2>
-                  {#if $user && $user.tier === "FREE_USER"}
-                    <div
-                      class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-wider"
-                    >
-                      {$user.dailyUploadCount} / 3 Uploads
-                    </div>
-                  {/if}
+                  <div
+                    class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-wider"
+                  >
+                    Daily Limit {$user ? $user.dailyUploadCount : 1} / 3
+                  </div>
                 </div>
                 <p class="text-zinc-400 text-sm">
                   Created {generatedCards.length} flashcards
@@ -352,46 +350,6 @@
               {/if}
             </div>
           </div>
-
-          {#if jobMetadata.isLimited}
-            <div
-              class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 animate-in fade-in slide-in-from-top-2"
-            >
-              <div
-                class="h-6 w-6 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5"
-              >
-                <span class="text-amber-500 text-xs font-bold">!</span>
-              </div>
-              <div class="flex-1">
-                <p class="text-amber-200 text-sm font-medium">
-                  Partial Processing Active
-                </p>
-                <p class="text-amber-200/60 text-xs mt-0.5">
-                  {#if !$user}
-                    Sign in to analyze up to 50 pages and save your generated
-                    flashcards.
-                  {:else}
-                    To ensure fast results, we processed the first {jobMetadata.pageLimit}
-                    pages. Upgrade to Pro to analyze entire documents up to 1,000
-                    pages.
-                  {/if}
-                </p>
-              </div>
-              <button
-                onclick={() => {
-                  proModalType = "daily_limit"; // Reusing modal for upgrade
-                  showProModal = true;
-                }}
-                class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-xs font-bold rounded-lg transition-colors"
-              >
-                {#if !$user}
-                  Sign Up
-                {:else}
-                  Upgrade
-                {/if}
-              </button>
-            </div>
-          {/if}
 
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each generatedCards as card, i}
