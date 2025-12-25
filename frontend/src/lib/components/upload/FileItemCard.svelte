@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FileText, X, CheckCircle2, CircleAlert } from "@lucide/svelte";
+  import { FileText, X, CircleCheck, CircleAlert } from "@lucide/svelte";
   import { fly } from "svelte/transition";
 
   let {
@@ -60,7 +60,7 @@
           </span>
         {:else}
           <span class="text-xs text-[#FFD700]/80 flex items-center gap-1">
-            <CheckCircle2 class="w-3 h-3" /> Ready
+            <CircleCheck class="w-3 h-3" /> Ready
           </span>
         {/if}
       </div>

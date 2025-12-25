@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { X, Zap, CheckCircle2, Rocket } from "@lucide/svelte";
+  import { X, Zap, CircleCheck, Rocket } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
 
   let {
@@ -126,7 +126,7 @@
           <div
             class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800"
           >
-            <CheckCircle2 class="w-5 h-5 text-amber-500 shrink-0" />
+            <CircleCheck class="w-5 h-5 text-amber-500 shrink-0" />
             <span class="text-zinc-300 text-sm font-medium">{feature}</span>
           </div>
         {/each}
