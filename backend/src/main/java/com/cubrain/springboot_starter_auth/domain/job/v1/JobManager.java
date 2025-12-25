@@ -24,4 +24,8 @@ public interface JobManager {
     Integer getProgress(String jobId);
 
     Object getResults(String jobId);
+
+    void updateMetadata(String jobId, String key, Object value);
+
+    java.util.Map<String, Object> getMetadata(String jobId);
 }

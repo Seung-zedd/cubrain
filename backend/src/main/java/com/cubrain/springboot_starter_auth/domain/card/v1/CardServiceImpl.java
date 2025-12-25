@@ -137,6 +137,10 @@ public class CardServiceImpl implements CardService {
                 log.info("Limiting annotations from {} to {} (proportional to {} pages)",
                         annotations.size(), maxCards, pageLimit);
                 annotations = annotations.subList(0, maxCards);
+                if (jobId != null) {
+                    jobManager.updateMetadata(jobId, "isLimited", true);
+                    jobManager.updateMetadata(jobId, "pageLimit", pageLimit);
+                }
             }
 
             List<FlashcardResponseDto> flashcards = new ArrayList<>();

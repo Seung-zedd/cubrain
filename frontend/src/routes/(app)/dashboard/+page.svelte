@@ -38,6 +38,7 @@
   let showProModal = $state(false);
   let proModalType = $state<"daily_limit">("daily_limit");
   let errorMessage = $state<string | null>(null);
+  let jobMetadata = $state<Record<string, any>>({});
   // Mock persistence for demo purposes
   let recentDecks = $state<Deck[]>([
     {
@@ -168,6 +169,9 @@
               const statusData = await statusResponse.json();
               jobStatus = statusData.status;
               jobProgress = statusData.progress;
+              if (statusData.metadata) {
+                jobMetadata = statusData.metadata;
+              }
 
               if (jobStatus === "COMPLETED") {
                 if (pollInterval) clearInterval(pollInterval);
@@ -267,6 +271,7 @@
     generatedCards = [];
     files = [];
     errorMessage = null;
+    jobMetadata = {};
   }
 </script>
 
@@ -339,6 +344,36 @@
             </div>
           </div>
 
+          {#if jobMetadata.isLimited}
+            <div
+              class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 animate-in fade-in slide-in-from-top-2"
+            >
+              <div
+                class="h-6 w-6 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5"
+              >
+                <span class="text-amber-500 text-xs font-bold">!</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-amber-200 text-sm font-medium">
+                  Partial Processing Active
+                </p>
+                <p class="text-amber-200/60 text-xs mt-0.5">
+                  To ensure fast results, we processed the first {jobMetadata.pageLimit}
+                  pages. Upgrade to Pro to analyze entire documents up to 1,000 pages.
+                </p>
+              </div>
+              <button
+                onclick={() => {
+                  proModalType = "daily_limit"; // Reusing modal for upgrade
+                  showProModal = true;
+                }}
+                class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-xs font-bold rounded-lg transition-colors"
+              >
+                Upgrade
+              </button>
+            </div>
+          {/if}
+
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each generatedCards as card, i}
               <div
@@ -403,17 +438,31 @@
               <h2 class="text-xl font-semibold text-white">
                 Upload Queue ({files.length})
               </h2>
-              <button
-                onclick={handleGenerate}
-                disabled={isGenerating || isGenerationBlocked}
-                class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {#if isGenerating}
-                  Generating...
-                {:else}
-                  Generate All Decks
+              <div class="flex items-center gap-4">
+                {#if $user && $user.tier === "FREE_USER"}
+                  <div class="text-right">
+                    <p
+                      class="text-zinc-500 text-[10px] font-bold uppercase tracking-wider"
+                    >
+                      Daily Usage
+                    </p>
+                    <p class="text-zinc-300 text-sm font-medium">
+                      {$user.dailyUploadCount} / 3 Uploads
+                    </p>
+                  </div>
                 {/if}
-              </button>
+                <button
+                  onclick={handleGenerate}
+                  disabled={isGenerating || isGenerationBlocked}
+                  class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {#if isGenerating}
+                    Generating...
+                  {:else}
+                    Generate All Decks
+                  {/if}
+                </button>
+              </div>
             </div>
 
             {#if isGenerating}

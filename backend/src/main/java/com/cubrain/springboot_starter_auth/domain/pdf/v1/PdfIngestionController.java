@@ -110,6 +110,7 @@ public class PdfIngestionController {
             results = jobManager.getResults(jobId);
         }
 
-        return ok(JobStatusResponseDto.of(status, progress, results));
+        Map<String, Object> metadata = jobManager.getMetadata(jobId);
+        return ok(JobStatusResponseDto.of(status, progress, results, metadata));
     }
 }

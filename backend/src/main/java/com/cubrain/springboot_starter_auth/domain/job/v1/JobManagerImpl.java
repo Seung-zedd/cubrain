@@ -24,6 +24,7 @@ public class JobManagerImpl implements JobManager {
     private final Map<String, Integer> jobProgress = new ConcurrentHashMap<>();
     private final Map<String, Instant> jobCompletionTimes = new ConcurrentHashMap<>();
     private final Map<String, String> jobOwners = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Object>> jobMetadata = new ConcurrentHashMap<>();
 
     private static final long JOB_RETENTION_SECONDS = 3600;
 
@@ -43,6 +44,7 @@ public class JobManagerImpl implements JobManager {
                 jobProgress.remove(jobId);
                 jobCompletionTimes.remove(jobId);
                 jobOwners.remove(jobId);
+                jobMetadata.remove(jobId);
                 removedCount++;
             }
         }
@@ -63,6 +65,7 @@ public class JobManagerImpl implements JobManager {
         jobStatuses.put(jobId, PROCESSING);
         jobProgress.put(jobId, 0);
         jobOwners.put(jobId, ownerId);
+        jobMetadata.put(jobId, new ConcurrentHashMap<>());
         return jobId;
     }
 
@@ -113,5 +116,18 @@ public class JobManagerImpl implements JobManager {
     @Override
     public Object getResults(String jobId) {
         return jobResults.get(jobId);
+    }
+
+    @Override
+    public void updateMetadata(String jobId, String key, Object value) {
+        Map<String, Object> metadata = jobMetadata.get(jobId);
+        if (metadata != null) {
+            metadata.put(key, value);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getMetadata(String jobId) {
+        return jobMetadata.getOrDefault(jobId, Map.of());
     }
 }
