@@ -91,6 +91,16 @@
   let hasDecks = $derived(recentDecks.length > 0);
   let showUpload = $derived(mode === "upload" || !hasDecks);
 
+  let dailyUploadCount = $derived($user?.dailyUploadCount ?? 1);
+  let maxLimit = 3;
+  let badgeColor = $derived(
+    dailyUploadCount >= maxLimit
+      ? "bg-red-500/20 text-red-400 border-red-500/50"
+      : dailyUploadCount === maxLimit - 1
+        ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
+        : "bg-slate-800/50 text-slate-400 border-slate-700"
+  );
+
   // Cleanup polling interval when component unmounts
   $effect(() => {
     return () => {
@@ -313,9 +323,9 @@
                     Generation Complete!
                   </h2>
                   <div
-                    class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-wider"
+                    class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
                   >
-                    Daily Limit {$user?.dailyUploadCount ?? 1} / 3
+                    Daily Limit {dailyUploadCount} / {maxLimit}
                   </div>
                 </div>
                 <p class="text-zinc-400 text-sm">
@@ -423,7 +433,7 @@
                       Daily Usage
                     </p>
                     <p class="text-zinc-300 text-sm font-medium">
-                      {$user.dailyUploadCount} / 3 Uploads
+                      {dailyUploadCount} / {maxLimit} Uploads
                     </p>
                   </div>
                 {/if}
