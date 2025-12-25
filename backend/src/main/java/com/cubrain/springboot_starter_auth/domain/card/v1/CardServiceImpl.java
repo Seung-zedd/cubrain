@@ -5,6 +5,7 @@ import com.cubrain.springboot_starter_auth.domain.pdf.v1.AnnotationResultDto;
 import com.cubrain.springboot_starter_auth.domain.pdf.v1.PdfExtractionResultDto;
 import com.cubrain.springboot_starter_auth.domain.pdf.v1.PdfAnnotationService;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -27,8 +28,9 @@ import java.util.concurrent.Executor;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CardServiceImpl implements CardService {
+
+    private static final int BATCH_SIZE = 5;
 
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper;
@@ -145,25 +147,24 @@ public class CardServiceImpl implements CardService {
                 }
             }
 
-            List<FlashcardResponseDto> flashcards = new ArrayList<>();
+            List<FlashcardResponseDto> allFlashcards = new ArrayList<>();
             int total = annotations.size();
 
-            for (int i = 0; i < total; i++) {
-                AnnotationResultDto annotation = annotations.get(i);
+            for (int i = 0; i < total; i += BATCH_SIZE) {
+                int end = Math.min(i + BATCH_SIZE, total);
+                List<AnnotationResultDto> batch = annotations.subList(i, end);
 
-                log.info("Processing annotation {} of {}", i + 1, total);
-                FlashcardResponseDto card = generateSingleCard(annotation, targetLanguage);
-                if (card != null) {
-                    flashcards.add(card);
-                }
+                log.info("Processing batch {} to {} of {}", i + 1, end, total);
+                List<FlashcardResponseDto> batchCards = generateCardBatch(batch, targetLanguage);
+                allFlashcards.addAll(batchCards);
 
                 if (jobId != null) {
-                    int progress = (int) (((double) (i + 1) / total) * 100);
+                    int progress = (int) (((double) end / total) * 100);
                     jobManager.updateProgress(jobId, progress);
                 }
 
-                // Add a small delay between requests to respect rate limits
-                if (i < total - 1) {
+                // Add a small delay between batches to respect rate limits
+                if (end < total) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -172,7 +173,7 @@ public class CardServiceImpl implements CardService {
                 }
             }
 
-            return flashcards;
+            return allFlashcards;
 
         } catch (IOException e) {
             String filename = file.getOriginalFilename();
@@ -181,45 +182,47 @@ public class CardServiceImpl implements CardService {
         }
     }
 
-    private FlashcardResponseDto generateSingleCard(AnnotationResultDto annotation, String targetLanguage) {
-        SystemMessage systemMessage = SystemMessage
-                .from("You are an expert tutor creating Anki flashcards from PDF annotations.");
-
-        UserMessage userMessage = UserMessage
-                .from("""
-                        **Annotation:**
-                        { "text": "%s", "context": "%s", "type": "%s", "page": %d }
-
-                        **Instructions:**
-                        1. IF type is 'Highlight':
-                           - User Psychology: "I understand the big picture here." or "This is the main idea."
-                           - Action: Generate Conceptual Questions. Ask 'Why', 'How', or 'Summarize'. Focus on logic, cause-and-effect, and the main argument.
-                        2. IF type is 'Underline':
-                           - User Psychology: "This word is the answer." or "I need to memorize this data."
-                           - Action: Generate Factual Questions. Ask for definitions, specific dates, names, or numbers.
-                        3. OUTPUT LANGUAGE:
-                           - Generate the Question and Answer in %s.
-
-                        Return a JSON object for the flashcard:
-                        { "question": "...", "answer": "..." }
-                        """
-                        .formatted(
-                                annotation.text().replace("\"", "\\\""),
-                                annotation.context().replace("\"", "\\\""),
-                                annotation.type(),
-                                annotation.pageIndex(),
-                                targetLanguage));
-
-        Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
-        String responseText = response.content().text();
-        log.info("🤖 Raw AI Response: " + responseText);
-
+    private List<FlashcardResponseDto> generateCardBatch(List<AnnotationResultDto> batch, String targetLanguage) {
         try {
+            String batchJson = objectMapper.writeValueAsString(batch);
+
+            SystemMessage systemMessage = SystemMessage
+                    .from("You are an expert tutor. Create Anki flashcards from the provided list of annotations.");
+
+            UserMessage userMessage = UserMessage
+                    .from("""
+                            **Task:**
+                            Generate %d flashcards based on the following list of annotations.
+
+                            **Target Language:** %s
+
+                            **Input Data (JSON):**
+                            %s
+
+                            **Instructions:**
+                            1. Iterate through each item in the input list.
+                            2. Apply the logic based on 'type' (Highlight -> Conceptual, Underline -> Factual).
+                            3. Return a **JSON ARRAY** of objects.
+
+                            **Output Format:**
+                            Strictly return ONLY the JSON Array:
+                            [
+                              { "question": "...", "answer": "..." },
+                              { "question": "...", "answer": "..." }
+                            ]
+                            """
+                            .formatted(batch.size(), targetLanguage, batchJson));
+
+            Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
+            String responseText = response.content().text();
+            log.info("🤖 Raw AI Batch Response: " + responseText);
+
             String cleanJson = responseText.replace("```json", "").replace("```", "").trim();
-            return objectMapper.readValue(cleanJson, FlashcardResponseDto.class);
+            return objectMapper.readValue(cleanJson, new TypeReference<List<FlashcardResponseDto>>() {
+            });
         } catch (Exception e) {
-            log.error("Failed to parse AI response", e);
-            return null;
+            log.error("Failed to process batch or parse AI response", e);
+            return new ArrayList<>();
         }
     }
 

@@ -35,6 +35,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 **Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
 ## 3. Testing Strategy (TestSprite Priority)
+i won't use testsprite for a while since it's not working well.(i'll use it again after launching MVP product)
 
 We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
 
