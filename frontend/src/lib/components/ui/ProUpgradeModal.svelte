@@ -2,9 +2,14 @@
   import { X, Zap, CheckCircle2, Rocket } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
 
-  let { onclose, type = "daily_limit" } = $props<{
+  let {
+    onclose,
+    type = "daily_limit",
+    mode = "free",
+  } = $props<{
     onclose: () => void;
     type?: "daily_limit";
+    mode?: "guest" | "free";
   }>();
 
   function close() {
@@ -27,15 +32,28 @@
     }
   > = {
     daily_limit: {
-      title: "You're in the zone!",
-      description: "Finish the entire exam scope with Cubrain Pro.",
-      highlight: "Daily limit reached (3/3)",
-      features: [
-        "Unlimited daily uploads",
-        "Process entire textbooks",
-        "Priority AI generation",
-        "Advanced study modes",
-      ],
+      title:
+        mode === "guest" ? "Unlock more with Cubrain!" : "You're in the zone!",
+      description:
+        mode === "guest"
+          ? "Sign up for free to get more daily uploads and save your decks."
+          : "Finish the entire exam scope with Cubrain Pro.",
+      highlight:
+        mode === "guest" ? "Guest Limit Reached" : "Daily limit reached (3/3)",
+      features:
+        mode === "guest"
+          ? [
+              "3 daily PDF uploads",
+              "Save decks to library",
+              "Track your progress",
+              "Access on any device",
+            ]
+          : [
+              "Unlimited daily uploads",
+              "Process entire textbooks",
+              "Priority AI generation",
+              "Advanced study modes",
+            ],
     },
   };
 
@@ -119,7 +137,11 @@
           class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300"
         >
           <div class="flex items-center justify-center gap-2">
-            <span>Upgrade to Cubrain Pro</span>
+            <span
+              >{mode === "guest"
+                ? "Sign up for Free"
+                : "Upgrade to Cubrain Pro"}</span
+            >
             <Zap class="w-5 h-5 fill-current" />
           </div>
 

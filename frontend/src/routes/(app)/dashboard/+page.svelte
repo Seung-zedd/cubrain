@@ -309,9 +309,18 @@
                 <CircleCheck class="w-6 h-6 text-green-500" />
               </div>
               <div>
-                <h2 class="text-xl font-bold text-white">
-                  Generation Complete!
-                </h2>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-bold text-white">
+                    Generation Complete!
+                  </h2>
+                  {#if jobMetadata.isLimited}
+                    <span
+                      class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider"
+                    >
+                      Partial
+                    </span>
+                  {/if}
+                </div>
                 <p class="text-zinc-400 text-sm">
                   Created {generatedCards.length} flashcards
                 </p>
@@ -520,5 +529,9 @@
 {/if}
 
 {#if showProModal}
-  <ProUpgradeModal type={proModalType} onclose={() => (showProModal = false)} />
+  <ProUpgradeModal
+    type={proModalType}
+    mode={$user ? "free" : "guest"}
+    onclose={() => (showProModal = false)}
+  />
 {/if}

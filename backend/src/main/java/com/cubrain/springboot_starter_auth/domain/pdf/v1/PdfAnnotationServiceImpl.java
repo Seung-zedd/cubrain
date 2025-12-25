@@ -143,18 +143,18 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                     }
                 }
             }
+
+            results.sort(Comparator
+                    .comparingInt(AnnotationResultDto::pageIndex)
+                    .thenComparing((a, b) -> Float.compare(b.y(), a.y()))
+                    .thenComparingDouble(AnnotationResultDto::x));
+
+            if (results.isEmpty()) {
+                log.warn("User uploaded a clean PDF. No flashcards generated.");
+            }
+            boolean isLimited = pageCount > maxPages;
+            return PdfExtractionResultDto.of(results, detectionText, isLimited);
         }
-
-        results.sort(Comparator
-                .comparingInt(AnnotationResultDto::pageIndex)
-                .thenComparing((a, b) -> Float.compare(b.y(), a.y()))
-                .thenComparingDouble(AnnotationResultDto::x));
-
-        if (results.isEmpty()) {
-            log.warn("User uploaded a clean PDF. No flashcards generated.");
-        }
-
-        return PdfExtractionResultDto.of(results, detectionText);
     }
 
     @Override

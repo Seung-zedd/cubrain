@@ -131,12 +131,7 @@ public class CardServiceImpl implements CardService {
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
-            // 3. Limit total cards to be proportional to pages (e.g., 3 cards per page)
-            int maxCards = pageLimit * 3;
-            if (annotations.size() > maxCards) {
-                log.info("Limiting annotations from {} to {} (proportional to {} pages)",
-                        annotations.size(), maxCards, pageLimit);
-                annotations = annotations.subList(0, maxCards);
+            if (extractionResult.isLimited()) {
                 if (jobId != null) {
                     jobManager.updateMetadata(jobId, "isLimited", true);
                     jobManager.updateMetadata(jobId, "pageLimit", pageLimit);
