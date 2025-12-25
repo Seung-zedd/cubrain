@@ -45,7 +45,7 @@ public class SecurityConfig {
                             .requestMatchers("/", "/index.html", "/static/**", "/*.ico", "/*.json", "/*.png")
                             .permitAll()
                             .requestMatchers("/dashboard", "/dashboard/**").permitAll()
-                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**").permitAll();
+                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**").permitAll();
 
                     if (isSwaggerEnabled) {
                         log.info("✅ Swagger/OpenAPI is ENABLED. Permitting access to /v3/api-docs");

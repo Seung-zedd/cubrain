@@ -3,6 +3,7 @@ package com.cubrain.springboot_starter_auth.domain.waitlist.v1;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/waitlist")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // Allow Svelte to call this
+@Slf4j
 public class WaitlistController {
 
     private final WaitlistService waitlistService;
@@ -17,6 +19,7 @@ public class WaitlistController {
     @Operation(summary = "Join Waitlist", description = "Adds a user to the waitlist.")
     @PostMapping
     public ResponseEntity<String> joinWaitlist(@RequestBody @Valid WaitlistRequestDto requestDto) {
+        log.info("📩 Waitlist join request received for email: {}", requestDto.email());
         try {
             String message = waitlistService.joinWaitlist(requestDto);
             return ResponseEntity.ok(message);
