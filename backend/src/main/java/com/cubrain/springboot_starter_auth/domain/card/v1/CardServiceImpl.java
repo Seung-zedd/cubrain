@@ -131,6 +131,13 @@ public class CardServiceImpl implements CardService {
             String targetLanguage = detectLanguage(firstPageText);
             log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
 
+            // Small delay after language detection to avoid rapid-fire
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
             if (extractionResult.isLimited()) {
                 if (jobId != null) {
                     jobManager.updateMetadata(jobId, "isLimited", true);
@@ -153,6 +160,15 @@ public class CardServiceImpl implements CardService {
                 if (jobId != null) {
                     int progress = (int) (((double) end / total) * 100);
                     jobManager.updateProgress(jobId, progress);
+                }
+
+                // Add a small delay between batches to respect rate limits
+                if (end < total) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
 
@@ -204,7 +220,7 @@ public class CardServiceImpl implements CardService {
                         """
                         .formatted(annotationsJson.toString(), targetLanguage));
 
-        Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
+        Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
         String responseText = response.content().text();
         log.info("🤖 Raw AI Batch Response: " + responseText);
 
@@ -242,11 +258,36 @@ public class CardServiceImpl implements CardService {
                     "%s"
                     """.formatted(text));
 
-            Response<AiMessage> response = chatModel.generate(systemMessage, userMessage);
+            Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
             return response.content().text().trim();
         } catch (Exception e) {
             log.warn("Language detection failed, falling back to auto-detect", e);
             return "the SAME language as the Target Text";
         }
+    }
+
+    private Response<AiMessage> generateWithRetry(SystemMessage systemMessage, UserMessage userMessage) {
+        int maxRetries = 3;
+        int delayMs = 3000;
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                return chatModel.generate(systemMessage, userMessage);
+            } catch (Exception e) {
+                String errorMsg = e.getMessage();
+                if (errorMsg != null && (errorMsg.contains("429") || errorMsg.contains("RESOURCE_EXHAUSTED"))) {
+                    log.warn("Rate limit hit (429), retrying in {}ms... (Attempt {}/{})", delayMs, i + 1, maxRetries);
+                    try {
+                        Thread.sleep(delayMs);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException(ie);
+                    }
+                    delayMs *= 2; // Exponential backoff
+                } else {
+                    throw e;
+                }
+            }
+        }
+        return chatModel.generate(systemMessage, userMessage); // Final attempt
     }
 }
