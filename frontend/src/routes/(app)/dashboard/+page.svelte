@@ -212,6 +212,10 @@
                   isEmptyState = true;
                 }
                 files = [];
+                // Refresh user data to get updated upload count
+                if ($user) {
+                  fetchUser();
+                }
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
@@ -247,11 +251,6 @@
           console.error("Failed to start generation job:", errorMessage);
         }
         isGenerating = false;
-      }
-
-      // Refresh user data to get updated upload count
-      if ($user) {
-        await fetchUser();
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -316,7 +315,7 @@
                   <div
                     class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-wider"
                   >
-                    Daily Limit {$user ? $user.dailyUploadCount : 1} / 3
+                    Daily Limit {$user?.dailyUploadCount ?? 1} / 3
                   </div>
                 </div>
                 <p class="text-zinc-400 text-sm">
