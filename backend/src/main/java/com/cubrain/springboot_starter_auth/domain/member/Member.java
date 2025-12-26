@@ -23,7 +23,7 @@ import com.cubrain.springboot_starter_auth.global.config.audit.BaseEntity;
 @AllArgsConstructor
 @Builder
 @Table(name = "members")
-public class Member extends BaseEntity{
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +62,7 @@ public class Member extends BaseEntity{
     }
 
     public void resetCountIfNewDay() {
-        if (!LocalDate.now().equals(this.lastUploadDate)) {
+        if (this.lastUploadDate == null || !LocalDate.now().equals(this.lastUploadDate)) {
             this.dailyUploadCount = 0;
             this.lastUploadDate = LocalDate.now();
         }

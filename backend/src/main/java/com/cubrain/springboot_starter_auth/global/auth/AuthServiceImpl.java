@@ -7,17 +7,20 @@ import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.global.jwt.JwtTokenProvider;
 import com.cubrain.springboot_starter_auth.global.util.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -114,7 +117,14 @@ public class AuthServiceImpl implements AuthService {
         String normalizedEmail = email.toLowerCase();
         Member member = memberRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found."));
-        member.resetCountIfNewDay();
+
+        if (member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate())) {
+            log.info("New day detected in getMe for user: {}. Resetting count.", normalizedEmail);
+            memberRepository.resetDailyUploadCount(normalizedEmail, LocalDate.now());
+            member.resetCountIfNewDay();
+        }
+
+        log.debug("Returning user data for: {}. Daily upload count: {}", normalizedEmail, member.getDailyUploadCount());
         return UserResponseDto.from(member);
     }
 }

@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +71,6 @@ class UsageLimitServiceTest {
     void checkAndIncrement_FreeUser_UnderLimit() {
         // Given
         String email = "free@example.com";
-        freeMember = spy(freeMember);
         when(memberRepository.findByEmail(email)).thenReturn(Optional.of(freeMember));
         when(jobManager.hasActiveJob(email)).thenReturn(false);
 
@@ -77,15 +78,13 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(freeMember).incrementUploadCount();
-        verify(memberRepository).save(freeMember);
+        verify(memberRepository).incrementDailyUploadCount(eq(email), any(LocalDate.class));
     }
 
     @Test
     void checkAndIncrement_ProUser_HighLimit() {
         // Given
         String email = "pro@example.com";
-        proMember = spy(proMember);
         when(memberRepository.findByEmail(email)).thenReturn(Optional.of(proMember));
         when(jobManager.hasActiveJob(email)).thenReturn(false);
 
@@ -93,7 +92,26 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(proMember).incrementUploadCount();
-        verify(memberRepository).save(proMember);
+        verify(memberRepository).incrementDailyUploadCount(eq(email), any(LocalDate.class));
+    }
+
+    @Test
+    void checkAndIncrement_NewDay_ResetsCount() {
+        // Given
+        String email = "free@example.com";
+        freeMember = Member.builder()
+                .email(email)
+                .tier(UserTier.FREE_USER)
+                .dailyUploadCount(5) // Over limit from yesterday
+                .lastUploadDate(LocalDate.now().minusDays(1))
+                .build();
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(freeMember));
+        when(jobManager.hasActiveJob(email)).thenReturn(false);
+
+        // When
+        usageLimitService.checkAndIncrement(email);
+
+        // Then
+        verify(memberRepository).resetAndIncrementDailyUploadCount(eq(email), any(LocalDate.class));
     }
 }

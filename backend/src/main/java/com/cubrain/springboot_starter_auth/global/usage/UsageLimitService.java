@@ -4,6 +4,7 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsageLimitService {
@@ -40,19 +42,26 @@ public class UsageLimitService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
 
-        member.resetCountIfNewDay();
+        boolean isNewDay = member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate());
+        int currentCount = isNewDay ? 0 : member.getDailyUploadCount();
+
         int limit = switch (member.getTier()) {
             case FREE_USER -> 3;
-            case PRO_USER -> 100; // High limit for Pro
+            case PRO_USER -> 100;
             case GUEST -> 3;
         };
 
-        if (member.getDailyUploadCount() >= limit) {
+        if (currentCount >= limit) {
             throw new IllegalStateException("Daily upload limit reached for " + member.getTier());
         }
 
-        member.incrementUploadCount();
-        memberRepository.save(member);
+        if (isNewDay) {
+            log.info("New day detected for user: {}. Resetting and incrementing count.", email);
+            memberRepository.resetAndIncrementDailyUploadCount(email, LocalDate.now());
+        } else {
+            log.info("Incrementing daily upload count for user: {}. Current count: {}", email, currentCount);
+            memberRepository.incrementDailyUploadCount(email, LocalDate.now());
+        }
     }
 
     public void checkAndIncrementGuest(String ip) {
