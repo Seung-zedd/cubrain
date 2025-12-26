@@ -7,6 +7,7 @@ import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.global.jwt.JwtTokenProvider;
 import com.cubrain.springboot_starter_auth.global.util.EmailService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +32,9 @@ public class AuthServiceImpl implements AuthService {
     private final EmailVerificationRepository verificationRepository;
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final EntityManager entityManager;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Transactional
