@@ -64,7 +64,7 @@
       onkeydown={(e) => e.key === "Enter" && !$user && (showLoginModal = true)}
     >
       <div
-        class="h-10 w-10 rounded-full bg-linear-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black font-bold shadow-lg"
+        class="h-10 w-10 rounded-full bg-linear-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-zinc-400 font-bold shadow-lg group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black transition-all duration-300"
       >
         {$user ? $user.email.substring(0, 2).toUpperCase() : "G"}
       </div>
@@ -72,10 +72,12 @@
         <p
           class="truncate text-sm font-medium text-zinc-200 group-hover:text-white"
         >
-          {$user ? $user.email.split("@")[0] : "Guest"}
+          {$user ? $user.email.split("@")[0] : "Guest Mode"}
         </p>
-        <p class="truncate text-xs text-zinc-500">
-          {$user ? $user.email : "Click to sign in"}
+        <p
+          class="truncate text-xs text-zinc-500 group-hover:text-amber-500/80 transition-colors"
+        >
+          {$user ? $user.email : "Sign in to save progress"}
         </p>
       </div>
       {#if $user}

@@ -15,9 +15,32 @@ export async function fetchUser() {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
       credentials: "include",
     });
+
     if (response.ok) {
       const data = await response.json();
       user.set(data);
+    } else if (response.status === 401) {
+      // Try to refresh tokens
+      const refreshResponse = await fetch(
+        `${API_BASE_URL}/api/v1/auth/refresh`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (refreshResponse.ok) {
+        // Retry fetching user
+        const retryResponse = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+          credentials: "include",
+        });
+        if (retryResponse.ok) {
+          const data = await retryResponse.json();
+          user.set(data);
+          return;
+        }
+      }
+      user.set(null);
     } else {
       user.set(null);
     }
