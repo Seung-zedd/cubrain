@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -70,14 +74,31 @@ public class GlobalExceptionHandler {
         return createErrorResponse(NOT_FOUND, "Resource not found.", e.getMessage());
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDto> handleMethodNotSupported(HttpRequestMethodNotSupportedException e,
+            HttpServletRequest request) {
+        log.warn("Method not supported: {} {} - {}", request.getMethod(), request.getRequestURI(), e.getMessage());
+        return createErrorResponse(METHOD_NOT_ALLOWED, "HTTP method not supported.", e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDto> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
+        return createErrorResponse(UNSUPPORTED_MEDIA_TYPE, "Content type not supported.", e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<ErrorResponseDto> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException e) {
+        return createErrorResponse(NOT_ACCEPTABLE, "Acceptable media type not found.", e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDto> handleGenericException(Exception e) {
+    public ResponseEntity<ErrorResponseDto> handleGenericException(Exception e, HttpServletRequest request) {
         if (e instanceof ClientAbortException || e.getCause() instanceof ClientAbortException) {
             log.warn("Client abort exception in generic handler: {}", e.getMessage());
             return ResponseEntity.status(REQUEST_TIMEOUT).build();
         }
 
-        log.error("Unexpected error occurred", e);
+        log.error("Unexpected error occurred at [{} {}]: ", request.getMethod(), request.getRequestURI(), e);
         return createErrorResponse(INTERNAL_SERVER_ERROR, "An internal server error occurred.",
                 e.getMessage());
     }
