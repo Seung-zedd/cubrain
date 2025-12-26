@@ -64,7 +64,12 @@
       onkeydown={(e) => e.key === "Enter" && !$user && (showLoginModal = true)}
     >
       <div
-        class="h-10 w-10 rounded-full bg-linear-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-zinc-400 font-bold shadow-lg group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black transition-all duration-300"
+        class={cn(
+          "h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-lg transition-all duration-300",
+          $user
+            ? "bg-linear-to-br from-amber-400 to-amber-600 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+            : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black"
+        )}
       >
         {$user ? $user.email.substring(0, 2).toUpperCase() : "G"}
       </div>

@@ -23,6 +23,10 @@ export async function fetchUser() {
     } else if (response.status === 401) {
       // Check if user explicitly logged out
       const isLoggedOut = getCookie("isLoggedOut") === "true";
+      if (import.meta.env.DEV) {
+        console.log("fetchUser: 401 Unauthorized. isLoggedOut:", isLoggedOut);
+      }
+
       if (isLoggedOut) {
         user.set(null);
         return;
@@ -67,7 +71,10 @@ export async function logout() {
       credentials: "include",
     });
     user.set(null);
-    window.location.href = "/";
+    // Small delay to ensure cookies are processed
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
   } catch (e) {
     if (import.meta.env.DEV) {
       console.error("Failed to logout", e);

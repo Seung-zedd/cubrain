@@ -105,11 +105,18 @@
           >Go to Dashboard</a
         >
       {:else}
-        <a
-          href="/dashboard"
-          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >Sign In</a
-        >
+        <div class="flex items-center gap-4">
+          <a
+            href="/dashboard"
+            class="text-sm font-medium text-white/60 hover:text-white transition-colors"
+            >Sign In</a
+          >
+          <a
+            href="#waitlist"
+            class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+            >Get Early Access</a
+          >
+        </div>
       {/if}
     </div>
   </nav>
