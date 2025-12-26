@@ -38,8 +38,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void requestVerification(String email, AuthMode mode) {
+    public java.util.Optional<TokenResponseDto> requestVerification(String email, AuthMode mode, String refreshToken) {
         String normalizedEmail = email.toLowerCase();
+
+        // 1. Check if we can skip verification using a valid Refresh Token
+        if (mode == AuthMode.SIGN_IN && refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+            if (normalizedEmail.equals(authentication.getName().toLowerCase())) {
+                log.info("[Auth] Skipping verification for {} - Valid Refresh Token found.", normalizedEmail);
+                String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
+                String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
+                return java.util.Optional.of(TokenResponseDto.of(newAccessToken, newRefreshToken));
+            }
+        }
+
         boolean exists = memberRepository.existsByEmail(normalizedEmail);
 
         if (mode == AuthMode.SIGN_IN && !exists) {
@@ -58,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
 
         verificationRepository.save(Objects.requireNonNull(verification));
         emailService.sendVerificationCode(normalizedEmail, code);
+        return java.util.Optional.empty();
     }
 
     @Override

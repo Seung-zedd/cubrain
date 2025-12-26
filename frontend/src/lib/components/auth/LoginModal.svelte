@@ -59,9 +59,20 @@
       clearTimeout(timeoutId);
 
       if (response.ok) {
-        showVerification = true;
-        status = "success";
-        message = "Your verification code is sent to your email!";
+        const responseText = await response.text();
+        if (responseText) {
+          // If we got a response body, it means we skipped verification and got tokens
+          status = "success";
+          message = "Welcome back! Logging you in...";
+          await fetchUser();
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 800);
+        } else {
+          showVerification = true;
+          status = "success";
+          message = "Your verification code is sent to your email!";
+        }
       } else {
         const errorData = await response.text();
         if (import.meta.env.DEV) {

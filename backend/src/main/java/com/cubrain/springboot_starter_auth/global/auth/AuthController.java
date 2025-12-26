@@ -24,12 +24,19 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Operation(summary = "Request verification code", description = "Sends a 6-digit verification code to the user's email.")
+    @Operation(summary = "Request verification code", description = "Sends a 6-digit verification code to the user's email. If a valid session exists for the email, it returns tokens immediately.")
     @PostMapping("/request-code")
-    public ResponseEntity<Void> requestCode(@Valid @RequestBody AuthRequestDto request,
-            @RequestParam AuthMode mode) {
-        authService.requestVerification(request.email(), mode);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> requestCode(
+            @Valid @RequestBody AuthRequestDto request,
+            @RequestParam AuthMode mode,
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+        return authService.requestVerification(request.email(), mode, refreshToken)
+                .map(tokens -> {
+                    setTokenCookies(response, tokens);
+                    return ResponseEntity.ok(tokens);
+                })
+                .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @Operation(summary = "Verify code and authenticate", description = "Verifies the 6-digit code and issues JWT tokens if successful.")
