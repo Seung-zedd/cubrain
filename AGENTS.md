@@ -2,7 +2,28 @@
 
 ♻️ _This markdown file can be re-used anytime you wanna build a new app_
 
-## 1. Documentation Lookup
+## 1. 🧠 Cognitive Protocol (Mandatory MCP Usage)
+
+**Rule: Think Before You Code.**
+For any task involving **logic implementation, refactoring, debugging, or architectural changes**, you **MUST** use the `sequentialthinking` tool (MCP) as your FIRST step.
+
+**Trigger Conditions:**
+- When the user asks for a feature implementation (e.g., "Implement Prompt Batching").
+- When analyzing a bug or a complex error log.
+- When planning a refactoring strategy.
+
+**Execution Steps:**
+1.  **Initiate `sequentialthinking`:** Do not output any code or text explanation until you have invoked this tool.
+2.  **Analyze & Plan:** Use the tool to:
+    - Break down the user's request into atomic steps.
+    - Identify potential risks (e.g., "Will this break the `dev` branch?", "Is this thread-safe?").
+    - Formulate a hypothesis or a step-by-step implementation plan.
+3.  **Review:** Only after the sequential thinking process is complete and you have a clear path, proceed to write code or answer.
+
+**Exception:**
+- Simple content generation (e.g., "Write a README") or trivial fixes (e.g., typos) do not require this tool.
+
+## 2. Documentation Lookup
 
 When I need code generation, setup or configuration steps, or library/API documentation:
 
@@ -14,7 +35,7 @@ When I need code generation, setup or configuration steps, or library/API docume
 
 Always prioritize official sources over blog posts or Stack Overflow answers.
 
-## 2. Commit Message Convention
+## 3. Commit Message Convention
 
 We follow a convention combining Gitmoji and Conventional Commits.
 
@@ -34,7 +55,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 **Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
-## 3. Testing Strategy (TestSprite Priority)
+## 4. Testing Strategy (TestSprite Priority)
 i won't use testsprite for a while since it's not working well.(i'll use it again after launching MVP product)
 
 We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
@@ -50,9 +71,9 @@ We prioritize automated testing using **TestSprite** to ensure high quality and 
 
 Always provide the TestSprite markdown report after running tests.
 
-## 4. Coding Standards & Design Principles
+## 5. Coding Standards & Design Principles
 
-### 4.1 SOLID Principles (Strict Enforcement)
+### 5.1 SOLID Principles (Strict Enforcement)
 
 - **SRP (Single Responsibility Principle):**
   - Each class must have **one and only one reason to change**.
@@ -68,7 +89,7 @@ Always provide the TestSprite markdown report after running tests.
   - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15.
   - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
-### 4.2 Spring Boot Best Practices
+### 6. Spring Boot Best Practices
 
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs.
 - **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `CardRequestDto`).
@@ -79,7 +100,7 @@ Always provide the TestSprite markdown report after running tests.
 - **Annotation Style:**
   - **Implicit Names:** Omit the name parameter if the variable name matches (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
 
-### 4.3 Object Creation & Mapping Strategy (Entity vs. DTO)
+### 7. Object Creation & Mapping Strategy (Entity vs. DTO)
 
 To maintain consistency, readability, and encapsulation, we will distinguish how Entities and DTOs are instantiated.
 
@@ -118,22 +139,22 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
   }
   ```
 
-### 4.4 Package Structure
+### 8. Package Structure
 
 - **Flat Architecture:** Keep domain packages flat (e.g., `domain/pdf` contains Controller, Service, Repository, DTOs).
 - **Refactoring Rule:** Only split a domain package into subpackages (`dto`, `service`, `controller`, etc.) when the file count in that package exceeds 15.
 
-### 4.5 API Versioning Strategy
+### 9. API Versioning Strategy
 
 - **URI Versioning:** Use URI versioning for all REST API endpoints (e.g., `/api/v1/cards`).
 - **Evolution:** Start with v1 for the MVP. When breaking changes are introduced, create a new controller/endpoint with v2. Maintain v1 for backward compatibility.
 
-### 4.6 Frontend Integration
+### 10. Frontend Integration
 
 - **Syncing:** When backend API endpoints change, IMMEDIATELY update the corresponding frontend API calls.
 - **Search:** Grep for the old endpoint path in the frontend directory to find all occurrences.
 
-### 4.7 Svelte 5 Refactoring Rules (Runes)
+### 11. Svelte 5 Refactoring Rules (Runes)
 
 - **State ($state):** Convert `let var = val;` to `let var = $state(val);`.
 - **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`.
@@ -143,7 +164,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
 - **Icons:** Use `@lucide/svelte` for icon imports.
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
-### 4.8 Frontend Logging & Environment Checks
+### 12. Frontend Logging & Environment Checks
 
 - **Logging:** All `console.log`, `console.error`, and other debug logs MUST be wrapped in an environment check to prevent leaking information in production.
 - **Environment Check:** Use `import.meta.env.DEV` (Vite standard) to check if the app is running in development mode.
@@ -154,7 +175,7 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
   }
   ```
 
-## 5. Documentation Strategy (API & Code)
+## 13. Documentation Strategy (API & Code)
 
 Rule: Whenever you create or modify a Controller or DTO class, you MUST immediately apply the following documentation annotations.
 
@@ -162,11 +183,11 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
   -- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
 - **Internal Logic:** No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
 
-## 6. Localization Rule
+## 14. Localization Rule
 
 - **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
 
-## 📁 File Upload & Validation Rules
+## 15. 📁 File Upload & Validation Rules
 
 - **Size Limit:** The maximum allowed size is **20MB** (Total and individual files).
 - **Validation Logic:** - If any file or the total size exceeds 20MB, prevent the "Generate All Decks" action.

@@ -32,10 +32,13 @@ public class UsageLimitService {
     }
 
     @Transactional
-    public void checkAndIncrement(Member member) {
-        if (jobManager.hasActiveJob(member.getEmail())) {
+    public void checkAndIncrement(String email) {
+        if (jobManager.hasActiveJob(email)) {
             throw new IllegalStateException("You already have an active processing job.");
         }
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
 
         member.resetCountIfNewDay();
         int limit = switch (member.getTier()) {
@@ -49,7 +52,7 @@ public class UsageLimitService {
         }
 
         member.incrementUploadCount();
-        memberRepository.save(member);
+        // Relying on Hibernate Dirty Checking - no explicit save() needed
     }
 
     public void checkAndIncrementGuest(String ip) {

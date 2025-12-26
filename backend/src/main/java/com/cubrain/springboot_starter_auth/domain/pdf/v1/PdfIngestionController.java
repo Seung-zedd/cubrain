@@ -60,30 +60,41 @@ public class PdfIngestionController {
         }
 
         UserTier userTier = UserTier.GUEST;
-        String ownerId = request.getRemoteAddr();
+        String normalizedEmail = principal != null ? principal.getName().toLowerCase() : request.getRemoteAddr();
+        String ownerId = normalizedEmail;
         Member member = null;
 
         if (principal != null) {
-            Optional<Member> memberOpt = memberRepository.findByEmail(principal.getName());
+            Optional<Member> memberOpt = memberRepository.findByEmail(normalizedEmail);
             if (memberOpt.isPresent()) {
                 member = memberOpt.get();
                 userTier = member.getTier();
-                ownerId = member.getEmail();
             }
         }
 
-        // 1. Validate Page Count (Optional: Log for analytics)
+        // 1. Validate Page Count
         try {
             int pageCount = pdfAnnotationService.getPageCount(file);
             log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
+
+            int pageLimit = switch (userTier) {
+                case PRO_USER -> 1000;
+                case FREE_USER -> 50;
+                case GUEST -> 10;
+            };
+
+            if (pageCount > pageLimit) {
+                return badRequest().body(Map.of("error",
+                        "Page limit exceeded. " + userTier + " limit is " + pageLimit + " pages."));
+            }
         } catch (Exception e) {
             log.warn("Could not read PDF page count for logging", e);
         }
 
         // 2. Check and Increment Usage (Cost Defense)
         try {
-            if (member != null) {
-                usageLimitService.checkAndIncrement(member);
+            if (principal != null) {
+                usageLimitService.checkAndIncrement(normalizedEmail);
             } else {
                 usageLimitService.checkAndIncrementGuest(ownerId);
             }

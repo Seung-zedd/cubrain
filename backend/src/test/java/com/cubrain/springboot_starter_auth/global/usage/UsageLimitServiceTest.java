@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -51,41 +52,48 @@ class UsageLimitServiceTest {
     @Test
     void checkAndIncrement_FreeUser_LimitReached() {
         // Given
-        freeMember = spy(freeMember);
-        when(freeMember.getDailyUploadCount()).thenReturn(3);
-        when(jobManager.hasActiveJob(anyString())).thenReturn(false);
+        String email = "free@example.com";
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(freeMember));
+        when(jobManager.hasActiveJob(email)).thenReturn(false);
+
+        // Set count to limit
+        freeMember.incrementUploadCount();
+        freeMember.incrementUploadCount();
+        freeMember.incrementUploadCount();
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> usageLimitService.checkAndIncrement(freeMember));
+        assertThrows(IllegalStateException.class, () -> usageLimitService.checkAndIncrement(email));
     }
 
     @Test
     void checkAndIncrement_FreeUser_UnderLimit() {
         // Given
+        String email = "free@example.com";
         freeMember = spy(freeMember);
-        when(freeMember.getDailyUploadCount()).thenReturn(2);
-        when(jobManager.hasActiveJob(anyString())).thenReturn(false);
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(freeMember));
+        when(jobManager.hasActiveJob(email)).thenReturn(false);
 
         // When
-        usageLimitService.checkAndIncrement(freeMember);
+        usageLimitService.checkAndIncrement(email);
 
         // Then
         verify(freeMember).incrementUploadCount();
-        verify(memberRepository).save(freeMember);
+        verify(memberRepository, never()).save(any());
     }
 
     @Test
     void checkAndIncrement_ProUser_HighLimit() {
         // Given
+        String email = "pro@example.com";
         proMember = spy(proMember);
-        when(proMember.getDailyUploadCount()).thenReturn(50);
-        when(jobManager.hasActiveJob(anyString())).thenReturn(false);
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(proMember));
+        when(jobManager.hasActiveJob(email)).thenReturn(false);
 
         // When
-        usageLimitService.checkAndIncrement(proMember);
+        usageLimitService.checkAndIncrement(email);
 
         // Then
         verify(proMember).incrementUploadCount();
-        verify(memberRepository).save(proMember);
+        verify(memberRepository, never()).save(any());
     }
 }
