@@ -30,59 +30,60 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class PdfIngestionControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockitoBean
-    private PdfAnnotationService pdfAnnotationService;
+        @MockitoBean
+        private PdfAnnotationService pdfAnnotationService;
 
-    @MockitoBean
-    private MemberRepository memberRepository;
+        @MockitoBean
+        private MemberRepository memberRepository;
 
-    @MockitoBean
-    private UsageLimitService usageLimitService;
+        @MockitoBean
+        private UsageLimitService usageLimitService;
 
-    @MockitoBean
-    private CardService cardService;
+        @MockitoBean
+        private CardService cardService;
 
-    @MockitoBean
-    private JobManager jobManager;
+        @MockitoBean
+        private JobManager jobManager;
 
-    @BeforeEach
-    void setUp() {
-        Member freeMember = Member.builder()
-                .email("user@example.com")
-                .tier(UserTier.FREE_USER)
-                .build();
-        when(memberRepository.findByEmail("user@example.com")).thenReturn(Optional.of(freeMember));
-    }
+        @BeforeEach
+        void setUp() {
+                Member freeMember = Member.builder()
+                                .email("user@example.com")
+                                .tier(UserTier.FREE_USER)
+                                .build();
+                when(memberRepository.findByEmail("user@example.com")).thenReturn(Optional.of(freeMember));
+        }
 
-    @Test
-    @WithMockUser(username = "user@example.com")
-    void generateCards_PageLimitExceeded_FreeUser() throws Exception {
-        // Given
-        MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
-                "test content".getBytes());
-        when(pdfAnnotationService.getPageCount(any())).thenReturn(51);
+        @Test
+        @WithMockUser(username = "user@example.com")
+        void generateCards_PageLimitExceeded_FreeUser_ShouldStillProcess() throws Exception {
+                // Given
+                MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
+                                "test content".getBytes());
+                when(pdfAnnotationService.getPageCount(any())).thenReturn(51);
+                when(cardService.generateCardsAsync(any(), any(), any())).thenReturn("job-123");
 
-        // When & Then
-        mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Page limit exceeded. FREE_USER limit is 50 pages."));
-    }
+                // When & Then
+                mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.jobId").value("job-123"));
+        }
 
-    @Test
-    @WithMockUser(username = "user@example.com")
-    void generateCards_WithinPageLimit_FreeUser() throws Exception {
-        // Given
-        MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
-                "test content".getBytes());
-        when(pdfAnnotationService.getPageCount(any())).thenReturn(50);
-        when(cardService.generateCardsAsync(any(), any(), any())).thenReturn("job-123");
+        @Test
+        @WithMockUser(username = "user@example.com")
+        void generateCards_WithinPageLimit_FreeUser() throws Exception {
+                // Given
+                MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
+                                "test content".getBytes());
+                when(pdfAnnotationService.getPageCount(any())).thenReturn(50);
+                when(cardService.generateCardsAsync(any(), any(), any())).thenReturn("job-123");
 
-        // When & Then
-        mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.jobId").value("job-123"));
-    }
+                // When & Then
+                mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.jobId").value("job-123"));
+        }
 }
