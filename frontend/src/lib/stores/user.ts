@@ -12,6 +12,16 @@ export interface User {
 export const user = writable<User | null>(null);
 
 export async function fetchUser() {
+  // Safeguard: if we explicitly logged out, don't even try to fetch user
+  const isLoggedOut = getCookie("isLoggedOut") === "true";
+  if (isLoggedOut) {
+    if (import.meta.env.DEV) {
+      console.log("fetchUser: Skipping fetch because isLoggedOut is true");
+    }
+    user.set(null);
+    return;
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
       credentials: "include",
