@@ -77,9 +77,10 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie accessCookie = jwtTokenProvider.createAccessTokenCookie("");
+        ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie("");
         ResponseCookie loggedOutCookie = jwtTokenProvider.createLoggedOutCookie(true);
 
-        // Overwrite with max-age 0 for access token
+        // Overwrite with max-age 0 to ensure deletion
         accessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(accessCookie.isSecure())
@@ -88,7 +89,16 @@ public class AuthController {
                 .sameSite(accessCookie.getSameSite())
                 .build();
 
+        refreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(refreshCookie.isSecure())
+                .path("/")
+                .maxAge(0)
+                .sameSite(refreshCookie.getSameSite())
+                .build();
+
         response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
         response.addHeader("Set-Cookie", loggedOutCookie.toString());
 
         return ResponseEntity.ok().build();

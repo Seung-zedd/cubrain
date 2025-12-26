@@ -145,7 +145,8 @@ public class JwtTokenProvider {
                 .httpOnly(false) // Frontend needs to read this
                 .secure(isSecure)
                 .path("/")
-                .maxAge(isLoggedOut ? refreshTokenValidityInMilliseconds / 1000 : 0)
+                .maxAge(refreshTokenValidityInMilliseconds / 1000) // Always keep the cookie for the duration of the
+                                                                   // session
                 .sameSite("Lax")
                 .build();
     }

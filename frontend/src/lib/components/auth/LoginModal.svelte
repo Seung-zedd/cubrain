@@ -55,6 +55,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
         signal: controller.signal,
+        credentials: "include",
       });
       clearTimeout(timeoutId);
 
@@ -64,6 +65,14 @@
           // If we got a response body, it means we skipped verification and got tokens
           status = "success";
           message = "Welcome back! Logging you in...";
+
+          // Clear logged out state immediately
+          document.cookie =
+            "isLoggedOut=false; path=/; max-age=1209600; samesite=lax";
+          if (typeof localStorage !== "undefined") {
+            localStorage.removeItem("isLoggedOut");
+          }
+
           await fetchUser();
           setTimeout(() => {
             window.location.href = "/dashboard";
@@ -129,6 +138,14 @@
       if (response.ok) {
         status = "success";
         message = "Successful verification done!";
+
+        // Clear logged out state immediately
+        document.cookie =
+          "isLoggedOut=false; path=/; max-age=1209600; samesite=lax";
+        if (typeof localStorage !== "undefined") {
+          localStorage.removeItem("isLoggedOut");
+        }
+
         await fetchUser();
         setTimeout(() => {
           window.location.href = "/dashboard";

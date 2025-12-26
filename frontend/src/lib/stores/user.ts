@@ -12,8 +12,17 @@ export interface User {
 export const user = writable<User | null>(null);
 
 export async function fetchUser() {
-  // Safeguard: if we explicitly logged out, don't even try to fetch user
-  const isLoggedOutCookie = getCookie("isLoggedOut") === "true";
+  const cookieVal = getCookie("isLoggedOut");
+
+  // Sync: If the server explicitly cleared the logged out status (cookie is "false"),
+  // then we must clear our local storage flag as well.
+  if (cookieVal === "false") {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem("isLoggedOut");
+    }
+  }
+
+  const isLoggedOutCookie = cookieVal === "true";
   const isLoggedOutLocal =
     typeof localStorage !== "undefined" &&
     localStorage.getItem("isLoggedOut") === "true";
@@ -29,9 +38,6 @@ export async function fetchUser() {
   }
 
   if (isLoggedOut) {
-    if (import.meta.env.DEV) {
-      console.log("fetchUser: Skipping fetch because isLoggedOut is true");
-    }
     user.set(null);
     return;
   }
@@ -44,6 +50,10 @@ export async function fetchUser() {
     if (response.ok) {
       const data = await response.json();
       user.set(data);
+      // If we successfully got a user, clear the logged out flag just in case
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("isLoggedOut");
+      }
     } else if (response.status === 401) {
       // Check again in case it changed during the request
       const stillLoggedOut =
