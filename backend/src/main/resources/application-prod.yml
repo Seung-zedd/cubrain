@@ -20,10 +20,10 @@ spring:
 
   # 데이터베이스 설정 (운영 환경)
   datasource:
-    # Railway의 기본 환경 변수명(POSTGRES_USER, POSTGRES_PASSWORD 등)과 일치시킵니다.
-    url: jdbc:postgresql://${PGHOST:localhost}:${PORT:5432}/${POSTGRES_DB:postgres}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    # Use individual connection parameters instead of DATABASE_URL
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/postgres
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
 
   # Flyway 활성화 (운영 환경 스키마 관리)
   flyway:
