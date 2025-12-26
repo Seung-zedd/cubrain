@@ -77,25 +77,19 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie accessCookie = jwtTokenProvider.createAccessTokenCookie("");
-        ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie("");
+        ResponseCookie loggedOutCookie = jwtTokenProvider.createLoggedOutCookie(true);
 
-        // Overwrite with max-age 0
+        // Overwrite with max-age 0 for access token
         accessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
-                .secure(false) // Should match the original setting, but false is safe for dev
+                .secure(accessCookie.isSecure())
                 .path("/")
                 .maxAge(0)
-                .build();
-
-        refreshCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0)
+                .sameSite(accessCookie.getSameSite())
                 .build();
 
         response.addHeader("Set-Cookie", accessCookie.toString());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
+        response.addHeader("Set-Cookie", loggedOutCookie.toString());
 
         return ResponseEntity.ok().build();
     }
@@ -103,8 +97,10 @@ public class AuthController {
     private void setTokenCookies(HttpServletResponse response, TokenResponseDto tokenResponse) {
         ResponseCookie accessCookie = jwtTokenProvider.createAccessTokenCookie(tokenResponse.accessToken());
         ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie(tokenResponse.refreshToken());
+        ResponseCookie loggedOutCookie = jwtTokenProvider.createLoggedOutCookie(false); // Clear logged out status
 
         response.addHeader("Set-Cookie", accessCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
+        response.addHeader("Set-Cookie", loggedOutCookie.toString());
     }
 }

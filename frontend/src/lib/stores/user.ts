@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import { API_BASE_URL } from "$lib/config";
+import { getCookie } from "$lib/utils";
 
 export interface User {
   email: string;
@@ -20,6 +21,13 @@ export async function fetchUser() {
       const data = await response.json();
       user.set(data);
     } else if (response.status === 401) {
+      // Check if user explicitly logged out
+      const isLoggedOut = getCookie("isLoggedOut") === "true";
+      if (isLoggedOut) {
+        user.set(null);
+        return;
+      }
+
       // Try to refresh tokens
       const refreshResponse = await fetch(
         `${API_BASE_URL}/api/v1/auth/refresh`,

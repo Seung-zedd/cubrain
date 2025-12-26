@@ -139,4 +139,14 @@ public class JwtTokenProvider {
                 .sameSite(sameSite)
                 .build();
     }
+
+    public ResponseCookie createLoggedOutCookie(boolean isLoggedOut) {
+        return ResponseCookie.from("isLoggedOut", String.valueOf(isLoggedOut))
+                .httpOnly(false) // Frontend needs to read this
+                .secure(isSecure)
+                .path("/")
+                .maxAge(isLoggedOut ? refreshTokenValidityInMilliseconds / 1000 : 0)
+                .sameSite(sameSite)
+                .build();
+    }
 }

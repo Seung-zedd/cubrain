@@ -107,7 +107,7 @@
       {:else}
         <a
           href="/dashboard"
-          class="px-5 py-2.5 text-sm rounded-full font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all transform hover:-translate-y-0.5"
+          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
           >Sign In</a
         >
       {/if}
