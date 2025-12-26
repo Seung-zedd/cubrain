@@ -67,8 +67,8 @@
         class={cn(
           "h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-lg transition-all duration-300",
           $user
-            ? "bg-linear-to-br from-orange-400 to-orange-600 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-            : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-orange-500 group-hover:to-orange-700 group-hover:text-black"
+            ? "bg-linear-to-br from-amber-400 to-amber-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+            : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black"
         )}
       >
         {$user ? $user.email.substring(0, 2).toUpperCase() : "G"}
@@ -80,7 +80,7 @@
           {$user ? $user.email.split("@")[0] : "Guest Mode"}
         </p>
         <p
-          class="truncate text-xs text-zinc-500 group-hover:text-orange-500/80 transition-colors"
+          class="truncate text-xs text-zinc-500 group-hover:text-amber-500/80 transition-colors"
         >
           {$user ? $user.email : "Sign in to save progress"}
         </p>

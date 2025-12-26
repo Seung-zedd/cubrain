@@ -13,7 +13,21 @@ export const user = writable<User | null>(null);
 
 export async function fetchUser() {
   // Safeguard: if we explicitly logged out, don't even try to fetch user
-  const isLoggedOut = getCookie("isLoggedOut") === "true";
+  const isLoggedOutCookie = getCookie("isLoggedOut") === "true";
+  const isLoggedOutLocal =
+    typeof localStorage !== "undefined" &&
+    localStorage.getItem("isLoggedOut") === "true";
+  const isLoggedOut = isLoggedOutCookie || isLoggedOutLocal;
+
+  if (import.meta.env.DEV) {
+    console.log(
+      "fetchUser: isLoggedOut(cookie):",
+      isLoggedOutCookie,
+      "isLoggedOut(local):",
+      isLoggedOutLocal
+    );
+  }
+
   if (isLoggedOut) {
     if (import.meta.env.DEV) {
       console.log("fetchUser: Skipping fetch because isLoggedOut is true");
@@ -31,44 +45,44 @@ export async function fetchUser() {
       const data = await response.json();
       user.set(data);
     } else if (response.status === 401) {
-      // Check if user explicitly logged out
-      const isLoggedOut = getCookie("isLoggedOut") === "true";
-      if (import.meta.env.DEV) {
-        console.log("fetchUser: 401 Unauthorized. isLoggedOut:", isLoggedOut);
-      }
+      // Check again in case it changed during the request
+      const stillLoggedOut =
+        getCookie("isLoggedOut") === "true" ||
+        (typeof localStorage !== "undefined" &&
+          localStorage.getItem("isLoggedOut") === "true");
 
-      if (isLoggedOut) {
+      if (stillLoggedOut) {
         user.set(null);
         return;
       }
 
       // Try to refresh tokens
-      const refreshResponse = await fetch(
-        `${API_BASE_URL}/api/v1/auth/refresh`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+      try {
+        const refreshResponse = await fetch(
+          `${API_BASE_URL}/api/v1/auth/refresh`,
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
 
-      if (refreshResponse.ok) {
-        // Retry fetching user
-        const retryResponse = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
-          credentials: "include",
-        });
-        if (retryResponse.ok) {
-          const data = await retryResponse.json();
-          user.set(data);
-          return;
+        if (refreshResponse.ok) {
+          // Clear the logged out status if refresh succeeded
+          if (typeof localStorage !== "undefined")
+            localStorage.removeItem("isLoggedOut");
+          return fetchUser();
+        } else {
+          user.set(null);
         }
+      } catch {
+        user.set(null);
       }
-      user.set(null);
     } else {
       user.set(null);
     }
-  } catch (e) {
+  } catch (err) {
     if (import.meta.env.DEV) {
-      console.error("Failed to fetch user", e);
+      console.error("fetchUser error:", err);
     }
     user.set(null);
   }
@@ -80,14 +94,21 @@ export async function logout() {
       method: "POST",
       credentials: "include",
     });
-    user.set(null);
-    // Small delay to ensure cookies are processed
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 100);
   } catch (e) {
     if (import.meta.env.DEV) {
       console.error("Failed to logout", e);
     }
   }
+
+  // Force set the isLoggedOut state on both cookie and localStorage as a fallback
+  document.cookie = "isLoggedOut=true; path=/; max-age=1209600; samesite=lax";
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("isLoggedOut", "true");
+  }
+
+  user.set(null);
+  // Small delay to ensure cookies/storage are processed
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 100);
 }
