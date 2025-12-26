@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/waitlist")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allow Svelte to call this
 @Slf4j
 public class WaitlistController {
 
