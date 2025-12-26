@@ -4,6 +4,9 @@ import com.cubrain.springboot_starter_auth.domain.waitlist.WaitlistRepository;
 import com.cubrain.springboot_starter_auth.domain.waitlist.WaitlistUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +33,7 @@ public class WaitlistServiceImpl implements WaitlistService {
         }
 
         WaitlistUser user = WaitlistUser.builder().email(normalizedEmail).build();
-        waitlistRepository.save(user);
+        waitlistRepository.save(Objects.requireNonNull(user));
         log.info("🎉 New Waitlist User: {}", normalizedEmail);
 
         return "✅ You're in! Welcome to the future of study.";

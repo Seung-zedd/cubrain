@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
                     .tier(UserTier.FREE_USER)
                     .isVerified(true)
                     .build();
-            member = memberRepository.save(member);
+            member = memberRepository.save(Objects.requireNonNull(member));
         } else {
             member = memberRepository.findByEmail(normalizedEmail)
                     .orElseThrow(() -> new RuntimeException("User not found."));
