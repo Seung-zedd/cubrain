@@ -143,7 +143,7 @@ public class JwtTokenProvider {
     public ResponseCookie createLoggedOutCookie(boolean isLoggedOut) {
         return ResponseCookie.from("isLoggedOut", String.valueOf(isLoggedOut))
                 .httpOnly(false) // Frontend needs to read this
-                .secure(false) // Always false for this flag to ensure reliability on http/localhost
+                .secure(isSecure)
                 .path("/")
                 .maxAge(isLoggedOut ? refreshTokenValidityInMilliseconds / 1000 : 0)
                 .sameSite("Lax")
