@@ -109,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserResponseDto getMe(String email) {
         String normalizedEmail = email.toLowerCase();
         Member member = memberRepository.findByEmail(normalizedEmail)

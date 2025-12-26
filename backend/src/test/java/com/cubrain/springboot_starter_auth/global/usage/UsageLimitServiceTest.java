@@ -78,7 +78,7 @@ class UsageLimitServiceTest {
 
         // Then
         verify(freeMember).incrementUploadCount();
-        verify(memberRepository, never()).save(any());
+        verify(memberRepository).save(freeMember);
     }
 
     @Test
@@ -94,6 +94,6 @@ class UsageLimitServiceTest {
 
         // Then
         verify(proMember).incrementUploadCount();
-        verify(memberRepository, never()).save(any());
+        verify(memberRepository).save(proMember);
     }
 }

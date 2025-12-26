@@ -52,7 +52,7 @@ public class UsageLimitService {
         }
 
         member.incrementUploadCount();
-        // Relying on Hibernate Dirty Checking - no explicit save() needed
+        memberRepository.save(member);
     }
 
     public void checkAndIncrementGuest(String ip) {
