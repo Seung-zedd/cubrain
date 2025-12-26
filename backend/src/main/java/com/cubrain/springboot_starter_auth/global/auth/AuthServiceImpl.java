@@ -6,6 +6,7 @@ import com.cubrain.springboot_starter_auth.domain.member.Role;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.global.jwt.JwtTokenProvider;
 import com.cubrain.springboot_starter_auth.global.util.EmailService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailVerificationRepository verificationRepository;
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
@@ -118,13 +120,18 @@ public class AuthServiceImpl implements AuthService {
         Member member = memberRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
+        // Force refresh to ensure we have the latest data from the DB (bypassing
+        // persistence context/cache)
+        entityManager.refresh(member);
+
         if (member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate())) {
-            log.info("New day detected in getMe for user: {}. Resetting count.", normalizedEmail);
+            log.info("[AuthService] New day detected in getMe for user: {}. Resetting count in DB.", normalizedEmail);
             memberRepository.resetDailyUploadCount(normalizedEmail, LocalDate.now());
             member.resetCountIfNewDay();
         }
 
-        log.debug("Returning user data for: {}. Daily upload count: {}", normalizedEmail, member.getDailyUploadCount());
+        log.info("[AuthService] Returning user data for: {}. Daily upload count: {}, lastUploadDate: {}",
+                normalizedEmail, member.getDailyUploadCount(), member.getLastUploadDate());
         return UserResponseDto.from(member);
     }
 }

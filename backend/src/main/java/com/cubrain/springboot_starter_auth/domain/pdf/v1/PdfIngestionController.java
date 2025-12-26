@@ -60,7 +60,27 @@ public class PdfIngestionController {
         }
 
         UserTier userTier = UserTier.GUEST;
-        String normalizedEmail = principal != null ? principal.getName().toLowerCase() : request.getRemoteAddr();
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        }
+
+        String normalizedEmail = principal != null ? principal.getName().toLowerCase() : clientIp;
+        log.info("[UsageLimit] Request from principal: {}, normalizedEmail: {}",
+                principal != null ? principal.getName() : "null", normalizedEmail);
+
+        if (principal == null) {
+            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("Authorization".equals(cookie.getName())) {
+                        log.warn("[UsageLimit] Authorization cookie found but Principal is null! Cookie length: {}",
+                                cookie.getValue().length());
+                    }
+                }
+            }
+        }
+
         String ownerId = normalizedEmail;
         Member member = null;
 
@@ -83,11 +103,14 @@ public class PdfIngestionController {
         // 2. Check and Increment Usage (Cost Defense)
         try {
             if (principal != null) {
+                log.info("[UsageLimit] Checking limit for FREE_USER: {}", normalizedEmail);
                 usageLimitService.checkAndIncrement(normalizedEmail);
             } else {
+                log.info("[UsageLimit] Checking limit for GUEST: {}", ownerId);
                 usageLimitService.checkAndIncrementGuest(ownerId);
             }
         } catch (IllegalStateException e) {
+            log.warn("[UsageLimit] Limit reached for {}: {}", ownerId, e.getMessage());
             return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
         }
 

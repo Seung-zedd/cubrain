@@ -42,8 +42,11 @@ public class UsageLimitService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
 
-        boolean isNewDay = member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate());
-        int currentCount = isNewDay ? 0 : member.getDailyUploadCount();
+        log.info("[UsageLimit] Found member: {}, currentCount: {}, lastUploadDate: {}, tier: {}",
+                email, member.getDailyUploadCount(), member.getLastUploadDate(), member.getTier());
+
+        member.resetCountIfNewDay();
+        int currentCount = member.getDailyUploadCount();
 
         int limit = switch (member.getTier()) {
             case FREE_USER -> 3;
@@ -55,13 +58,9 @@ public class UsageLimitService {
             throw new IllegalStateException("Daily upload limit reached for " + member.getTier());
         }
 
-        if (isNewDay) {
-            log.info("New day detected for user: {}. Resetting and incrementing count.", email);
-            memberRepository.resetAndIncrementDailyUploadCount(email, LocalDate.now());
-        } else {
-            log.info("Incrementing daily upload count for user: {}. Current count: {}", email, currentCount);
-            memberRepository.incrementDailyUploadCount(email, LocalDate.now());
-        }
+        member.incrementUploadCount();
+        memberRepository.saveAndFlush(member);
+        log.info("[UsageLimit] Incremented count for {}. New count: {}", email, member.getDailyUploadCount());
     }
 
     public void checkAndIncrementGuest(String ip) {

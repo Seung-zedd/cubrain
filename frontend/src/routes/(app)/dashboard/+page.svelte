@@ -200,6 +200,7 @@
         {
           method: "POST",
           body: formData,
+          credentials: "include",
         }
       );
 
@@ -213,7 +214,8 @@
 
           try {
             const statusResponse = await fetch(
-              `${API_BASE_URL}/api/v1/pdf/jobs/${startData.jobId}`
+              `${API_BASE_URL}/api/v1/pdf/jobs/${startData.jobId}`,
+              { credentials: "include" }
             );
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();
