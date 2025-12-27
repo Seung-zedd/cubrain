@@ -30,6 +30,13 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  # Security: Supabase OAuth2 Resource Server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1/get_jwks
+
 # 로깅 레벨 설정 (디버깅용)
 logging:
   level:
@@ -57,12 +64,3 @@ langchain4j:
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
-
-# JWT 설정
-jwt:
-  secret: ${DEV_JWT_SECRET}
-  access-token-expiration: 3600000 # 1 hour
-  refresh-token-expiration: 1209600000 # 14 days
-  cookie:
-    secure: true
-    samesite: Lax

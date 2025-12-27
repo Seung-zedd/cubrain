@@ -1,6 +1,6 @@
 package com.cubrain.springboot_starter_auth.global.config.web;
 
-import com.cubrain.springboot_starter_auth.global.jwt.JwtAuthenticationFilter;
+import com.cubrain.springboot_starter_auth.global.security.SupabaseUserSyncFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +17,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +27,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Slf4j
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final SupabaseUserSyncFilter supabaseUserSyncFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Value("${springdoc.api-docs.enabled:false}")
@@ -57,7 +57,9 @@ public class SecurityConfig {
 
                     auth.anyRequest().authenticated();
                 })
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
+                }))
+                .addFilterAfter(supabaseUserSyncFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }

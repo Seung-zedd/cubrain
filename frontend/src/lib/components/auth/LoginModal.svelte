@@ -1,6 +1,7 @@
 <script lang="ts">
   import { API_BASE_URL } from "$lib/config";
   import { fetchUser } from "$lib/stores/user";
+  import { supabase } from "$lib/supabaseClient";
   import { X, CircleAlert, CircleCheck } from "@lucide/svelte";
   import { fade, scale, slide, fly } from "svelte/transition";
 
@@ -34,149 +35,62 @@
       emailError = true;
       status = "error";
       message = "Please enter a valid email address.";
-      setTimeout(() => (emailError = false), 500); // Reset shake animation
+      setTimeout(() => (emailError = false), 500);
       return;
     }
 
     status = "loading";
     message = "";
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     try {
-      const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const url = `${API_BASE_URL}/api/v1/auth/request-code?mode=${mode}`;
-      if (import.meta.env.DEV) {
-        console.log(`Requesting code from: ${url}`);
-      }
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-        signal: controller.signal,
-        credentials: "include",
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: isSignUpMode,
+        },
       });
-      clearTimeout(timeoutId);
 
-      if (response.ok) {
-        const responseText = await response.text();
-        if (responseText) {
-          // If we got a response body, it means we skipped verification and got tokens
-          status = "success";
-          message = "Welcome back! Logging you in...";
+      if (error) throw error;
 
-          // Clear logged out state immediately
-          document.cookie =
-            "isLoggedOut=false; path=/; max-age=1209600; samesite=lax";
-          if (typeof localStorage !== "undefined") {
-            localStorage.removeItem("isLoggedOut");
-          }
-
-          await fetchUser();
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 800);
-        } else {
-          showVerification = true;
-          status = "success";
-          message = "Your verification code is sent to your email!";
-        }
-      } else {
-        const errorData = await response.text();
-        if (import.meta.env.DEV) {
-          console.error("Auth error response:", errorData);
-        }
-        status = "error";
-
-        try {
-          // Try to parse as JSON if it's a structured error
-          const json = JSON.parse(errorData);
-          message = json.message || json.details || "Request failed.";
-        } catch (e) {
-          message =
-            errorData ||
-            (isSignUpMode ? "Account already exists." : "Account not found.");
-        }
-      }
+      showVerification = true;
+      status = "success";
+      message = "Your verification code is sent to your email!";
     } catch (err: any) {
-      clearTimeout(timeoutId);
       if (import.meta.env.DEV) {
-        console.error("Fetch error:", err);
+        console.error("Supabase OTP error:", err);
       }
       status = "error";
-      if (err.name === "AbortError") {
-        message = "Request timed out. Please try again.";
-      } else {
-        message = "Connection failed. Please check your network.";
-      }
-    } finally {
-      if (status === "loading") {
-        status = "error";
-      }
+      message = err.message || "Failed to send verification code.";
     }
   }
 
   async function handleVerify() {
     status = "loading";
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const mode = isSignUpMode ? "SIGN_UP" : "SIGN_IN";
-      const url = `${API_BASE_URL}/api/v1/auth/verify?mode=${mode}`;
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: verificationCode }),
-        signal: controller.signal,
-        credentials: "include",
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: verificationCode,
+        type: "email",
       });
-      clearTimeout(timeoutId);
 
-      if (response.ok) {
-        status = "success";
-        message = "Successful verification done!";
+      if (error) throw error;
 
-        // Clear logged out state immediately
-        document.cookie =
-          "isLoggedOut=false; path=/; max-age=1209600; samesite=lax";
-        if (typeof localStorage !== "undefined") {
-          localStorage.removeItem("isLoggedOut");
-        }
+      status = "success";
+      message = "Successful verification done!";
 
-        await fetchUser();
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 800);
-      } else {
-        const errorData = await response.text();
-        status = "error";
-        codeError = true;
-        setTimeout(() => (codeError = false), 500);
-        try {
-          const json = JSON.parse(errorData);
-          message = json.message || "Invalid verification code.";
-        } catch (e) {
-          message = errorData || "Invalid verification code.";
-        }
-      }
+      await fetchUser();
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 800);
     } catch (err: any) {
-      clearTimeout(timeoutId);
       if (import.meta.env.DEV) {
-        console.error("Verify error:", err);
+        console.error("Supabase Verify error:", err);
       }
       status = "error";
-      if (err.name === "AbortError") {
-        message = "Verification timed out. Please try again.";
-      } else {
-        message = "Verification failed. Please try again.";
-      }
-    } finally {
-      if (status === "loading") {
-        status = "error";
-      }
+      codeError = true;
+      message = err.message || "Invalid verification code.";
+      setTimeout(() => (codeError = false), 500);
     }
   }
 
@@ -240,6 +154,17 @@
       <div class="space-y-4">
         <!-- Google Sign In -->
         <button
+          onclick={async () => {
+            const { error } = await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: `${window.location.origin}/dashboard`,
+              },
+            });
+            if (error && import.meta.env.DEV) {
+              console.error("Google login error:", error);
+            }
+          }}
           class="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 font-medium text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <svg class="h-5 w-5" viewBox="0 0 24 24">

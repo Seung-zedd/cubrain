@@ -32,6 +32,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(unique = true)
+    private String supabaseId;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean isVerified = false;
@@ -51,6 +54,10 @@ public class Member extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private LocalDate lastUploadDate = LocalDate.now();
+
+    public void updateSupabaseId(String supabaseId) {
+        this.supabaseId = supabaseId;
+    }
 
     public void updateTier(UserTier tier) {
         this.tier = tier;

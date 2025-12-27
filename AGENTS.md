@@ -8,11 +8,13 @@
 For any task involving **logic implementation, refactoring, debugging, or architectural changes**, you **MUST** use the `sequentialthinking` tool (MCP) as your FIRST step.
 
 **Trigger Conditions:**
+
 - When the user asks for a feature implementation (e.g., "Implement Prompt Batching").
 - When analyzing a bug or a complex error log.
 - When planning a refactoring strategy.
 
 **Execution Steps:**
+
 1.  **Initiate `sequentialthinking`:** Do not output any code or text explanation until you have invoked this tool.
 2.  **Analyze & Plan:** Use the tool to:
     - Break down the user's request into atomic steps.
@@ -21,6 +23,7 @@ For any task involving **logic implementation, refactoring, debugging, or archit
 3.  **Review:** Only after the sequential thinking process is complete and you have a clear path, proceed to write code or answer.
 
 **Exception:**
+
 - Simple content generation (e.g., "Write a README") or trivial fixes (e.g., typos) do not require this tool.
 
 ## 2. Documentation Lookup
@@ -56,6 +59,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 **Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
 ## 4. Testing Strategy (TestSprite Priority)
+
 i won't use testsprite for a while since it's not working well.(i'll use it again after launching MVP product)
 
 We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
@@ -195,3 +199,16 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
   - **Global Error:** Show a **Red Toast notification** with a message like "Total file size exceeds the 20MB limit."
   - **Individual File Feedback:** For specific files exceeding the limit, highlight the file card with a **Red Border** and display a **Red Exclamation Icon (Tooltip)** explaining the error.
 - **Implementation Note:** Use Svelte 5 Runes for state management and ensure smooth transitions for toast/tooltip visibility.
+-
+
+## 16. 📦 Dependency Management (pnpm-lock.yaml)
+
+- **Rule: Review Lockfile After Changes.**
+- Whenever you add, remove, or update frontend dependencies (e.g., using `pnpm add`), you **MUST** run `pnpm install` to ensure `pnpm-lock.yaml` is up to date and consistent with `package.json`.
+- **Deployment Safety:** Before finishing a task that involves dependency changes, verify that the lockfile does not contain unexpected changes or conflicts that could break the deployment.
+
+## 17. 🗄️ Database Migrations (Flyway)
+
+- **Rule: Sync Entity Changes with Flyway.**
+- Whenever you add, remove, or modify a field in a JPA Entity (e.g., adding a new `@Column`), you **MUST** immediately create a corresponding Flyway migration script (e.g., `V{N}__Description.sql`) in `src/main/resources/db/migration`.
+- This ensures that the database schema remains in sync with the application's domain model across all environments.

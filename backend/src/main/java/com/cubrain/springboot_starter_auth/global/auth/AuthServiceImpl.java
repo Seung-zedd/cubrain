@@ -4,23 +4,15 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.domain.member.Role;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
-import com.cubrain.springboot_starter_auth.global.jwt.JwtTokenProvider;
-import com.cubrain.springboot_starter_auth.global.util.EmailService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Random;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,104 +21,44 @@ import java.util.Random;
 public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
-    private final EmailVerificationRepository verificationRepository;
-    private final EmailService emailService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     @Transactional
-    public java.util.Optional<TokenResponseDto> requestVerification(String email, AuthMode mode, String refreshToken) {
+    public UserResponseDto syncUser(String email, String supabaseId) {
         String normalizedEmail = email.toLowerCase();
 
-        // 1. Check if we can skip verification using a valid Refresh Token
-        if (mode == AuthMode.SIGN_IN && refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-            if (normalizedEmail.equals(authentication.getName().toLowerCase())) {
-                log.info("[Auth] Skipping verification for {} - Valid Refresh Token found.", normalizedEmail);
-                String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-                String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
-                return java.util.Optional.of(TokenResponseDto.of(newAccessToken, newRefreshToken));
+        // 1. Try finding by supabaseId
+        Optional<Member> memberBySupabaseId = memberRepository.findBySupabaseId(supabaseId);
+        if (memberBySupabaseId.isPresent()) {
+            return UserResponseDto.from(memberBySupabaseId.get());
+        }
+
+        // 2. Try finding by email
+        Optional<Member> memberByEmail = memberRepository.findByEmail(normalizedEmail);
+        if (memberByEmail.isPresent()) {
+            Member member = memberByEmail.get();
+            // Update supabaseId if null
+            if (member.getSupabaseId() == null) {
+                log.info("[Auth] Updating supabaseId for existing user: {}", normalizedEmail);
+                member.updateSupabaseId(supabaseId);
             }
+            return UserResponseDto.from(member);
         }
 
-        boolean exists = memberRepository.existsByEmail(normalizedEmail);
-
-        if (mode == AuthMode.SIGN_IN && !exists) {
-            throw new IllegalArgumentException("Account not found. Please sign up below.");
-        }
-        if (mode == AuthMode.SIGN_UP && exists) {
-            throw new IllegalArgumentException("Account already exists. Please sign in.");
-        }
-
-        String code = String.format("%06d", new Random().nextInt(1000000));
-        EmailVerification verification = EmailVerification.builder()
+        // 3. Create new member (Just-in-Time Provisioning)
+        log.info("[Auth] Creating new member for: {}", normalizedEmail);
+        Member newMember = Member.builder()
                 .email(normalizedEmail)
-                .code(code)
-                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .supabaseId(supabaseId)
+                .role(Role.USER)
+                .tier(UserTier.FREE_USER)
+                .isVerified(true)
                 .build();
 
-        verificationRepository.save(Objects.requireNonNull(verification));
-        emailService.sendVerificationCode(normalizedEmail, code);
-        return java.util.Optional.empty();
-    }
-
-    @Override
-    @Transactional
-    public TokenResponseDto verifyAndAuthenticate(String email, String code, AuthMode mode) {
-        String normalizedEmail = email.toLowerCase();
-        EmailVerification verification = verificationRepository.findById(normalizedEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Verification code not found."));
-
-        if (verification.isExpired()) {
-            verificationRepository.delete(verification);
-            throw new IllegalArgumentException("Verification code expired.");
-        }
-        if (!verification.getCode().equals(code)
-                && !(normalizedEmail.endsWith("@testsprite.com") && "123456".equals(code))) {
-            throw new IllegalArgumentException("Please enter the accurate verification code.");
-        }
-
-        verificationRepository.delete(verification);
-
-        Member member;
-        if (mode == AuthMode.SIGN_UP) {
-            member = Member.builder()
-                    .email(normalizedEmail)
-                    .role(Role.USER)
-                    .tier(UserTier.FREE_USER)
-                    .isVerified(true)
-                    .build();
-            member = memberRepository.save(Objects.requireNonNull(member));
-        } else {
-            member = memberRepository.findByEmail(normalizedEmail)
-                    .orElseThrow(() -> new RuntimeException("User not found."));
-        }
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                member.getEmail(),
-                null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + member.getRole().name())));
-
-        String accessToken = jwtTokenProvider.createAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-
-        return TokenResponseDto.of(accessToken, refreshToken);
-    }
-
-    @Override
-    public TokenResponseDto refreshTokens(String refreshToken) {
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token.");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-        String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
-
-        return TokenResponseDto.of(newAccessToken, newRefreshToken);
+        return UserResponseDto.from(memberRepository.save(newMember));
     }
 
     @Override
@@ -136,8 +68,7 @@ public class AuthServiceImpl implements AuthService {
         Member member = memberRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
-        // Force refresh to ensure we have the latest data from the DB (bypassing
-        // persistence context/cache)
+        // Force refresh to ensure we have the latest data from the DB
         entityManager.refresh(member);
 
         if (member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate())) {
@@ -146,8 +77,6 @@ public class AuthServiceImpl implements AuthService {
             member.resetCountIfNewDay();
         }
 
-        log.info("[AuthService] Returning user data for: {}. Daily upload count: {}, lastUploadDate: {}",
-                normalizedEmail, member.getDailyUploadCount(), member.getLastUploadDate());
         return UserResponseDto.from(member);
     }
 }
