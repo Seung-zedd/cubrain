@@ -18,6 +18,18 @@
       status = "error";
       message = "Please enter a valid email address.";
       return;
+    }
+
+    status = "loading";
+    message = "";
+
+    try {
+      const response = await authFetch("/api/v1/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
