@@ -35,13 +35,37 @@ export async function fetchUser() {
         localStorage.removeItem("isLoggedOut");
       }
     } else {
-      user.current = null;
+      // Fallback: Use session data if backend is unreachable or returns error
+      // This allows local frontend development without a running backend
+      user.current = {
+        email: session.user.email || "",
+        role: "USER",
+        tier: "FREE_USER",
+        dailyUploadCount: 0,
+      };
     }
   } catch (err) {
     if (import.meta.env.DEV) {
       console.error("fetchUser error:", err);
     }
-    user.current = null;
+    // Even on network error, try to keep the user "logged in" with session data
+    if (supabase) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        user.current = {
+          email: session.user.email || "",
+          role: "USER",
+          tier: "FREE_USER",
+          dailyUploadCount: 0,
+        };
+      } else {
+        user.current = null;
+      }
+    } else {
+      user.current = null;
+    }
   }
 }
 
