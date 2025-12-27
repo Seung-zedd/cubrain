@@ -9,7 +9,7 @@
   import { API_BASE_URL } from "$lib/config";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
-  import { user, fetchUser } from "$lib/stores/user";
+  import { user, fetchUser } from "$lib/stores/user.svelte";
   import Toast from "$lib/components/ui/Toast.svelte";
   import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
 

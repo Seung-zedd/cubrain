@@ -1,6 +1,6 @@
 <script lang="ts">
   import { API_BASE_URL } from "$lib/config";
-  import { fetchUser } from "$lib/stores/user";
+  import { fetchUser } from "$lib/stores/user.svelte";
   import { supabase } from "$lib/supabaseClient";
   import { X, CircleAlert, CircleCheck } from "@lucide/svelte";
   import { fade, scale, slide, fly } from "svelte/transition";

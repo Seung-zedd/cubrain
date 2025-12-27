@@ -4,7 +4,7 @@
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
 
   import { onMount } from "svelte";
-  import { fetchUser } from "$lib/stores/user";
+  import { fetchUser } from "$lib/stores/user.svelte";
 
   injectSpeedInsights();
   injectAnalytics();

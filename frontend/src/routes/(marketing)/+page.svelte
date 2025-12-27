@@ -8,7 +8,7 @@
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
 
-  import { user } from "$lib/stores/user";
+  import { user } from "$lib/stores/user.svelte";
 
   const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {

@@ -8,7 +8,7 @@
     LogOut,
   } from "@lucide/svelte";
   import { cn } from "$lib/utils";
-  import { user, logout } from "$lib/stores/user";
+  import { user, logout } from "$lib/stores/user.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
 
   let showLoginModal = $state(false);
