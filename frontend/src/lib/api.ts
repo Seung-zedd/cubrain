@@ -21,5 +21,6 @@ export async function authFetch(path: string, options: RequestInit = {}) {
   return fetch(url, {
     ...options,
     headers,
+    credentials: "include",
   });
 }

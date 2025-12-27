@@ -60,10 +60,11 @@ public class SecurityConfig {
         NimbusJwtDecoder jwtDecoder;
 
         if (jwtSecret != null && !jwtSecret.trim().isEmpty()) {
-            log.info("🔐 [Security] Using HS256 JWT validation with secret key.");
+            log.info("🔐 [Security] Configuring HS256 JWT validation with secret key.");
             byte[] secretKeyBytes;
             try {
                 secretKeyBytes = Base64.getDecoder().decode(jwtSecret);
+                log.info("✅ [Security] JWT secret successfully decoded from Base64.");
             } catch (IllegalArgumentException e) {
                 log.warn("⚠️ [Security] JWT secret is not Base64 encoded, using raw bytes.");
                 secretKeyBytes = jwtSecret.getBytes();
@@ -71,22 +72,32 @@ public class SecurityConfig {
             SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
             jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
         } else if (jwkSetUri != null && !jwkSetUri.trim().isEmpty()) {
-            log.info("🔐 [Security] Using RS256 JWT validation with JWKS: {}", jwkSetUri);
+            log.info("🔐 [Security] Configuring RS256 JWT validation with JWKS: {}", jwkSetUri);
             jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
         } else {
+            log.error("❌ [Security] Neither JWK Set URI nor Secret Key is configured!");
             throw new IllegalStateException("Neither JWK Set URI nor Secret Key is configured for JWT validation.");
         }
 
-        OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>(JwtClaimNames.AUD,
-                aud -> aud != null && aud.contains("authenticated"));
+        // Flexible audience validator that handles both String and List
+        OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<Object>(JwtClaimNames.AUD,
+                aud -> {
+                    if (aud instanceof String s)
+                        return s.equals("authenticated");
+                    if (aud instanceof List<?> l)
+                        return l.contains("authenticated");
+                    return false;
+                });
 
         if (jwkSetUri != null && jwkSetUri.contains("supabase.co")) {
             String issuer = jwkSetUri.replace("/get_jwks", "");
+            log.info("🎯 [Security] Adding issuer validator for: {}", issuer);
             OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
             OAuth2TokenValidator<Jwt> combinedValidator = new DelegatingOAuth2TokenValidator<>(issuerValidator,
                     audienceValidator);
             jwtDecoder.setJwtValidator(combinedValidator);
         } else {
+            log.info("🎯 [Security] Adding audience-only validator.");
             jwtDecoder.setJwtValidator(audienceValidator);
         }
 

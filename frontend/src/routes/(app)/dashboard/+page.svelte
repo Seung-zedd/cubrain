@@ -7,6 +7,7 @@
   import { BookOpen, CircleCheck, RefreshCw, Plus, Save } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import { API_BASE_URL } from "$lib/config";
+  import { authFetch } from "$lib/api";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
   import { user, fetchUser } from "$lib/stores/user.svelte";
@@ -197,14 +198,10 @@
       formData.append("file", files[0]);
 
       // 1. Start Async Job
-      const startResponse = await fetch(
-        `${API_BASE_URL}/api/v1/pdf/generate-cards`,
-        {
-          method: "POST",
-          body: formData,
-          credentials: "include",
-        }
-      );
+      const startResponse = await authFetch("/api/v1/pdf/generate-cards", {
+        method: "POST",
+        body: formData,
+      });
 
       if (startResponse.ok) {
         const startData = await startResponse.json();
@@ -215,9 +212,8 @@
           if (!jobId) return;
 
           try {
-            const statusResponse = await fetch(
-              `${API_BASE_URL}/api/v1/pdf/jobs/${startData.jobId}`,
-              { credentials: "include" }
+            const statusResponse = await authFetch(
+              `/api/v1/pdf/jobs/${startData.jobId}`
             );
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();

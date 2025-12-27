@@ -2,7 +2,7 @@
   import heroImage from "$lib/assets/hero.png";
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
-  import { API_BASE_URL } from "$lib/config";
+  import { authFetch } from "$lib/api";
 
   let email = $state("");
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
@@ -18,24 +18,6 @@
       status = "error";
       message = "Please enter a valid email address.";
       return;
-    }
-
-    status = "loading";
-    message = "";
-
-    try {
-      const apiBaseUrl = API_BASE_URL;
-
-      if (import.meta.env.DEV) {
-        console.log("Using API URL:", apiBaseUrl);
-      }
-
-      const response = await fetch(`${apiBaseUrl}/api/v1/waitlist`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
