@@ -16,13 +16,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -50,30 +51,25 @@ public class SecurityConfig {
     @Value("${springdoc.api-docs.enabled:false}")
     private boolean isSwaggerEnabled;
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
-    private String jwkSetUri;
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
+    private String issuerUri;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key:${jwt.secret:}}")
     private String jwtSecret;
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // 1. Create the JWKS decoder (for ES256/RS256 - Google/Social)
-        NimbusJwtDecoder jwksDecoder = null;
-        if (jwkSetUri != null && !jwkSetUri.trim().isEmpty()) {
-            log.info("🔐 [Security] Initializing JWKS decoder with ES256/RS256 support.");
-            jwksDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                    .jwsAlgorithms(algos -> {
-                        algos.add(SignatureAlgorithm.RS256);
-                        algos.add(SignatureAlgorithm.ES256); // Crucial for Google Login
-                    })
-                    .build();
+        // 1. Create the Asymmetric decoder (Google/Social) using Issuer Discovery
+        NimbusJwtDecoder asymmetricDecoder = null;
+        if (issuerUri != null && !issuerUri.trim().isEmpty()) {
+            log.info("🔐 [Security] Initializing Asymmetric decoder via OIDC Discovery: {}", issuerUri);
+            asymmetricDecoder = NimbusJwtDecoder.withIssuerLocation(issuerUri).build();
         }
 
-        // 2. Create the SecretKey decoder (for HS256 - Email/Password)
-        NimbusJwtDecoder secretKeyDecoder = null;
+        // 2. Create the Symmetric decoder (Email/Password) using HS256
+        NimbusJwtDecoder symmetricDecoder = null;
         if (jwtSecret != null && !jwtSecret.trim().isEmpty()) {
-            log.info("🔐 [Security] Initializing SecretKey decoder for HS256.");
+            log.info("🔐 [Security] Initializing Symmetric decoder for HS256.");
             byte[] secretKeyBytes;
             try {
                 secretKeyBytes = Base64.getDecoder().decode(jwtSecret);
@@ -81,38 +77,16 @@ public class SecurityConfig {
                 secretKeyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
             }
             SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
-            secretKeyDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
+            symmetricDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
                     .macAlgorithm(MacAlgorithm.HS256)
                     .build();
         }
 
-        if (jwksDecoder == null && secretKeyDecoder == null) {
-            throw new IllegalStateException("No JWT validation method configured!");
+        if (asymmetricDecoder == null && symmetricDecoder == null) {
+            throw new IllegalStateException("No JWT validation method configured! Set issuer-uri or jwt.secret.");
         }
 
-        // 3. Create a Hybrid Decoder that checks the 'alg' header
-        final NimbusJwtDecoder finalJwks = jwksDecoder;
-        final NimbusJwtDecoder finalSecret = secretKeyDecoder;
-
-        JwtDecoder hybridDecoder = token -> {
-            try {
-                String header = token.split("\\.")[0];
-                String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
-
-                if (decodedHeader.contains("HS256") && finalSecret != null) {
-                    return finalSecret.decode(token);
-                } else if (finalJwks != null) {
-                    return finalJwks.decode(token);
-                } else {
-                    throw new RuntimeException("Unsupported algorithm or missing decoder for token");
-                }
-            } catch (Exception e) {
-                log.error("❌ [Security] JWT Decoding failed: {}", e.getMessage());
-                throw new org.springframework.security.oauth2.jwt.JwtException("Invalid token", e);
-            }
-        };
-
-        // 4. Common Validators
+        // 3. Common Validators
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<Object>(JwtClaimNames.AUD,
                 aud -> {
                     if (aud == null)
@@ -124,12 +98,43 @@ public class SecurityConfig {
                     return false;
                 });
 
-        if (finalJwks != null)
-            finalJwks.setJwtValidator(audienceValidator);
-        if (finalSecret != null)
-            finalSecret.setJwtValidator(audienceValidator);
+        OAuth2TokenValidator<Jwt> combinedValidator;
+        if (issuerUri != null && !issuerUri.trim().isEmpty()) {
+            OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuerUri);
+            combinedValidator = new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator);
+        } else {
+            combinedValidator = audienceValidator;
+        }
 
-        return hybridDecoder;
+        if (asymmetricDecoder != null)
+            asymmetricDecoder.setJwtValidator(combinedValidator);
+        if (symmetricDecoder != null)
+            symmetricDecoder.setJwtValidator(combinedValidator);
+
+        // 4. Hybrid Decoder Logic
+        final NimbusJwtDecoder finalAsym = asymmetricDecoder;
+        final NimbusJwtDecoder finalSym = symmetricDecoder;
+
+        return token -> {
+            try {
+                String header = token.split("\\.")[0];
+                String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
+
+                if (decodedHeader.contains("HS256") && finalSym != null) {
+                    return finalSym.decode(token);
+                } else if (finalAsym != null) {
+                    // This will now handle ES256/RS256 automatically via discovery
+                    return finalAsym.decode(token);
+                } else {
+                    log.error("❌ [Security] Unsupported algorithm or missing decoder for token header: {}",
+                            decodedHeader);
+                    throw new RuntimeException("Unsupported algorithm or missing decoder");
+                }
+            } catch (Exception e) {
+                log.error("❌ [Security] JWT Decoding failed: {}", e.getMessage());
+                throw new org.springframework.security.oauth2.jwt.JwtException("Invalid token", e);
+            }
+        };
     }
 
     @Bean
