@@ -39,6 +39,12 @@
       return;
     }
 
+    if (!supabase) {
+      status = "error";
+      message = "Authentication service is unavailable.";
+      return;
+    }
+
     status = "loading";
     message = "";
 
@@ -65,6 +71,7 @@
   }
 
   async function handleVerify() {
+    if (!supabase) return;
     status = "loading";
 
     try {
@@ -155,6 +162,7 @@
         <!-- Google Sign In -->
         <button
           onclick={async () => {
+            if (!supabase) return;
             const { error } = await supabase.auth.signInWithOAuth({
               provider: "google",
               options: {
@@ -301,7 +309,7 @@
 
           <button
             type="submit"
-            disabled={status === "loading"}
+            disabled={status === "loading" || !supabase}
             class="relative w-full h-12 overflow-hidden rounded-lg bg-[#FFD700] font-bold text-black shadow-[0_0_15px_rgba(255,215,0,0.1)] hover:bg-[#FDB931] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all disabled:opacity-50"
           >
             {#key `${isSignUpMode}-${showVerification}-${status === "loading"}`}

@@ -15,6 +15,8 @@ export const user = $state<{ current: User | null }>({
 
 export async function fetchUser() {
   try {
+    if (!supabase) return;
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -44,8 +46,8 @@ export async function fetchUser() {
 }
 
 // Initialize auth listener
-if (typeof window !== "undefined") {
-  supabase.auth.onAuthStateChange((event) => {
+if (typeof window !== "undefined" && supabase) {
+  supabase.auth.onAuthStateChange((event: string) => {
     if (import.meta.env.DEV) {
       console.log(`[Auth] Event: ${event}`);
     }
@@ -58,6 +60,10 @@ if (typeof window !== "undefined") {
 }
 
 export async function logout() {
+  if (!supabase) {
+    user.current = null;
+    return;
+  }
   try {
     await supabase.auth.signOut();
   } catch (e) {
