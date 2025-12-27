@@ -60,23 +60,4 @@ public class AuthServiceImpl implements AuthService {
 
         return UserResponseDto.from(memberRepository.save(newMember));
     }
-
-    @Override
-    @Transactional
-    public UserResponseDto getMe(String email) {
-        String normalizedEmail = email.toLowerCase();
-        Member member = memberRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found."));
-
-        // Force refresh to ensure we have the latest data from the DB
-        entityManager.refresh(member);
-
-        if (member.getLastUploadDate() == null || !LocalDate.now().equals(member.getLastUploadDate())) {
-            log.info("[AuthService] New day detected in getMe for user: {}. Resetting count in DB.", normalizedEmail);
-            memberRepository.resetDailyUploadCount(normalizedEmail, LocalDate.now());
-            member.resetCountIfNewDay();
-        }
-
-        return UserResponseDto.from(member);
-    }
 }
