@@ -64,6 +64,11 @@ if (typeof window !== "undefined" && supabase) {
           "",
           window.location.pathname + window.location.search
         );
+
+        // If we just signed in via OAuth, ensure we are on the dashboard
+        if (window.location.pathname === "/") {
+          window.location.href = "/dashboard";
+        }
       }
     } else if (event === "SIGNED_OUT") {
       user.current = null;
