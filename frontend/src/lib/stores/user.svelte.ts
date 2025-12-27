@@ -53,6 +53,18 @@ if (typeof window !== "undefined" && supabase) {
     }
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
       fetchUser();
+
+      // Clean up the URL hash if it contains auth tokens (Supabase OAuth flow)
+      if (
+        typeof window !== "undefined" &&
+        window.location.hash.includes("access_token")
+      ) {
+        window.history.replaceState(
+          null,
+          "",
+          window.location.pathname + window.location.search
+        );
+      }
     } else if (event === "SIGNED_OUT") {
       user.current = null;
     }
