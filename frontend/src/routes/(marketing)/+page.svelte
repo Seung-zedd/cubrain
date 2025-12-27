@@ -9,6 +9,9 @@
   let message = $state("");
 
   import { user } from "$lib/stores/user.svelte";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
+
+  let showLoginModal = $state(false);
 
   const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
@@ -106,10 +109,10 @@
         >
       {:else}
         <div class="flex items-center gap-4">
-          <a
-            href="/dashboard"
+          <button
+            onclick={() => (showLoginModal = true)}
             class="text-sm font-medium text-white/60 hover:text-white transition-colors"
-            >Sign In</a
+            >Sign In / Up</button
           >
           <a
             href="#waitlist"
@@ -324,3 +327,7 @@
     <p>&copy; 2025 Cubrain. All rights reserved.</p>
   </footer>
 </div>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
