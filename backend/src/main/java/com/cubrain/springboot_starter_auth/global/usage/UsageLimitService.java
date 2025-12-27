@@ -81,4 +81,21 @@ public class UsageLimitService {
         usage.count++;
         guestUsageMap.put(ip, usage);
     }
+
+    public int getUsageCount(String email) {
+        return memberRepository.findByEmail(email)
+                .map(member -> {
+                    member.resetCountIfNewDay();
+                    return member.getDailyUploadCount();
+                })
+                .orElse(0);
+    }
+
+    public int getGuestUsageCount(String ip) {
+        GuestUsage usage = guestUsageMap.get(ip);
+        if (usage == null || !LocalDate.now().equals(usage.date)) {
+            return 0;
+        }
+        return usage.count;
+    }
 }

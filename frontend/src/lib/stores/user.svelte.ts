@@ -13,6 +13,22 @@ export const user = $state<{ current: User | null }>({
   current: null,
 });
 
+export const guestUsage = $state({ count: 0 });
+
+export async function fetchGuestUsage() {
+  try {
+    const response = await authFetch("/api/v1/auth/usage");
+    if (response.ok) {
+      const data = await response.json();
+      guestUsage.count = data.dailyUploadCount;
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error("fetchGuestUsage error:", err);
+    }
+  }
+}
+
 export async function fetchUser() {
   try {
     if (!supabase) return;
@@ -96,8 +112,12 @@ if (typeof window !== "undefined" && supabase) {
       }
     } else if (event === "SIGNED_OUT") {
       user.current = null;
+      fetchGuestUsage();
     }
   });
+
+  // Initial fetch for guest usage
+  fetchGuestUsage();
 }
 
 export async function logout() {

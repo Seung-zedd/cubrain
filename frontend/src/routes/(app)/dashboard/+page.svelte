@@ -10,7 +10,12 @@
   import { authFetch } from "$lib/api";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
-  import { user, fetchUser } from "$lib/stores/user.svelte";
+  import {
+    user,
+    fetchUser,
+    guestUsage,
+    fetchGuestUsage,
+  } from "$lib/stores/user.svelte";
   import Toast from "$lib/components/ui/Toast.svelte";
   import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
 
@@ -92,40 +97,8 @@
   let hasDecks = $derived(recentDecks.length > 0);
   let showUpload = $derived(mode === "upload" || !hasDecks);
 
-  let guestUploadCount = $state(0);
-
-  $effect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    const stored = localStorage.getItem("guest_usage");
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        if (data.date === today) {
-          guestUploadCount = data.count;
-        } else {
-          guestUploadCount = 0;
-        }
-      } catch (e) {
-        guestUploadCount = 0;
-      }
-    }
-    // Cleanup old key if it exists
-    localStorage.removeItem("guest_upload_count");
-  });
-
-  $effect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    localStorage.setItem(
-      "guest_usage",
-      JSON.stringify({
-        count: guestUploadCount,
-        date: today,
-      })
-    );
-  });
-
   let dailyUploadCount = $derived(
-    user.current?.dailyUploadCount ?? guestUploadCount
+    user.current?.dailyUploadCount ?? guestUsage.count
   );
   let maxLimit = $derived(user.current?.tier === "PRO_USER" ? 100 : 3);
   let badgeColor = $derived(
@@ -178,16 +151,8 @@
     errorMessage = null;
 
     try {
-      // Check daily limit for Authenticated Users
-      if (user.current && user.current.dailyUploadCount >= maxLimit) {
-        proModalType = "daily_limit";
-        showProModal = true;
-        isGenerating = false;
-        return;
-      }
-
-      // Check daily limit for Guests
-      if (!user.current && guestUploadCount >= 3) {
+      // Check daily limit
+      if (dailyUploadCount >= maxLimit) {
         proModalType = "daily_limit";
         showProModal = true;
         isGenerating = false;
@@ -266,7 +231,7 @@
                 if (user.current) {
                   fetchUser();
                 } else {
-                  guestUploadCount += 1;
+                  fetchGuestUsage();
                 }
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
