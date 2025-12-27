@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
@@ -33,6 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -51,9 +53,6 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
     private String jwkSetUri;
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
-    private String issuerUri;
-
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key:${jwt.secret:}}")
     private String jwtSecret;
 
@@ -62,14 +61,19 @@ public class SecurityConfig {
         // 1. Create the JWKS decoder (for ES256/RS256 - Google/Social)
         NimbusJwtDecoder jwksDecoder = null;
         if (jwkSetUri != null && !jwkSetUri.trim().isEmpty()) {
-            log.info("🔐 [Security] Initializing JWKS decoder for Asymmetric tokens (Google/Social).");
-            jwksDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+            log.info("🔐 [Security] Initializing JWKS decoder with ES256/RS256 support.");
+            jwksDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                    .jwsAlgorithms(algos -> {
+                        algos.add(SignatureAlgorithm.RS256);
+                        algos.add(SignatureAlgorithm.ES256); // Crucial for Google Login
+                    })
+                    .build();
         }
 
         // 2. Create the SecretKey decoder (for HS256 - Email/Password)
         NimbusJwtDecoder secretKeyDecoder = null;
         if (jwtSecret != null && !jwtSecret.trim().isEmpty()) {
-            log.info("🔐 [Security] Initializing SecretKey decoder for Symmetric tokens (Email/Password).");
+            log.info("🔐 [Security] Initializing SecretKey decoder for HS256.");
             byte[] secretKeyBytes;
             try {
                 secretKeyBytes = Base64.getDecoder().decode(jwtSecret);
@@ -92,7 +96,6 @@ public class SecurityConfig {
 
         JwtDecoder hybridDecoder = token -> {
             try {
-                // Peek at the header to see the algorithm
                 String header = token.split("\\.")[0];
                 String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
 
@@ -121,7 +124,6 @@ public class SecurityConfig {
                     return false;
                 });
 
-        // Apply validators to both underlying decoders if possible, or handle in hybrid
         if (finalJwks != null)
             finalJwks.setJwtValidator(audienceValidator);
         if (finalSecret != null)
