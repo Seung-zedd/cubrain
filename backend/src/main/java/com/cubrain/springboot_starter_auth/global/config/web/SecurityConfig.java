@@ -1,6 +1,7 @@
 package com.cubrain.springboot_starter_auth.global.config.web;
 
 import com.cubrain.springboot_starter_auth.global.security.SupabaseUserSyncFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +25,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -44,27 +49,57 @@ public class SecurityConfig {
     @Value("${springdoc.api-docs.enabled:false}")
     private boolean isSwaggerEnabled;
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
     private String jwkSetUri;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.secret-key:${jwt.secret:}}")
+    private String jwtSecret;
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        NimbusJwtDecoder jwtDecoder;
+
+        if (jwtSecret != null && !jwtSecret.trim().isEmpty()) {
+            log.info("🔐 [Security] Using HS256 JWT validation with secret key.");
+            byte[] secretKeyBytes;
+            try {
+                secretKeyBytes = Base64.getDecoder().decode(jwtSecret);
+            } catch (IllegalArgumentException e) {
+                log.warn("⚠️ [Security] JWT secret is not Base64 encoded, using raw bytes.");
+                secretKeyBytes = jwtSecret.getBytes();
+            }
+            SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
+            jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+        } else if (jwkSetUri != null && !jwkSetUri.trim().isEmpty()) {
+            log.info("🔐 [Security] Using RS256 JWT validation with JWKS: {}", jwkSetUri);
+            jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        } else {
+            throw new IllegalStateException("Neither JWK Set URI nor Secret Key is configured for JWT validation.");
+        }
 
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>(JwtClaimNames.AUD,
                 aud -> aud != null && aud.contains("authenticated"));
 
-        // Extract project ID from jwkSetUri to construct issuer
-        // e.g., https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1/get_jwks ->
-        // https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1
-        String issuer = jwkSetUri.replace("/get_jwks", "");
-        OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
-
-        OAuth2TokenValidator<Jwt> combinedValidator = new DelegatingOAuth2TokenValidator<>(issuerValidator,
-                audienceValidator);
-        jwtDecoder.setJwtValidator(combinedValidator);
+        if (jwkSetUri != null && jwkSetUri.contains("supabase.co")) {
+            String issuer = jwkSetUri.replace("/get_jwks", "");
+            OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
+            OAuth2TokenValidator<Jwt> combinedValidator = new DelegatingOAuth2TokenValidator<>(issuerValidator,
+                    audienceValidator);
+            jwtDecoder.setJwtValidator(combinedValidator);
+        } else {
+            jwtDecoder.setJwtValidator(audienceValidator);
+        }
 
         return jwtDecoder;
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            log.error("❌ [Security] Unauthorized request: {} {} - Reason: {}",
+                    request.getMethod(), request.getRequestURI(), authException.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        };
     }
 
     @Bean
@@ -72,12 +107,15 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint()))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth
                             .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                            .requestMatchers("/", "/index.html", "/static/**", "/*.ico", "/*.json", "/*.png")
+                            .requestMatchers("/", "/index.html", "/favicon.ico", "/manifest.json", "/robots.txt",
+                                    "/site.webmanifest")
                             .permitAll()
+                            .requestMatchers("/static/**", "/assets/**", "/_app/**", "/_vercel/**").permitAll()
                             .requestMatchers("/dashboard", "/dashboard/**").permitAll()
                             .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**").permitAll();
 
