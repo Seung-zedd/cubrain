@@ -112,7 +112,7 @@
           <button
             onclick={() => (showLoginModal = true)}
             class="text-sm font-medium text-white/60 hover:text-white transition-colors"
-            >Sign In / Up</button
+            >Sign In</button
           >
           <a
             href="#waitlist"
