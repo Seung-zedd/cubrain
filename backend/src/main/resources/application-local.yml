@@ -56,15 +56,3 @@ langchain4j:
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
-# JWT 설정
-jwt:
-  secret: ${JWT_SECRET:e5V1vprqaXAy/yPCemmDZgEY7ciIEMZDDsGjH7tRBmgJI7nKmpLAMMx7irdw/2nzcheuXHVIB7XYqqSsVKi0pw==}
-  access-token-expiration: 3600000 # 1 hour
-  refresh-token-expiration: 1209600000 # 14 days
-  cookie:
-    secure: false
-    samesite: Lax
-
-# Resend API (Local Override)
-resend:
-  api-key: ${RESEND_API_KEY_LOCAL:re_dummy_key_for_local}

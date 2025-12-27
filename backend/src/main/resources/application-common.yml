@@ -32,5 +32,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          # Supabase uses HS256 by default for JS client tokens.
+          # Provide the JWT Secret via SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_SECRET_KEY
+          # or the legacy JWT_SECRET environment variable.
+          issuer-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1
           jwk-set-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1/get_jwks
-

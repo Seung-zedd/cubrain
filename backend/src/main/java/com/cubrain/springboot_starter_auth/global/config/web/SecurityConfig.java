@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
@@ -31,6 +32,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
@@ -52,6 +54,9 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
     private String jwkSetUri;
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
+    private String issuerUri;
+
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key:${jwt.secret:}}")
     private String jwtSecret;
 
@@ -63,14 +68,17 @@ public class SecurityConfig {
             log.info("🔐 [Security] Configuring HS256 JWT validation with secret key.");
             byte[] secretKeyBytes;
             try {
+                // Try Base64 decoding first (Supabase secrets are often Base64)
                 secretKeyBytes = Base64.getDecoder().decode(jwtSecret);
                 log.info("✅ [Security] JWT secret successfully decoded from Base64.");
             } catch (IllegalArgumentException e) {
-                log.warn("⚠️ [Security] JWT secret is not Base64 encoded, using raw bytes.");
-                secretKeyBytes = jwtSecret.getBytes();
+                log.warn("⚠️ [Security] JWT secret is not Base64 encoded, using UTF-8 bytes.");
+                secretKeyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
             }
             SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
-            jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+            jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
+                    .macAlgorithm(MacAlgorithm.HS256)
+                    .build();
         } else if (jwkSetUri != null && !jwkSetUri.trim().isEmpty()) {
             log.info("🔐 [Security] Configuring RS256 JWT validation with JWKS: {}", jwkSetUri);
             jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
@@ -89,10 +97,17 @@ public class SecurityConfig {
                     return false;
                 });
 
-        if (jwkSetUri != null && jwkSetUri.contains("supabase.co")) {
-            String issuer = jwkSetUri.replace("/get_jwks", "");
-            log.info("🎯 [Security] Adding issuer validator for: {}", issuer);
-            OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
+        // Determine issuer for validation
+        String effectiveIssuer = null;
+        if (issuerUri != null && !issuerUri.trim().isEmpty()) {
+            effectiveIssuer = issuerUri;
+        } else if (jwkSetUri != null && jwkSetUri.contains("supabase.co")) {
+            effectiveIssuer = jwkSetUri.replace("/get_jwks", "");
+        }
+
+        if (effectiveIssuer != null) {
+            log.info("🎯 [Security] Adding issuer validator for: {}", effectiveIssuer);
+            OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(effectiveIssuer);
             OAuth2TokenValidator<Jwt> combinedValidator = new DelegatingOAuth2TokenValidator<>(issuerValidator,
                     audienceValidator);
             jwtDecoder.setJwtValidator(combinedValidator);
