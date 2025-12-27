@@ -8,29 +8,36 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
 import jakarta.servlet.http.HttpServletRequest;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
 import static org.springframework.http.ResponseEntity.notFound;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.status;
-import org.springframework.http.HttpStatus;
-import java.security.Principal;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/pdf")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "PDF Ingestion", description = "PDF processing and flashcard generation APIs")
 public class PdfIngestionController {
 
     private final CardService cardService;
@@ -43,7 +50,7 @@ public class PdfIngestionController {
     @PostMapping("/generate-cards")
     public ResponseEntity<?> generateCards(
             @RequestParam("file") MultipartFile file,
-            Principal principal,
+            @AuthenticationPrincipal Jwt jwt,
             HttpServletRequest request) {
         if (file.isEmpty()) {
             return badRequest().body(Map.of("error", "File is empty"));
@@ -65,27 +72,15 @@ public class PdfIngestionController {
             clientIp = request.getRemoteAddr();
         }
 
-        String normalizedEmail = principal != null ? principal.getName().toLowerCase() : clientIp;
-        log.info("[UsageLimit] Request from principal: {}, normalizedEmail: {}",
-                principal != null ? principal.getName() : "null", normalizedEmail);
+        String email = jwt != null ? jwt.getClaimAsString("email") : null;
+        String ownerId = email != null ? email.toLowerCase() : clientIp;
 
-        if (principal == null) {
-            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (jakarta.servlet.http.Cookie cookie : cookies) {
-                    if ("Authorization".equals(cookie.getName())) {
-                        log.warn("[UsageLimit] Authorization cookie found but Principal is null! Cookie length: {}",
-                                cookie.getValue().length());
-                    }
-                }
-            }
-        }
+        log.info("[UsageLimit] Request from jwt: {}, ownerId: {}",
+                email != null ? email : "null", ownerId);
 
-        String ownerId = normalizedEmail;
         Member member = null;
-
-        if (principal != null) {
-            Optional<Member> memberOpt = memberRepository.findByEmail(normalizedEmail);
+        if (jwt != null && email != null) {
+            Optional<Member> memberOpt = memberRepository.findByEmail(email.toLowerCase());
             if (memberOpt.isPresent()) {
                 member = memberOpt.get();
                 userTier = member.getTier();
@@ -102,9 +97,9 @@ public class PdfIngestionController {
 
         // 2. Check and Increment Usage (Cost Defense)
         try {
-            if (principal != null) {
-                log.info("[UsageLimit] Checking limit for FREE_USER: {}", normalizedEmail);
-                usageLimitService.checkAndIncrement(normalizedEmail);
+            if (jwt != null && email != null) {
+                log.info("[UsageLimit] Checking limit for AUTH_USER: {}", email);
+                usageLimitService.checkAndIncrement(email);
             } else {
                 log.info("[UsageLimit] Checking limit for GUEST: {}", ownerId);
                 usageLimitService.checkAndIncrementGuest(ownerId);

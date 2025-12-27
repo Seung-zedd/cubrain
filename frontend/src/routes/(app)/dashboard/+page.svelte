@@ -126,11 +126,11 @@
   let dailyUploadCount = $derived(
     user.current?.dailyUploadCount ?? guestUploadCount
   );
-  let maxLimit = 3;
+  let maxLimit = $derived(user.current?.tier === "PRO_USER" ? 100 : 3);
   let badgeColor = $derived(
     dailyUploadCount >= maxLimit
       ? "bg-red-500/20 text-red-400 border-red-500/50"
-      : dailyUploadCount === maxLimit - 1
+      : dailyUploadCount >= maxLimit - 1
         ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
         : "bg-slate-800/50 text-slate-400 border-slate-700"
   );
@@ -177,12 +177,8 @@
     errorMessage = null;
 
     try {
-      // Check daily limit for Free Users
-      if (
-        user.current &&
-        user.current.tier === "FREE_USER" &&
-        user.current.dailyUploadCount >= 3
-      ) {
+      // Check daily limit for Authenticated Users
+      if (user.current && user.current.dailyUploadCount >= maxLimit) {
         proModalType = "daily_limit";
         showProModal = true;
         isGenerating = false;
