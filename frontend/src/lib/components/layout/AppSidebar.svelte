@@ -57,35 +57,36 @@
   <!-- User Profile -->
   <div class="border-t border-zinc-800 p-4">
     <div
-      onclick={() => !$user && (showLoginModal = true)}
+      onclick={() => !user.current && (showLoginModal = true)}
       class="flex items-center gap-3 rounded-lg bg-zinc-950/50 p-3 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer group"
       role="button"
       tabindex="0"
-      onkeydown={(e) => e.key === "Enter" && !$user && (showLoginModal = true)}
+      onkeydown={(e) =>
+        e.key === "Enter" && !user.current && (showLoginModal = true)}
     >
       <div
         class={cn(
           "h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-lg transition-all duration-300",
-          $user
+          user.current
             ? "bg-linear-to-br from-amber-400 to-amber-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)]"
             : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black"
         )}
       >
-        {$user ? $user.email.substring(0, 2).toUpperCase() : "G"}
+        {user.current ? user.current.email.substring(0, 2).toUpperCase() : "G"}
       </div>
       <div class="flex-1 overflow-hidden">
         <p
           class="truncate text-sm font-medium text-zinc-200 group-hover:text-white"
         >
-          {$user ? $user.email.split("@")[0] : "Guest Mode"}
+          {user.current ? user.current.email.split("@")[0] : "Guest Mode"}
         </p>
         <p
           class="truncate text-xs text-zinc-500 group-hover:text-amber-500/80 transition-colors"
         >
-          {$user ? $user.email : "Sign in to save progress"}
+          {user.current ? user.current.email : "Sign in to save progress"}
         </p>
       </div>
-      {#if $user}
+      {#if user.current}
         <button
           onclick={(e) => {
             e.stopPropagation();

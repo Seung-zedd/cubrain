@@ -1,4 +1,3 @@
-import { writable } from "svelte/store";
 import { supabase } from "$lib/supabaseClient";
 import { authFetch } from "$lib/api";
 
@@ -9,7 +8,10 @@ export interface User {
   dailyUploadCount: number;
 }
 
-export const user = writable<User | null>(null);
+// Svelte 5 Rune-based store
+export const user = $state<{ current: User | null }>({
+  current: null,
+});
 
 export async function fetchUser() {
   try {
@@ -18,7 +20,7 @@ export async function fetchUser() {
     } = await supabase.auth.getSession();
 
     if (!session) {
-      user.set(null);
+      user.current = null;
       return;
     }
 
@@ -26,18 +28,18 @@ export async function fetchUser() {
 
     if (response.ok) {
       const data = await response.json();
-      user.set(data);
+      user.current = data;
       if (typeof localStorage !== "undefined") {
         localStorage.removeItem("isLoggedOut");
       }
     } else {
-      user.set(null);
+      user.current = null;
     }
   } catch (err) {
     if (import.meta.env.DEV) {
       console.error("fetchUser error:", err);
     }
-    user.set(null);
+    user.current = null;
   }
 }
 
@@ -50,7 +52,7 @@ if (typeof window !== "undefined") {
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
       fetchUser();
     } else if (event === "SIGNED_OUT") {
-      user.set(null);
+      user.current = null;
     }
   });
 }
@@ -68,7 +70,7 @@ export async function logout() {
     localStorage.setItem("isLoggedOut", "true");
   }
 
-  user.set(null);
+  user.current = null;
   setTimeout(() => {
     window.location.href = "/";
   }, 100);

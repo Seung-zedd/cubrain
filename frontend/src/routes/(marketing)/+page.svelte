@@ -98,7 +98,7 @@
         class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Dashboard</a
       >
-      {#if $user}
+      {#if user.current}
         <a
           href="/dashboard"
           class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"

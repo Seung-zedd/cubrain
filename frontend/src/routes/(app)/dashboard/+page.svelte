@@ -123,7 +123,9 @@
     );
   });
 
-  let dailyUploadCount = $derived($user?.dailyUploadCount ?? guestUploadCount);
+  let dailyUploadCount = $derived(
+    user.current?.dailyUploadCount ?? guestUploadCount
+  );
   let maxLimit = 3;
   let badgeColor = $derived(
     dailyUploadCount >= maxLimit
@@ -176,7 +178,11 @@
 
     try {
       // Check daily limit for Free Users
-      if ($user && $user.tier === "FREE_USER" && $user.dailyUploadCount >= 3) {
+      if (
+        user.current &&
+        user.current.tier === "FREE_USER" &&
+        user.current.dailyUploadCount >= 3
+      ) {
         proModalType = "daily_limit";
         showProModal = true;
         isGenerating = false;
@@ -184,7 +190,7 @@
       }
 
       // Check daily limit for Guests
-      if (!$user && guestUploadCount >= 3) {
+      if (!user.current && guestUploadCount >= 3) {
         proModalType = "daily_limit";
         showProModal = true;
         isGenerating = false;
@@ -265,7 +271,7 @@
                 }
                 files = [];
                 // Refresh user data to get updated upload count
-                if ($user) {
+                if (user.current) {
                   fetchUser();
                 } else {
                   guestUploadCount += 1;
@@ -385,7 +391,7 @@
                 <RefreshCw class="w-4 h-4" />
                 Start Over
               </button>
-              {#if !$user}
+              {#if !user.current}
                 <button
                   onclick={() => (showLoginModal = true)}
                   class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
@@ -469,7 +475,7 @@
                 Upload Queue ({files.length})
               </h2>
               <div class="flex items-center gap-4">
-                {#if !$user || $user?.tier === "FREE_USER"}
+                {#if !user.current || user.current?.tier === "FREE_USER"}
                   <div class="text-right">
                     <p
                       class="text-zinc-500 text-[10px] font-bold uppercase tracking-wider"
@@ -552,7 +558,7 @@
 {#if showProModal}
   <ProUpgradeModal
     type={proModalType}
-    mode={$user ? "free" : "guest"}
+    mode={user.current ? "free" : "guest"}
     onclose={() => (showProModal = false)}
   />
 {/if}
