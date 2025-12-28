@@ -129,7 +129,8 @@ public class DeckController {
             throw new IllegalArgumentException("Authentication required");
         }
         String email = jwt.getClaimAsString("email");
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String normalizedEmail = email != null ? email.toLowerCase() : null;
+        return memberRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + normalizedEmail));
     }
 }

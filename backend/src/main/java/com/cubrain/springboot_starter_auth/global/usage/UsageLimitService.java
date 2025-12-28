@@ -35,15 +35,16 @@ public class UsageLimitService {
 
     @Transactional
     public void checkAndIncrement(String email) {
-        if (jobManager.hasActiveJob(email)) {
+        String normalizedEmail = email.toLowerCase();
+        if (jobManager.hasActiveJob(normalizedEmail)) {
             throw new IllegalStateException("You already have an active processing job.");
         }
 
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        Member member = memberRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + normalizedEmail));
 
         log.info("[UsageLimit] Found member: {}, currentCount: {}, lastUploadDate: {}, tier: {}",
-                email, member.getDailyUploadCount(), member.getLastUploadDate(), member.getTier());
+                normalizedEmail, member.getDailyUploadCount(), member.getLastUploadDate(), member.getTier());
 
         member.resetCountIfNewDay();
         int currentCount = member.getDailyUploadCount();
@@ -60,7 +61,7 @@ public class UsageLimitService {
 
         member.incrementUploadCount();
         memberRepository.saveAndFlush(member);
-        log.info("[UsageLimit] Incremented count for {}. New count: {}", email, member.getDailyUploadCount());
+        log.info("[UsageLimit] Incremented count for {}. New count: {}", normalizedEmail, member.getDailyUploadCount());
     }
 
     public void checkAndIncrementGuest(String ip) {
@@ -83,7 +84,8 @@ public class UsageLimitService {
     }
 
     public int getUsageCount(String email) {
-        return memberRepository.findByEmail(email)
+        String normalizedEmail = email.toLowerCase();
+        return memberRepository.findByEmail(normalizedEmail)
                 .map(member -> {
                     member.resetCountIfNewDay();
                     return member.getDailyUploadCount();

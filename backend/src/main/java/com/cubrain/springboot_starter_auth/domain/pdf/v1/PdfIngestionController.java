@@ -98,8 +98,8 @@ public class PdfIngestionController {
         // 2. Check and Increment Usage (Cost Defense)
         try {
             if (jwt != null && email != null) {
-                log.info("[UsageLimit] Checking limit for AUTH_USER: {}", email);
-                usageLimitService.checkAndIncrement(email);
+                log.info("[UsageLimit] Checking limit for AUTH_USER: {}", ownerId);
+                usageLimitService.checkAndIncrement(ownerId);
             } else {
                 log.info("[UsageLimit] Checking limit for GUEST: {}", ownerId);
                 usageLimitService.checkAndIncrementGuest(ownerId);
