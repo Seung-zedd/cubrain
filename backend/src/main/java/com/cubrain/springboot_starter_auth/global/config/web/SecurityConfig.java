@@ -161,8 +161,7 @@ public class SecurityConfig {
                             .permitAll()
                             .requestMatchers("/static/**", "/assets/**", "/_app/**", "/_vercel/**").permitAll()
                             .requestMatchers("/dashboard", "/dashboard/**").permitAll()
-                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/
-                                    *").permitAll();
+                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**").permitAll();
                             
 
                     if (isSwaggerEnabled) {
