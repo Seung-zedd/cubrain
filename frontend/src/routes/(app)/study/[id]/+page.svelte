@@ -1,0 +1,236 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+  import { authFetch } from "$lib/api";
+  import { fade, fly } from "svelte/transition";
+  import {
+    ChevronLeft,
+    ChevronRight,
+    RotateCcw,
+    CheckCircle2,
+    BookOpen,
+  } from "@lucide/svelte";
+  import { cn } from "$lib/utils";
+
+  interface Flashcard {
+    id: number;
+    question: string;
+    answer: string;
+  }
+
+  let deckId = $derived(page.params.id);
+  let cards = $state<Flashcard[]>([]);
+  let currentIndex = $state(0);
+  let isFlipped = $state(false);
+  let isLoading = $state(true);
+  let isComplete = $state(false);
+
+  let currentCard = $derived(cards[currentIndex]);
+  let progress = $derived(
+    cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0
+  );
+
+  onMount(async () => {
+    try {
+      const response = await authFetch(`/api/v1/decks/${deckId}/cards`);
+      if (response.ok) {
+        cards = await response.json();
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch cards:", error);
+      }
+    } finally {
+      isLoading = false;
+    }
+  });
+
+  function nextCard() {
+    if (currentIndex < cards.length - 1) {
+      isFlipped = false;
+      setTimeout(() => {
+        currentIndex++;
+      }, 150);
+    } else {
+      isComplete = true;
+    }
+  }
+
+  function prevCard() {
+    if (currentIndex > 0) {
+      isFlipped = false;
+      setTimeout(() => {
+        currentIndex--;
+      }, 150);
+    }
+  }
+
+  function toggleFlip() {
+    isFlipped = !isFlipped;
+  }
+
+  function restart() {
+    currentIndex = 0;
+    isFlipped = false;
+    isComplete = false;
+  }
+</script>
+
+<div class="max-w-3xl mx-auto space-y-8" in:fade>
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <a
+      href="/library"
+      class="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors"
+    >
+      <ChevronLeft class="w-5 h-5" />
+      Back to Library
+    </a>
+    {#if !isLoading && cards.length > 0}
+      <div class="text-zinc-400 font-medium">
+        {currentIndex + 1} / {cards.length}
+      </div>
+    {/if}
+  </div>
+
+  {#if isLoading}
+    <div
+      class="h-[400px] bg-zinc-900/50 rounded-2xl animate-pulse border border-zinc-800 flex items-center justify-center"
+    >
+      <BookOpen class="w-12 h-12 text-zinc-800" />
+    </div>
+  {:else if cards.length === 0}
+    <div class="text-center py-20 space-y-4">
+      <h2 class="text-2xl font-bold text-white">No cards in this deck</h2>
+      <p class="text-zinc-500">This deck seems to be empty.</p>
+      <a href="/library" class="text-amber-500 font-bold hover:underline"
+        >Return to Library</a
+      >
+    </div>
+  {:else if isComplete}
+    <div class="text-center py-20 space-y-8" in:fly={{ y: 20 }}>
+      <div
+        class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 border border-green-500/50"
+      >
+        <CheckCircle2 class="w-10 h-10 text-green-500" />
+      </div>
+      <div class="space-y-2">
+        <h2 class="text-3xl font-bold text-white">Deck Mastered!</h2>
+        <p class="text-zinc-400">
+          You've gone through all the cards in this deck.
+        </p>
+      </div>
+      <div class="flex items-center justify-center gap-4">
+        <button
+          onclick={restart}
+          class="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl transition-all"
+        >
+          <RotateCcw class="w-5 h-5" />
+          Study Again
+        </button>
+        <a
+          href="/library"
+          class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all"
+        >
+          Finish Session
+        </a>
+      </div>
+    </div>
+  {:else}
+    <!-- Progress Bar -->
+    <div
+      class="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"
+    >
+      <div
+        class="h-full bg-amber-500 transition-all duration-500 ease-out"
+        style="width: {progress}%"
+      ></div>
+    </div>
+
+    <!-- Flashcard -->
+    <div
+      class="relative h-[400px] w-full perspective-1000 cursor-pointer group"
+      onclick={toggleFlip}
+      role="button"
+      tabindex="0"
+      onkeydown={(e) => e.key === "Enter" && toggleFlip()}
+    >
+      <div
+        class={cn(
+          "relative w-full h-full transition-all duration-500 preserve-3d",
+          isFlipped ? "rotate-y-180" : ""
+        )}
+      >
+        <!-- Front (Question) -->
+        <div
+          class="absolute inset-0 w-full h-full backface-hidden bg-zinc-900 border-2 border-zinc-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-2xl group-hover:border-amber-500/30 transition-colors"
+        >
+          <span
+            class="absolute top-6 left-6 text-xs font-bold uppercase tracking-widest text-amber-500/50"
+            >Question</span
+          >
+          <p
+            class="text-2xl md:text-3xl font-medium text-white leading-relaxed"
+          >
+            {currentCard.question}
+          </p>
+          <p
+            class="absolute bottom-8 text-zinc-500 text-sm font-medium animate-pulse"
+          >
+            Click to flip
+          </p>
+        </div>
+
+        <!-- Back (Answer) -->
+        <div
+          class="absolute inset-0 w-full h-full backface-hidden bg-zinc-800 border-2 border-amber-500/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-2xl rotate-y-180"
+        >
+          <span
+            class="absolute top-6 left-6 text-xs font-bold uppercase tracking-widest text-amber-500"
+            >Answer</span
+          >
+          <p class="text-xl md:text-2xl text-zinc-100 leading-relaxed">
+            {currentCard.answer}
+          </p>
+          <p class="absolute bottom-8 text-zinc-400 text-sm font-medium">
+            Click to flip back
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center justify-between gap-4">
+      <button
+        onclick={prevCard}
+        disabled={currentIndex === 0}
+        class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+      >
+        <ChevronLeft class="w-6 h-6" />
+        Previous
+      </button>
+      <button
+        onclick={nextCard}
+        class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all"
+      >
+        {currentIndex === cards.length - 1 ? "Finish" : "Next"}
+        <ChevronRight class="w-6 h-6" />
+      </button>
+    </div>
+  {/if}
+</div>
+
+<style>
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+</style>

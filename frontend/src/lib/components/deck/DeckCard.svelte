@@ -3,18 +3,19 @@
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
 
   interface Deck {
-    id: string;
+    id: number;
     title: string;
-    lastStudied: string;
     cardCount: number;
-    progress?: number;
+    lastStudiedAt?: string;
+    createdAt: string;
   }
 
   let { deck } = $props<{ deck: Deck }>();
 </script>
 
-<div
-  class="relative group cursor-pointer hover:-translate-y-1 transition-transform duration-300"
+<a
+  href="/study/{deck.id}"
+  class="relative group cursor-pointer hover:-translate-y-1 transition-transform duration-300 block"
 >
   <!-- Stack Effect Layers -->
   <div
@@ -48,7 +49,11 @@
         </h3>
         <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500">
           <Clock class="w-3 h-3" />
-          <span>{deck.lastStudied}</span>
+          <span
+            >{deck.lastStudiedAt
+              ? new Date(deck.lastStudiedAt).toLocaleDateString()
+              : "Never studied"}</span
+          >
         </div>
       </div>
 
@@ -63,7 +68,7 @@
 
         <div class="flex items-center justify-between">
           <span class="text-xs text-zinc-400 font-medium">
-            {deck.progress || 0}% Complete
+            Created {new Date(deck.createdAt).toLocaleDateString()}
           </span>
           <div
             class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700"
@@ -76,4 +81,4 @@
       </div>
     </div>
   </div>
-</div>
+</a>

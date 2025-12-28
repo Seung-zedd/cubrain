@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+  import { authFetch } from "$lib/api";
+  import { user } from "$lib/stores/user.svelte";
+  import { guestUsage } from "$lib/stores/guestUsage.svelte";
   import FileDropzone from "$lib/components/upload/FileDropzone.svelte";
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { BookOpen, CircleCheck, RefreshCw, Plus, Save } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
-  import { API_BASE_URL } from "$lib/config";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
 
@@ -16,11 +19,11 @@
   }
 
   interface Deck {
-    id: string;
+    id: number;
     title: string;
-    lastStudied: string;
     cardCount: number;
-    progress?: number;
+    lastStudiedAt?: string;
+    createdAt: string;
   }
 
   let files = $state<File[]>([]);
@@ -32,35 +35,47 @@
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
-  // Mock persistence for demo purposes
-  let recentDecks = $state<Deck[]>([
-    {
-      id: "1",
-      title: "Introduction to AI - Part 1",
-      lastStudied: "2 hours ago",
-      cardCount: 15,
-      progress: 45,
-    },
-    {
-      id: "2",
-      title: "Introduction to AI - Part 2",
-      lastStudied: "2 hours ago",
-      cardCount: 12,
-      progress: 10,
-    },
-    {
-      id: "3",
-      title: "Introduction to AI - Part 3",
-      lastStudied: "2 hours ago",
-      cardCount: 20,
-      progress: 80,
-    },
-  ]);
+  let recentDecks = $state<Deck[]>([]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let errorMessage = $state<string | null>(null);
+  let jobMetadata = $state<Record<string, any>>({});
 
-  let mode = $derived($page.url.searchParams.get("mode"));
+  let mode = $derived(page.url.searchParams.get("mode"));
   let hasDecks = $derived(recentDecks.length > 0);
   let showUpload = $derived(mode === "upload" || !hasDecks);
+
+  let dailyUploadCount = $derived(
+    user.current?.dailyUploadCount ?? guestUsage.count
+  );
+  let maxLimit = $derived(user.current?.tier === "PRO_USER" ? 100 : 3);
+  let badgeColor = $derived(
+    dailyUploadCount >= maxLimit
+      ? "bg-red-500/20 text-red-400 border-red-500/50"
+      : dailyUploadCount >= maxLimit - 1
+        ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
+        : "bg-slate-800/50 text-slate-400 border-slate-700"
+  );
+
+  // Fetch recent decks on mount
+  onMount(async () => {
+    if (user.current) {
+      await fetchRecentDecks();
+    }
+  });
+
+  async function fetchRecentDecks() {
+    try {
+      const response = await authFetch("/api/v1/decks?size=3");
+      if (response.ok) {
+        const data = await response.json();
+        recentDecks = data.content;
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch recent decks:", error);
+      }
+    }
+  }
 
   // Cleanup polling interval when component unmounts
   $effect(() => {
@@ -73,8 +88,6 @@
   });
 
   function handleFileSelect(newFiles: File[]) {
-    // Auth mode: Append new files to existing ones
-    // Filter out duplicates based on name and size
     const uniqueNewFiles = newFiles.filter(
       (newFile) =>
         !files.some(
@@ -101,31 +114,27 @@
     jobId = null;
     jobProgress = 0;
     jobStatus = "PROCESSING";
+    errorMessage = null;
 
     try {
       const formData = new FormData();
       formData.append("file", files[0]);
 
-      // 1. Start Async Job
-      const startResponse = await fetch(
-        `${API_BASE_URL}/api/v1/pdf/generate-cards`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await authFetch("/api/v1/card/generate-cards", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (startResponse.ok) {
-        const startData = await startResponse.json();
-        jobId = startData.jobId;
+      if (response.ok) {
+        const data = await response.json();
+        jobId = data.jobId;
 
-        // 2. Poll for Status
         pollInterval = setInterval(async () => {
           if (!jobId) return;
 
           try {
-            const statusResponse = await fetch(
-              `${API_BASE_URL}/api/v1/pdf/jobs/${startData.jobId}`
+            const statusResponse = await authFetch(
+              `/api/v1/card/jobs/${jobId}`
             );
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();
@@ -136,70 +145,33 @@
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
                 isGenerating = false;
+                generatedCards = statusData.results || [];
 
-                if (import.meta.env.LOCAL) {
-                  console.log("Job Completed:", statusData.results);
-                }
-
-                let newCards: Flashcard[] = [];
-                if (
-                  Array.isArray(statusData.results) &&
-                  statusData.results.length > 0
-                ) {
-                  newCards = statusData.results;
-                } else if (
-                  statusData.results &&
-                  !Array.isArray(statusData.results)
-                ) {
-                  newCards = [statusData.results];
-                }
-
-                if (newCards.length > 0) {
-                  generatedCards = newCards;
+                if (generatedCards.length > 0) {
                   showResults = true;
-                  // Add to recent decks (Mock)
-                  recentDecks = [
-                    {
-                      id: Date.now().toString(),
-                      title: files[0].name.replace(".pdf", ""),
-                      lastStudied: "Just now",
-                      cardCount: newCards.length,
-                    },
-                    ...recentDecks,
-                  ];
                 } else {
                   isEmptyState = true;
                 }
-                files = [];
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
                 isGenerating = false;
-                if (import.meta.env.LOCAL) {
-                  console.error("Job Failed");
-                }
+                errorMessage = "Generation failed. Please try again.";
               }
             }
           } catch (e) {
-            if (import.meta.env.LOCAL) {
-              console.error("Polling error", e);
-            }
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = null;
             isGenerating = false;
           }
         }, 1000);
       } else {
-        if (import.meta.env.LOCAL) {
-          console.error("Failed to start generation job");
-        }
         isGenerating = false;
+        errorMessage = "Failed to start generation.";
       }
     } catch (error) {
-      if (import.meta.env.LOCAL) {
-        console.error("Error:", error);
-      }
       isGenerating = false;
+      errorMessage = "An error occurred.";
     }
   }
 
@@ -212,23 +184,59 @@
     showResults = false;
     generatedCards = [];
     files = [];
+    errorMessage = null;
+    jobMetadata = {};
+  }
+
+  async function saveToLibrary() {
+    if (!user.current || generatedCards.length === 0) return;
+
+    try {
+      const response = await authFetch("/api/v1/decks", {
+        method: "POST",
+        body: JSON.stringify({
+          title: files[0]?.name.replace(".pdf", "") || "New Deck",
+          cards: generatedCards,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchRecentDecks();
+        resetView();
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to save deck:", error);
+      }
+    }
   }
 </script>
 
 <div class="space-y-8">
-  <div>
-    <h1 class="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
-    <p class="text-zinc-400 mt-2">
-      {#if showUpload}
-        Upload your PDFs to generate new flashcard decks.
-      {:else}
-        Pick up where you left off.
-      {/if}
-    </p>
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+      <p class="text-zinc-400 mt-2">
+        {#if showUpload}
+          Upload your PDFs to generate new flashcard decks.
+        {:else}
+          Pick up where you left off.
+        {/if}
+      </p>
+    </div>
+
+    <div
+      class={cn(
+        "flex items-center gap-3 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300",
+        badgeColor
+      )}
+    >
+      <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
+      <span>{dailyUploadCount} / {maxLimit} Daily Uploads</span>
+    </div>
   </div>
 
   {#if showUpload}
-    <!-- Upload / Results Section -->
     <section class="space-y-6">
       {#if showResults}
         <div
@@ -258,13 +266,23 @@
                 <RefreshCw class="w-4 h-4" />
                 Start Over
               </button>
-              <button
-                onclick={() => (showLoginModal = true)}
-                class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
-              >
-                <Save class="w-4 h-4" />
-                <span>Sign in to Save</span>
-              </button>
+              {#if !user.current}
+                <button
+                  onclick={() => (showLoginModal = true)}
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Sign in to Save</span>
+                </button>
+              {:else}
+                <button
+                  onclick={saveToLibrary}
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 bg-amber-500 text-black hover:bg-amber-400"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Save to Library</span>
+                </button>
+              {/if}
             </div>
           </div>
 
@@ -312,10 +330,6 @@
               >👩‍🏫📢 Go study and come back!</span
             >
           </p>
-          <p class="text-sm text-zinc-500">
-            Please highlight or underline key concepts in your PDF and
-            re-upload.
-          </p>
           <button
             onclick={resetView}
             class="mt-6 px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all"
@@ -324,7 +338,7 @@
           </button>
         </div>
       {:else}
-        <FileDropzone isGuest={false} onFileSelect={handleFileSelect} />
+        <FileDropzone isGuest={!user.current} onFileSelect={handleFileSelect} />
 
         {#if files.length > 0}
           <div class="space-y-4" transition:fade>
@@ -337,11 +351,7 @@
                 disabled={isGenerating}
                 class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {#if isGenerating}
-                  Generating...
-                {:else}
-                  Generate All Decks
-                {/if}
+                {isGenerating ? "Generating..." : "Generate All Decks"}
               </button>
             </div>
 
@@ -366,7 +376,6 @@
       {/if}
     </section>
   {:else}
-    <!-- Recent Decks Section -->
     <section class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-white">Recent Decks</h2>

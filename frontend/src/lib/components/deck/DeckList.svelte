@@ -2,11 +2,11 @@
   import DeckCard from "./DeckCard.svelte";
 
   interface Deck {
-    id: string;
+    id: number;
     title: string;
-    lastStudied: string;
     cardCount: number;
-    progress?: number;
+    lastStudiedAt?: string;
+    createdAt: string;
   }
 
   let { decks } = $props<{ decks: Deck[] }>();
