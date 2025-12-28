@@ -15,8 +15,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,7 +76,7 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).incrementDailyUploadCount(eq(email), any(LocalDate.class));
+        verify(memberRepository).saveAndFlush(freeMember);
     }
 
     @Test
@@ -92,7 +90,7 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).incrementDailyUploadCount(eq(email), any(LocalDate.class));
+        verify(memberRepository).saveAndFlush(proMember);
     }
 
     @Test
@@ -112,6 +110,6 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).resetAndIncrementDailyUploadCount(eq(email), any(LocalDate.class));
+        verify(memberRepository).saveAndFlush(freeMember);
     }
 }

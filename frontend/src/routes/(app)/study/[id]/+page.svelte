@@ -166,11 +166,10 @@
     </div>
 
     <!-- Flashcard -->
-    <div
-      class="relative h-[400px] w-full perspective-1000 cursor-pointer group"
+    <button
+      type="button"
+      class="relative h-[400px] w-full perspective-1000 cursor-pointer group block text-left"
       onclick={toggleFlip}
-      role="button"
-      tabindex="0"
     >
       <div
         class={cn(
@@ -214,7 +213,7 @@
           </p>
         </div>
       </div>
-    </div>
+    </button>
 
     <!-- Controls -->
     <div class="flex items-center justify-between gap-4">
