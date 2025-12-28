@@ -74,6 +74,24 @@
     isFlipped = false;
     isComplete = false;
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (isComplete || isLoading) return;
+
+    if (e.code === "Space") {
+      e.preventDefault();
+      toggleFlip();
+    } else if (e.key === "ArrowRight") {
+      nextCard();
+    } else if (e.key === "ArrowLeft") {
+      prevCard();
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  });
 </script>
 
 <div class="max-w-3xl mx-auto space-y-8" in:fade>
@@ -153,7 +171,6 @@
       onclick={toggleFlip}
       role="button"
       tabindex="0"
-      onkeydown={(e) => e.key === "Enter" && toggleFlip()}
     >
       <div
         class={cn(
