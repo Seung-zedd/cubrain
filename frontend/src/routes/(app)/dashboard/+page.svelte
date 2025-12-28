@@ -159,7 +159,7 @@
       const formData = new FormData();
       formData.append("file", files[0]);
 
-      const response = await authFetch("/api/v1/card/generate-cards", {
+      const response = await authFetch("/api/v1/pdf/generate-cards", {
         method: "POST",
         body: formData,
       });
@@ -172,9 +172,7 @@
           if (!jobId) return;
 
           try {
-            const statusResponse = await authFetch(
-              `/api/v1/card/jobs/${jobId}`
-            );
+            const statusResponse = await authFetch(`/api/v1/pdf/jobs/${jobId}`);
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();
               jobStatus = statusData.status;
