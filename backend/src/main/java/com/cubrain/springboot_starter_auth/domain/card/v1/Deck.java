@@ -5,7 +5,7 @@ import com.cubrain.springboot_starter_auth.global.config.audit.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class Deck extends BaseTimeEntity {
     private Member member;
 
     @Column(name = "last_studied_at")
-    private LocalDateTime lastStudiedAt;
+    private Instant lastStudiedAt;
 
     @Column(name = "study_progress")
     @Builder.Default
@@ -45,7 +45,7 @@ public class Deck extends BaseTimeEntity {
     }
 
     public void updateLastStudiedAt(Integer progress) {
-        this.lastStudiedAt = LocalDateTime.now();
+        this.lastStudiedAt = Instant.now();
         if (progress != null) {
             this.studyProgress = progress;
         }
