@@ -233,6 +233,32 @@
         <ChevronRight class="w-6 h-6" />
       </button>
     </div>
+
+    <!-- Keyboard Shortcuts -->
+    <div
+      class="flex items-center justify-center gap-8 py-4 px-6 bg-zinc-900/50 rounded-xl border border-zinc-800/50 text-sm text-zinc-400"
+    >
+      <div class="flex items-center gap-2">
+        <span
+          class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
+          >Space</span
+        >
+        <span>Flip Card</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex gap-1">
+          <span
+            class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
+            >←</span
+          >
+          <span
+            class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
+            >→</span
+          >
+        </div>
+        <span>Navigate</span>
+      </div>
+    </div>
   {/if}
 </div>
 

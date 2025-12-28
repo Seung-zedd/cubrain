@@ -23,6 +23,8 @@ import java.io.IOException;
 public class SupabaseUserSyncFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
+    private final java.util.Map<String, Long> lastSyncTime = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long SYNC_INTERVAL_MS = 60000; // 1 minute
 
     @Override
     protected void doFilterInternal(
@@ -39,7 +41,13 @@ public class SupabaseUserSyncFilter extends OncePerRequestFilter {
             String supabaseId = jwt.getSubject();
 
             if (email != null && supabaseId != null) {
-                authService.syncUser(email, supabaseId);
+                long now = System.currentTimeMillis();
+                Long lastSync = lastSyncTime.get(supabaseId);
+
+                if (lastSync == null || (now - lastSync) > SYNC_INTERVAL_MS) {
+                    authService.syncUser(email, supabaseId);
+                    lastSyncTime.put(supabaseId, now);
+                }
             }
         }
 
