@@ -190,6 +190,30 @@
           >
             {currentCard.question}
           </p>
+          <div
+            class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <div class="flex items-center gap-1.5">
+              <span
+                class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                >Space</span
+              >
+              <span>Flip</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="flex gap-0.5">
+                <span
+                  class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                  >←</span
+                >
+                <span
+                  class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                  >→</span
+                >
+              </div>
+              <span>Nav</span>
+            </div>
+          </div>
           <p
             class="absolute bottom-8 text-zinc-500 text-sm font-medium animate-pulse"
           >
@@ -208,6 +232,30 @@
           <p class="text-xl md:text-2xl text-zinc-100 leading-relaxed">
             {currentCard.answer}
           </p>
+          <div
+            class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <div class="flex items-center gap-1.5">
+              <span
+                class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                >Space</span
+              >
+              <span>Flip</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="flex gap-0.5">
+                <span
+                  class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                  >←</span
+                >
+                <span
+                  class="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono text-[10px] text-zinc-400"
+                  >→</span
+                >
+              </div>
+              <span>Nav</span>
+            </div>
+          </div>
           <p class="absolute bottom-8 text-zinc-400 text-sm font-medium">
             Click to flip back
           </p>
@@ -232,32 +280,6 @@
         {currentIndex === cards.length - 1 ? "Finish" : "Next"}
         <ChevronRight class="w-6 h-6" />
       </button>
-    </div>
-
-    <!-- Keyboard Shortcuts -->
-    <div
-      class="flex items-center justify-center gap-8 py-4 px-6 bg-zinc-900/50 rounded-xl border border-zinc-800/50 text-sm text-zinc-400"
-    >
-      <div class="flex items-center gap-2">
-        <span
-          class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
-          >Space</span
-        >
-        <span>Flip Card</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="flex gap-1">
-          <span
-            class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
-            >←</span
-          >
-          <span
-            class="px-2 py-1 bg-zinc-800 rounded border border-zinc-700 font-mono text-xs text-zinc-300"
-            >→</span
-          >
-        </div>
-        <span>Navigate</span>
-      </div>
     </div>
   {/if}
 </div>
