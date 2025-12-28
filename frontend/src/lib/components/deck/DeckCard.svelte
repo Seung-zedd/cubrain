@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Book, Zap, Clock } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
+  import { getRelativeTime } from "$lib/utils";
 
   interface Deck {
     id: number;
     title: string;
     cardCount: number;
     lastStudiedAt?: string;
+    studyProgress?: number;
     createdAt: string;
   }
 
@@ -49,11 +51,7 @@
         </h3>
         <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500">
           <Clock class="w-3 h-3" />
-          <span
-            >{deck.lastStudiedAt
-              ? new Date(deck.lastStudiedAt).toLocaleDateString()
-              : "Never studied"}</span
-          >
+          <span>{getRelativeTime(deck.lastStudiedAt || null)}</span>
         </div>
       </div>
 
@@ -62,7 +60,7 @@
         <div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
           <div
             class="h-full bg-[#FFD700] rounded-full"
-            style="width: {deck.progress || 0}%"
+            style="width: {deck.studyProgress || 0}%"
           ></div>
         </div>
 

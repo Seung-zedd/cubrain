@@ -12,6 +12,7 @@ public record DeckResponseDto(
         @Schema(description = "Deck title", example = "Introduction to AI") String title,
         @Schema(description = "Number of cards in the deck", example = "15") long cardCount,
         @Schema(description = "Last studied date", example = "2023-10-27T10:00:00") LocalDateTime lastStudiedAt,
+        @Schema(description = "Study progress percentage", example = "50") Integer studyProgress,
         @Schema(description = "Created date", example = "2023-10-27T10:00:00") LocalDateTime createdAt) {
     public static DeckResponseDto from(Deck deck, long cardCount) {
         return DeckResponseDto.builder()
@@ -19,6 +20,7 @@ public record DeckResponseDto(
                 .title(deck.getTitle())
                 .cardCount(cardCount)
                 .lastStudiedAt(deck.getLastStudiedAt())
+                .studyProgress(deck.getStudyProgress())
                 .createdAt(deck.getCreatedAt())
                 .build();
     }

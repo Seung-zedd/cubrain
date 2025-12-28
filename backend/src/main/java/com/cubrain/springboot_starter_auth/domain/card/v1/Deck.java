@@ -31,6 +31,10 @@ public class Deck extends BaseTimeEntity {
     @Column(name = "last_studied_at")
     private LocalDateTime lastStudiedAt;
 
+    @Column(name = "study_progress")
+    @Builder.Default
+    private Integer studyProgress = 0;
+
     @Builder.Default
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Flashcard> cards = new ArrayList<>();
@@ -40,7 +44,10 @@ public class Deck extends BaseTimeEntity {
         card.setDeck(this);
     }
 
-    public void updateLastStudiedAt() {
+    public void updateLastStudiedAt(Integer progress) {
         this.lastStudiedAt = LocalDateTime.now();
+        if (progress != null) {
+            this.studyProgress = progress;
+        }
     }
 }

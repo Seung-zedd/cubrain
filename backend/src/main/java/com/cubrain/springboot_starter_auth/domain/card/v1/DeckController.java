@@ -84,6 +84,28 @@ public class DeckController {
         return ResponseEntity.ok(savedDeck);
     }
 
+    @Operation(summary = "Update Progress", description = "Updates the study progress and last studied time for a deck.")
+    @PatchMapping("/{id}/progress")
+    public ResponseEntity<Void> updateProgress(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Member member = getMember(jwt);
+        Deck deck = deckRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        if (!deck.getMember().getId().equals(member.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Integer progress = request.get("progress");
+        deck.updateLastStudiedAt(progress);
+        deckRepository.save(deck);
+
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Delete Deck", description = "Deletes a deck and all its flashcards.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDeck(

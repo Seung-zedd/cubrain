@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { beforeNavigate } from "$app/navigation";
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
   import {
@@ -27,8 +28,31 @@
 
   let currentCard = $derived(cards[currentIndex]);
   let progress = $derived(
-    cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0
+    cards.length > 0 ? Math.round(((currentIndex + 1) / cards.length) * 100) : 0
   );
+
+  async function updateProgress() {
+    if (cards.length === 0) return;
+
+    // If complete, progress is 100. Otherwise calculate based on current index.
+    const currentProgress = isComplete
+      ? 100
+      : Math.round(((currentIndex + 1) / cards.length) * 100);
+
+    try {
+      await authFetch(`/api/v1/decks/${deckId}/progress`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ progress: currentProgress }),
+      });
+    } catch (e) {
+      console.error("Failed to update progress", e);
+    }
+  }
+
+  beforeNavigate(() => {
+    updateProgress();
+  });
 
   onMount(async () => {
     try {
@@ -53,6 +77,7 @@
       }, 150);
     } else {
       isComplete = true;
+      updateProgress();
     }
   }
 
