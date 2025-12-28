@@ -64,13 +64,13 @@ git push -u origin feature/your-feature-name
 
 ### 3. Pull Request (PR) & AI Code Review
 
-⚠️ **IMPORTANT**: We utilize automated code reviews to maintain high standards.
+⚠️ **IMPORTANT**: We prioritize **Local AI Agent Reviews** (e.g., Antigravity) over remote tools like GitHub Copilot. Local agents have full access to the codebase context and provide significantly deeper architectural and logic reviews.
 
-1. **Create PR**: Open a Pull Request on GitHub targeting the `dev` branch (NOT `main`).
-2. **Trigger AI Review**:
-   - Use your AI agent (Cursor, Windsurf, etc.) to review the changes.
-   - **Prompt Example**: _"Please review my PR on branch feature/your-feature-name. Check for potential bugs, security issues, and architectural consistency."_
-3. **Refine**: Apply the feedback, push changes, and repeat until the code is polished.
+1. **Local Review First**: Before pushing your code, ALWAYS ask your local AI agent to perform a "Pull Request Review".
+   - **Prompt Example**: _"Please perform a comprehensive PR review of my current changes. Check for bugs, security, and SOLID principles."_
+2. **Refine & Polish**: Address all feedback provided by the agent locally.
+3. **Create PR**: Push your branch and open a Pull Request on GitHub targeting the `dev` branch.
+4. **Final Check**: Use the remote PR as a final integration check, but the heavy lifting of code quality should be done via the local agent.
 
 ### 4. Merge & Cleanup
 
