@@ -92,6 +92,25 @@
     if (user.current) {
       await fetchRecentDecks();
     }
+
+    // Check for pending guest cards after login redirect (IP-based persistence)
+    try {
+      const response = await authFetch("/api/v1/pdf/recent");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "COMPLETED" && data.results) {
+          generatedCards = data.results;
+          showResults = true;
+          if (data.metadata) {
+            jobMetadata = data.metadata;
+          }
+        }
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch recent job", e);
+      }
+    }
   });
 
   async function fetchRecentDecks() {
@@ -253,7 +272,10 @@
       const response = await authFetch("/api/v1/decks", {
         method: "POST",
         body: JSON.stringify({
-          title: files[0]?.name.replace(".pdf", "") || "New Deck",
+          title:
+            jobMetadata.title ||
+            files[0]?.name.replace(".pdf", "") ||
+            "New Deck",
           cards: generatedCards,
         }),
       });

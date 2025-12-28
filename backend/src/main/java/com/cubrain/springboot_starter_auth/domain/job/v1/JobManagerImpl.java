@@ -130,4 +130,24 @@ public class JobManagerImpl implements JobManager {
     public Map<String, Object> getMetadata(String jobId) {
         return jobMetadata.getOrDefault(jobId, Map.of());
     }
+
+    @Override
+    public java.util.Optional<String> findLastJobIdByOwner(String ownerId) {
+        return jobOwners.entrySet().stream()
+                .filter(e -> e.getValue().equals(ownerId))
+                .map(Map.Entry::getKey)
+                .sorted((id1, id2) -> {
+                    Instant t1 = jobCompletionTimes.getOrDefault(id1, Instant.MIN);
+                    Instant t2 = jobCompletionTimes.getOrDefault(id2, Instant.MIN);
+                    return t2.compareTo(t1); // Descending
+                })
+                .findFirst();
+    }
+
+    @Override
+    public void changeOwner(String jobId, String newOwnerId) {
+        if (jobOwners.containsKey(jobId)) {
+            jobOwners.put(jobId, newOwnerId);
+        }
+    }
 }

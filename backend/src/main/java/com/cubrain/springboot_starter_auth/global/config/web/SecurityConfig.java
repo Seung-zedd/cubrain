@@ -162,7 +162,6 @@ public class SecurityConfig {
                             .requestMatchers("/static/**", "/assets/**", "/_app/**", "/_vercel/**").permitAll()
                             .requestMatchers("/dashboard", "/dashboard/**").permitAll()
                             .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**").permitAll();
-                            
 
                     if (isSwaggerEnabled) {
                         log.info("✅ Swagger/OpenAPI is ENABLED. Permitting access to /v3/api-docs");
@@ -174,10 +173,32 @@ public class SecurityConfig {
 
                     auth.anyRequest().authenticated();
                 })
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .bearerTokenResolver(bearerTokenResolver())
+                        .jwt(jwt -> jwt.decoder(jwtDecoder())))
                 .addFilterAfter(supabaseUserSyncFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private org.springframework.security.oauth2.server.resource.web.BearerTokenResolver bearerTokenResolver() {
+        org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver defaultResolver = new org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver();
+        return request -> {
+            String token = defaultResolver.resolve(request);
+            if (token != null)
+                return token;
+
+            // Fallback to cookie
+            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("sb-access-token".equals(cookie.getName())) {
+                        return cookie.getValue();
+                    }
+                }
+            }
+            return null;
+        };
     }
 
     @Bean

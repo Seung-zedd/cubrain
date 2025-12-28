@@ -87,10 +87,25 @@ export async function fetchUser() {
 
 // Initialize auth listener
 if (typeof window !== "undefined" && supabase) {
-  supabase.auth.onAuthStateChange((event: string) => {
+  supabase.auth.onAuthStateChange(async (event, session) => {
     if (import.meta.env.DEV) {
       console.log(`[Auth] Event: ${event}`);
     }
+
+    // Sync session to HttpOnly cookie via server route
+    try {
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: session?.access_token || null,
+          expires_in: session?.expires_in || null,
+        }),
+      });
+    } catch (e) {
+      console.error("Failed to sync session cookie", e);
+    }
+
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
       fetchUser();
 

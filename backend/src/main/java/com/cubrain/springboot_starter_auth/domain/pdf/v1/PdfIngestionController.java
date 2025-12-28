@@ -113,6 +113,42 @@ public class PdfIngestionController {
         return ok(JobStartResponseDto.of(jobId));
     }
 
+    @Operation(summary = "Get Recent Job", description = "Retrieves the most recent job for the current user or guest.")
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentJob(
+            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request) {
+        String email = jwt != null ? jwt.getClaimAsString("email") : null;
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        }
+
+        String ownerId = email != null ? email.toLowerCase() : clientIp;
+        Optional<String> jobIdOpt = jobManager.findLastJobIdByOwner(ownerId);
+
+        // If authenticated but no job found for email, check if there's a recent job
+        // for this IP to claim
+        if (jobIdOpt.isEmpty() && email != null) {
+            jobIdOpt = jobManager.findLastJobIdByOwner(clientIp);
+            if (jobIdOpt.isPresent()) {
+                String jobId = jobIdOpt.get();
+                log.info("[UsageLimit] Claiming guest job {} for user {}", jobId, email);
+                jobManager.changeOwner(jobId, email.toLowerCase());
+            }
+        }
+
+        return jobIdOpt
+                .map(jobId -> {
+                    JobStatus status = jobManager.getStatus(jobId);
+                    int progress = jobManager.getProgress(jobId);
+                    Object results = status == COMPLETED ? jobManager.getResults(jobId) : null;
+                    Map<String, Object> metadata = jobManager.getMetadata(jobId);
+                    return ok(JobStatusResponseDto.of(status, progress, results, metadata));
+                })
+                .orElse(notFound().build());
+    }
+
     @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<JobStatusResponseDto> getJobStatus(@PathVariable String jobId) {

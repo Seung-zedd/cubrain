@@ -28,4 +28,8 @@ public interface JobManager {
     void updateMetadata(String jobId, String key, Object value);
 
     java.util.Map<String, Object> getMetadata(String jobId);
+
+    java.util.Optional<String> findLastJobIdByOwner(String ownerId);
+
+    void changeOwner(String jobId, String newOwnerId);
 }
