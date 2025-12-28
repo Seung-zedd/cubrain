@@ -7,10 +7,17 @@ spring:
       dev: common, dev
   application:
     name: cubrainApp
+
+  # for logging colors
   output:
     ansi:
       enabled: ALWAYS
 
+# for proxies like Railway to correctly handle Secure and SameSite cookie
+server:
+  forward-headers-strategy: native
+
+# for logging
 logging:
   level:
     "[org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation]": OFF

@@ -1,124 +1,138 @@
 package com.cubrain.springboot_starter_auth.global.exception;
 
+import com.cubrain.springboot_starter_auth.global.util.EnvironmentUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import jakarta.servlet.http.HttpServletRequest;
 
-import com.cubrain.springboot_starter_auth.global.util.EnvironmentUtil;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.REQUEST_TIMEOUT;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ControllerAdvice
 @Slf4j
 @RequiredArgsConstructor
-// BoilerPlate Class
 public class GlobalExceptionHandler {
 
     private final EnvironmentUtil envUtil;
 
-    // 엔티티를 찾을 수 없을 때 (사용자가 존재하지 않는 경우 등)
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleEntityNotFound(EntityNotFoundException e) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다.", e.getMessage());
+    public ResponseEntity<ErrorResponseDto> handleEntityNotFound(EntityNotFoundException e) {
+        return createErrorResponse(NOT_FOUND, "Resource not found.", e.getMessage());
     }
 
-    // 필수 파라미터가 누락되었을 때 (code 파라미터 누락 등)
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleMissingParameter(MissingServletRequestParameterException e) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다.", e.getMessage());
+    public ResponseEntity<ErrorResponseDto> handleMissingParameter(MissingServletRequestParameterException e) {
+        return createErrorResponse(BAD_REQUEST, "Required parameter is missing.", e.getMessage());
     }
 
-    // @Valid 어노테이션이 붙은 @RequestBody DTO의 유효성 검증이 실패했을 때만 발생
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException e) {
-        org.springframework.validation.FieldError fieldError = e.getBindingResult().getFieldError();
-        String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "입력값이 올바르지 않습니다.";
-        return createErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, e.getMessage());
+    public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException e) {
+        FieldError fieldError = e.getBindingResult().getFieldError();
+        String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "Invalid input values.";
+        return createErrorResponse(BAD_REQUEST, errorMessage, e.getMessage());
     }
 
-    // 외부 API 호출 실패 시
     @ExceptionHandler({ HttpClientErrorException.class, WebClientResponseException.class })
-    public ResponseEntity<Map<String, Object>> handleExternalApiError(Exception e) {
+    public ResponseEntity<ErrorResponseDto> handleExternalApiError(Exception e) {
         log.error("External API call failed", e);
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "외부 API 호출에 실패했습니다.", "서비스 연결에 문제가 발생했습니다.");
+        return createErrorResponse(BAD_REQUEST, "External API call failed.",
+                "There was a problem connecting to the service.");
     }
 
-    // IllegalArgumentException 처리
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.", e.getMessage());
+    public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException e) {
+        return createErrorResponse(BAD_REQUEST, e.getMessage(), null);
     }
 
-    // 클라이언트 연결 중단 예외 처리 (ClientAbortException)
     @ExceptionHandler(ClientAbortException.class)
-    public ResponseEntity<Map<String, Object>> handleClientAbort(ClientAbortException e) {
+    public ResponseEntity<ErrorResponseDto> handleClientAbort(ClientAbortException e) {
         log.warn("Client disconnected during request processing: {}", e.getMessage());
-        // 클라이언트가 이미 연결을 끊었으므로 응답을 보낼 수 없지만, 로깅 목적으로 ResponseEntity 반환
-        return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).build();
+        return ResponseEntity.status(REQUEST_TIMEOUT).build();
     }
 
-    // 기타 모든 예외 처리
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleNoResourceFound(NoResourceFoundException e) {
+        log.debug("Resource not found: {}", e.getMessage());
+        return createErrorResponse(NOT_FOUND, "Resource not found.", e.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDto> handleMethodNotSupported(HttpRequestMethodNotSupportedException e,
+            HttpServletRequest request) {
+        log.warn("Method not supported: {} {} - {}", request.getMethod(), request.getRequestURI(), e.getMessage());
+        return createErrorResponse(METHOD_NOT_ALLOWED, "HTTP method not supported.", e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDto> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
+        return createErrorResponse(UNSUPPORTED_MEDIA_TYPE, "Content type not supported.", e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<ErrorResponseDto> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException e) {
+        return createErrorResponse(NOT_ACCEPTABLE, "Acceptable media type not found.", e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception e) {
-        // ClientAbortException의 경우 이미 별도 처리했으므로 로그 레벨 조정
+    public ResponseEntity<ErrorResponseDto> handleGenericException(Exception e, HttpServletRequest request) {
         if (e instanceof ClientAbortException || e.getCause() instanceof ClientAbortException) {
             log.warn("Client abort exception in generic handler: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).build();
+            return ResponseEntity.status(REQUEST_TIMEOUT).build();
         }
 
-        log.error("Unexpected error occurred", e);
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.", e.getMessage());
+        log.error("Unexpected error occurred at [{} {}]: ", request.getMethod(), request.getRequestURI(), e);
+        return createErrorResponse(INTERNAL_SERVER_ERROR, "An internal server error occurred.",
+                e.getMessage());
     }
 
-    // 공통 에러 응답 생성 메서드
-    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message, String details) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", status.value());
-        errorResponse.put("error", status.getReasonPhrase());
-        errorResponse.put("message", message);
-        // ! 운영 환경에서는 상세 정보 노출 방지
-        if (envUtil.isLocalEnvironment()) {
-            errorResponse.put("details", details);
-        }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        log.warn("Data integrity violation", e);
+        return createErrorResponse(CONFLICT, "Cannot perform request due to data integrity constraint.",
+                "Integrity constraint violated.");
+    }
 
-        // Content-Type을 명시적으로 application/json으로 설정
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponseDto> handleConstraintViolation() {
+        return createErrorResponse(BAD_REQUEST, "Input value is invalid.",
+                "Validation constraint violated.");
+    }
+
+    private ResponseEntity<ErrorResponseDto> createErrorResponse(HttpStatus status, String message, String details) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.of(
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                envUtil.isLocalEnvironment() ? details : null);
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(APPLICATION_JSON);
 
         return ResponseEntity.status(status).headers(headers).body(errorResponse);
     }
-
-    /**
-     * 데이터 무결성 제약 조건 위반 시 (예: 사용 중인 카테고리 삭제 시도)
-     * 
-     * @param e DataIntegrityViolationException
-     * @return 409 Conflict 응답
-     */
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        log.warn("Data integrity violation", e);
-        return createErrorResponse(HttpStatus.CONFLICT, "데이터 무결성 제약으로 인해 요청을 수행할 수 없습니다.", "무결성 제약 조건을 위반했습니다.");
-    }
-
-    // 그 외 모든 파라미터 입력 검증 실패
-    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolation() {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "입력값이 유효하지 않습니다.", "검증 제약을 위반했습니다.");
-    }
-
 }

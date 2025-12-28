@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import {
     LayoutDashboard,
     CloudUpload,
@@ -8,6 +8,10 @@
     LogOut,
   } from "@lucide/svelte";
   import { cn } from "$lib/utils";
+  import { user, logout } from "$lib/stores/user.svelte";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
+
+  let showLoginModal = $state(false);
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -22,7 +26,7 @@
 >
   <!-- Brand Logo -->
   <div class="flex h-16 items-center px-6 border-b border-zinc-800/50">
-    <a href="/dashboard" class="flex items-center gap-2">
+    <a href="/" class="flex items-center gap-2">
       <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
     </a>
   </div>
@@ -31,8 +35,8 @@
   <nav class="flex-1 space-y-1 px-3 py-4">
     {#each navItems as item}
       {@const isActive = item.href.includes("?")
-        ? $page.url.search === new URL("http://dummy" + item.href).search
-        : $page.url.pathname === item.href && $page.url.search === ""}
+        ? page.url.search === new URL("http://dummy" + item.href).search
+        : page.url.pathname === item.href && page.url.search === ""}
       <a
         href={item.href}
         class={cn(
@@ -53,24 +57,53 @@
   <!-- User Profile -->
   <div class="border-t border-zinc-800 p-4">
     <div
+      onclick={() => !user.current && (showLoginModal = true)}
       class="flex items-center gap-3 rounded-lg bg-zinc-950/50 p-3 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer group"
+      role="button"
+      tabindex="0"
+      onkeydown={(e) =>
+        e.key === "Enter" && !user.current && (showLoginModal = true)}
     >
       <div
-        class="h-10 w-10 rounded-full bg-linear-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black font-bold shadow-lg"
+        class={cn(
+          "h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-lg transition-all duration-300",
+          user.current
+            ? "bg-linear-to-br from-amber-400 to-amber-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+            : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black"
+        )}
       >
-        ST
+        {user.current ? user.current.email.substring(0, 2).toUpperCase() : "G"}
       </div>
       <div class="flex-1 overflow-hidden">
         <p
           class="truncate text-sm font-medium text-zinc-200 group-hover:text-white"
         >
-          Student User
+          {user.current ? user.current.email.split("@")[0] : "Guest Mode"}
         </p>
-        <p class="truncate text-xs text-zinc-500">student@cubrain.app</p>
+        <p
+          class="truncate text-xs text-zinc-500 group-hover:text-amber-500/80 transition-colors"
+        >
+          {user.current ? user.current.email : "Sign in to save progress"}
+        </p>
       </div>
-      <LogOut
-        class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
-      />
+      {#if user.current}
+        <button
+          onclick={(e) => {
+            e.stopPropagation();
+            logout();
+          }}
+          class="p-1 hover:bg-zinc-800 rounded-full transition-colors"
+          aria-label="Logout"
+        >
+          <LogOut
+            class="h-4 w-4 text-zinc-500 hover:text-red-400 transition-colors"
+          />
+        </button>
+      {/if}
     </div>
   </div>
 </aside>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}

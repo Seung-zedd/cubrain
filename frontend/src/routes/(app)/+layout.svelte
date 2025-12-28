@@ -1,7 +1,6 @@
 <script lang="ts">
   import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
   import { Menu } from "@lucide/svelte";
-  import "../../app.css";
 
   let { children } = $props();
   let isMobileMenuOpen = $state(false);
@@ -30,9 +29,9 @@
     <header
       class="flex h-16 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 md:hidden"
     >
-      <div class="flex items-center gap-2">
+      <a href="/" class="flex items-center gap-2">
         <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
-      </div>
+      </a>
       <button
         class="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white"
         onclick={toggleMobileMenu}

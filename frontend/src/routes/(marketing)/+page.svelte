@@ -2,11 +2,16 @@
   import heroImage from "$lib/assets/hero.png";
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
-  import { API_BASE_URL } from "$lib/config";
+  import { authFetch } from "$lib/api";
 
   let email = $state("");
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
+
+  import { user } from "$lib/stores/user.svelte";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
+
+  let showLoginModal = $state(false);
 
   const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
@@ -19,13 +24,7 @@
     message = "";
 
     try {
-      const apiBaseUrl = API_BASE_URL;
-
-      if (import.meta.env.LOCAL) {
-        console.log("Using API URL:", apiBaseUrl);
-      }
-
-      const response = await fetch(`${apiBaseUrl}/api/v1/waitlist`, {
+      const response = await authFetch("/api/v1/waitlist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +34,7 @@
 
       if (response.ok) {
         status = "success";
-        message = "Thanks for joining! We’ll be in touch soon.";
+        message = "Thanks for joining! We'll be in touch soon.";
         email = "";
       } else {
         const text = await response.text();
@@ -51,7 +50,7 @@
         }
       }
     } catch (err) {
-      if (import.meta.env.LOCAL) {
+      if (import.meta.env.DEV) {
         console.error(err);
       }
       status = "error";
@@ -86,7 +85,9 @@
       />
     </a>
     <div class="hidden md:flex gap-8 items-center">
-      <a href="#features" class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+      <a
+        href="#features"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Features</a
       >
       <a
@@ -94,11 +95,26 @@
         class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Dashboard</a
       >
-      <a
-        href="#waitlist"
-        class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-        >Get Early Access</a
-      >
+      {#if user.current}
+        <a
+          href="/dashboard"
+          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+          >Go to Dashboard</a
+        >
+      {:else}
+        <div class="flex items-center gap-4">
+          <button
+            onclick={() => (showLoginModal = true)}
+            class="text-sm font-medium text-white/60 hover:text-white transition-colors"
+            >Sign In</button
+          >
+          <a
+            href="#waitlist"
+            class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+            >Get Early Access</a
+          >
+        </div>
+      {/if}
     </div>
   </nav>
 
@@ -305,3 +321,7 @@
     <p>&copy; 2025 Cubrain. All rights reserved.</p>
   </footer>
 </div>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}

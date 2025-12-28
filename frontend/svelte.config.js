@@ -1,28 +1,11 @@
 import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import { mdsvex } from "mdsvex";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  // 1. Add ".md" to extensions
-  extensions: [".svelte", ".md"],
+  extensions: [".svelte"],
 
-  // Consult https://svelte.dev/docs/kit/integrations
-  // for more information about preprocessors
-  preprocess: [
-    vitePreprocess(),
-    mdsvex({
-      extensions: [".md"],
-      // This tells mdsvex to wrap every markdown file in this layout component
-      layout: {
-        blog: join(__dirname, "./src/lib/layouts/BlogPost.svelte"),
-      },
-    }),
-  ],
+  preprocess: [vitePreprocess()],
 
   kit: {
     // adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.

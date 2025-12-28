@@ -1,0 +1,134 @@
+package com.cubrain.springboot_starter_auth.domain.pdf.v1;
+
+import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
+import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
+import com.cubrain.springboot_starter_auth.domain.card.v1.CardService;
+import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import com.cubrain.springboot_starter_auth.domain.member.Member;
+import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
+import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.Map;
+import java.util.Optional;
+
+import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
+import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.status;
+
+@RestController
+@RequestMapping("/api/v1/pdf")
+@RequiredArgsConstructor
+@Slf4j
+@Tag(name = "PDF Ingestion", description = "PDF processing and flashcard generation APIs")
+public class PdfIngestionController {
+
+    private final CardService cardService;
+    private final JobManager jobManager;
+    private final UsageLimitService usageLimitService;
+    private final MemberRepository memberRepository;
+    private final PdfAnnotationService pdfAnnotationService;
+
+    @Operation(summary = "Generate Flashcards from PDF", description = "Uploads and processes a PDF file asynchronously to generate flashcards.")
+    @PostMapping("/generate-cards")
+    public ResponseEntity<?> generateCards(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request) {
+        if (file.isEmpty()) {
+            return badRequest().body(Map.of("error", "File is empty"));
+        }
+
+        // Validate content type and file extension
+        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        boolean isPdfContentType = contentType != null && contentType.equalsIgnoreCase("application/pdf");
+        boolean isPdfExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf");
+
+        if (!isPdfContentType || !isPdfExtension) {
+            return badRequest().body(Map.of("error", "Invalid file type. Only PDF files are allowed."));
+        }
+
+        UserTier userTier = UserTier.GUEST;
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        }
+
+        String email = jwt != null ? jwt.getClaimAsString("email") : null;
+        String ownerId = email != null ? email.toLowerCase() : clientIp;
+
+        log.info("[UsageLimit] Request from jwt: {}, ownerId: {}",
+                email != null ? email : "null", ownerId);
+
+        Member member = null;
+        if (jwt != null && email != null) {
+            Optional<Member> memberOpt = memberRepository.findByEmail(email.toLowerCase());
+            if (memberOpt.isPresent()) {
+                member = memberOpt.get();
+                userTier = member.getTier();
+            }
+        }
+
+        // 1. Validate Page Count (Log for analytics)
+        try {
+            int pageCount = pdfAnnotationService.getPageCount(file);
+            log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
+        } catch (Exception e) {
+            log.warn("Could not read PDF page count for logging", e);
+        }
+
+        // 2. Check and Increment Usage (Cost Defense)
+        try {
+            if (jwt != null && email != null) {
+                log.info("[UsageLimit] Checking limit for AUTH_USER: {}", email);
+                usageLimitService.checkAndIncrement(email);
+            } else {
+                log.info("[UsageLimit] Checking limit for GUEST: {}", ownerId);
+                usageLimitService.checkAndIncrementGuest(ownerId);
+            }
+        } catch (IllegalStateException e) {
+            log.warn("[UsageLimit] Limit reached for {}: {}", ownerId, e.getMessage());
+            return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
+        }
+
+        String jobId = cardService.generateCardsAsync(file, userTier, ownerId);
+        return ok(JobStartResponseDto.of(jobId));
+    }
+
+    @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
+    @GetMapping("/jobs/{jobId}")
+    public ResponseEntity<JobStatusResponseDto> getJobStatus(@PathVariable String jobId) {
+        JobStatus status = jobManager.getStatus(jobId);
+        if (status == null) {
+            return notFound().build();
+        }
+
+        int progress = jobManager.getProgress(jobId);
+        Object results = null;
+
+        if (status == COMPLETED) {
+            results = jobManager.getResults(jobId);
+        }
+
+        Map<String, Object> metadata = jobManager.getMetadata(jobId);
+        return ok(JobStatusResponseDto.of(status, progress, results, metadata));
+    }
+}

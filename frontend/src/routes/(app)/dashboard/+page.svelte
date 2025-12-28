@@ -2,8 +2,12 @@
   import { onMount } from "svelte";
   import { page } from "$app/state";
   import { authFetch } from "$lib/api";
-  import { user } from "$lib/stores/user.svelte";
-  import { guestUsage } from "$lib/stores/guestUsage.svelte";
+  import {
+    user,
+    fetchUser,
+    guestUsage,
+    fetchGuestUsage,
+  } from "$lib/stores/user.svelte";
   import FileDropzone from "$lib/components/upload/FileDropzone.svelte";
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
@@ -12,6 +16,9 @@
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
+  import Toast from "$lib/components/ui/Toast.svelte";
+  import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
+  import { cn } from "$lib/utils";
 
   interface Flashcard {
     question: string;
@@ -35,10 +42,34 @@
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
+  let showProModal = $state(false);
+  let proModalType = $state<"daily_limit">("daily_limit");
   let recentDecks = $state<Deck[]>([]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
+
+  // Validation Logic
+  const MAX_SIZE_MB = 20;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+  let totalSize = $derived(files.reduce((acc, f) => acc + f.size, 0));
+  let isTotalSizeExceeded = $derived(totalSize > MAX_SIZE_BYTES);
+  let hasOversizedFiles = $derived(files.some((f) => f.size > MAX_SIZE_BYTES));
+  let isGenerationBlocked = $derived(
+    isTotalSizeExceeded || hasOversizedFiles || files.length === 0
+  );
+
+  let showTotalSizeToast = $state(false);
+
+  // Show toast when total size is exceeded
+  $effect(() => {
+    if (isTotalSizeExceeded) {
+      showTotalSizeToast = true;
+    } else {
+      showTotalSizeToast = false;
+    }
+  });
 
   let mode = $derived(page.url.searchParams.get("mode"));
   let hasDecks = $derived(recentDecks.length > 0);
@@ -117,6 +148,14 @@
     errorMessage = null;
 
     try {
+      // Check daily limit
+      if (dailyUploadCount >= maxLimit) {
+        proModalType = "daily_limit";
+        showProModal = true;
+        isGenerating = false;
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", files[0]);
 
@@ -140,6 +179,9 @@
               const statusData = await statusResponse.json();
               jobStatus = statusData.status;
               jobProgress = statusData.progress;
+              if (statusData.metadata) {
+                jobMetadata = statusData.metadata;
+              }
 
               if (jobStatus === "COMPLETED") {
                 if (pollInterval) clearInterval(pollInterval);
@@ -151,6 +193,14 @@
                   showResults = true;
                 } else {
                   isEmptyState = true;
+                }
+
+                files = [];
+                // Refresh user data to get updated upload count
+                if (user.current) {
+                  fetchUser();
+                } else {
+                  fetchGuestUsage();
                 }
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
@@ -166,8 +216,18 @@
           }
         }, 1000);
       } else {
+        const errorData = await response.json();
+        errorMessage = errorData.error || "Failed to start generation.";
+
+        if (
+          errorMessage &&
+          errorMessage.includes("Daily upload limit reached")
+        ) {
+          proModalType = "daily_limit";
+          showProModal = true;
+          errorMessage = null;
+        }
         isGenerating = false;
-        errorMessage = "Failed to start generation.";
       }
     } catch (error) {
       isGenerating = false;
@@ -238,6 +298,14 @@
 
   {#if showUpload}
     <section class="space-y-6">
+      {#if errorMessage}
+        <div
+          class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-in fade-in slide-in-from-top-2"
+        >
+          {errorMessage}
+        </div>
+      {/if}
+
       {#if showResults}
         <div
           class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
@@ -250,9 +318,16 @@
                 <CircleCheck class="w-6 h-6 text-green-500" />
               </div>
               <div>
-                <h2 class="text-xl font-bold text-white">
-                  Generation Complete!
-                </h2>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-bold text-white">
+                    Generation Complete!
+                  </h2>
+                  <div
+                    class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
+                  >
+                    Daily Limit {dailyUploadCount} / {maxLimit}
+                  </div>
+                </div>
                 <p class="text-zinc-400 text-sm">
                   Created {generatedCards.length} flashcards
                 </p>
@@ -346,13 +421,27 @@
               <h2 class="text-xl font-semibold text-white">
                 Upload Queue ({files.length})
               </h2>
-              <button
-                onclick={handleGenerate}
-                disabled={isGenerating}
-                class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? "Generating..." : "Generate All Decks"}
-              </button>
+              <div class="flex items-center gap-4">
+                {#if !user.current || user.current?.tier === "FREE_USER"}
+                  <div class="text-right">
+                    <p
+                      class="text-zinc-500 text-[10px] font-bold uppercase tracking-wider"
+                    >
+                      Daily Usage
+                    </p>
+                    <p class="text-zinc-300 text-sm font-medium">
+                      {dailyUploadCount} / {maxLimit} Uploads
+                    </p>
+                  </div>
+                {/if}
+                <button
+                  onclick={handleGenerate}
+                  disabled={isGenerating || isGenerationBlocked}
+                  class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? "Generating..." : "Generate All Decks"}
+                </button>
+              </div>
             </div>
 
             {#if isGenerating}
@@ -366,7 +455,11 @@
               <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {#each files as file, i (file.name + file.size)}
                   <div animate:flip={{ duration: 300 }}>
-                    <FileItemCard {file} onRemove={() => removeFile(i)} />
+                    <FileItemCard
+                      {file}
+                      isOversized={file.size > MAX_SIZE_BYTES}
+                      onRemove={() => removeFile(i)}
+                    />
                   </div>
                 {/each}
               </div>
@@ -395,4 +488,19 @@
 
 {#if showLoginModal}
   <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
+
+{#if showTotalSizeToast}
+  <Toast
+    message="The total file size exceeds the 20MB limit. Please remove some files."
+    onclose={() => (showTotalSizeToast = false)}
+  />
+{/if}
+
+{#if showProModal}
+  <ProUpgradeModal
+    type={proModalType}
+    mode={user.current ? "free" : "guest"}
+    onclose={() => (showProModal = false)}
+  />
 {/if}

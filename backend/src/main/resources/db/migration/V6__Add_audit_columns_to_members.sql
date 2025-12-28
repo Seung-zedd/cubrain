@@ -1,0 +1,5 @@
+-- Migration to add audit columns to members table
+ALTER TABLE members ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE members ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE members ADD COLUMN created_by VARCHAR(255);
+ALTER TABLE members ADD COLUMN modified_by VARCHAR(255);

@@ -1,13 +1,36 @@
 # Agent Behavioral Rules
 
-♻️this markdown file can be re-used anytime you wanna build a new app
+♻️ _This markdown file can be re-used anytime you wanna build a new app_
 
-## Documentation Lookup
+## 1. 🧠 Cognitive Protocol (Mandatory MCP Usage)
+
+**Rule: Think Before You Code.**
+For any task involving **logic implementation, refactoring, debugging, or architectural changes**, you **MUST** use the `sequentialthinking` tool (MCP) as your FIRST step.
+
+**Trigger Conditions:**
+
+- When the user asks for a feature implementation (e.g., "Implement Prompt Batching").
+- When analyzing a bug or a complex error log.
+- When planning a refactoring strategy.
+
+**Execution Steps:**
+
+1.  **Initiate `sequentialthinking`:** Do not output any code or text explanation until you have invoked this tool.
+2.  **Analyze & Plan:** Use the tool to:
+    - Break down the user's request into atomic steps.
+    - Identify potential risks (e.g., "Will this break the `dev` branch?", "Is this thread-safe?").
+    - Formulate a hypothesis or a step-by-step implementation plan.
+3.  **Review:** Only after the sequential thinking process is complete and you have a clear path, proceed to write code or answer.
+
+**Exception:**
+
+- Simple content generation (e.g., "Write a README") or trivial fixes (e.g., typos) do not require this tool.
+
+## 2. Documentation Lookup
 
 When I need code generation, setup or configuration steps, or library/API documentation:
 
 1. **Primary:** Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
-
 2. **Fallback:** If Context7 is unavailable, use web search to find the official documentation from:
    - GitHub repositories (README, docs folder)
    - Official documentation sites (e.g., docs.langchain4j.dev)
@@ -15,7 +38,7 @@ When I need code generation, setup or configuration steps, or library/API docume
 
 Always prioritize official sources over blog posts or Stack Overflow answers.
 
-## Commit Message Convention
+## 3. Commit Message Convention
 
 We follow a convention combining Gitmoji and Conventional Commits.
 
@@ -33,97 +56,159 @@ We follow a convention combining Gitmoji and Conventional Commits.
 - ✅ `:white_check_mark:` `test`: Adding/fixing tests
 - 🚑 `:ambulance:` `hotfix`: Critical hotfixes
 
-**Note:** Scope is optional and can be omitted as the branch name usually contains the issue number.
+**Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above with adding adequate gitmoji at the start of the commit message. Focus on the most significant change.
 
-**Rule:** After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above. Focus on the most significant change. This allows the user to easily copy and paste it.
+## 4. Testing Strategy (TestSprite Priority)
 
-## Coding Standards & Design Principles
+i won't use testsprite for a while since it's not working well.(i'll use it again after launching MVP product)
 
-### 1. SOLID Principles (Strict Enforcement)
+We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
+
+1. **Primary:** Always use **TestSprite** for test generation and execution (Frontend & Backend).
+   - Use `testsprite_bootstrap_tests` to initialize.
+   - Use `testsprite_generate_backend_test_plan` or `testsprite_generate_frontend_test_plan`.
+   - Use `testsprite_generate_code_and_execute` to run tests and generate reports.
+2. **Secondary:** Use conventional testing frameworks (JUnit 5, Mockito for Java; Vitest/Svelte Testing Library for Frontend) only when:
+   - TestSprite test generation or execution has failed for **3 consecutive attempts**.
+   - TestSprite is unavailable or unable to cover specific edge cases.
+   - Writing simple unit tests that don't require full environment orchestration.
+
+Always provide the TestSprite markdown report after running tests.
+
+## 5. Coding Standards & Design Principles
+
+### 5.1 SOLID Principles (Strict Enforcement)
 
 - **SRP (Single Responsibility Principle):**
   - Each class must have **one and only one reason to change**.
-  - Do NOT create "God Classes". If a Service class exceeds 200 lines or handles mixed concerns (e.g., parsing + saving + email), split it into smaller components.
+  - Do NOT create "God Classes". If a Service class exceeds 200 lines or handles mixed concerns, split it.
 - **OCP (Open/Closed Principle):**
-  - Design for extension. Use **Interfaces** for components that might change implementations (e.g., `AiClient` interface for swapping between Gemini/Claude).
+  - Design for extension. Use **Interfaces** for components that might change implementations.
   - Do not use `if-else` blocks for switching logic; use Strategy Pattern or Polymorphism.
 - **DIP (Dependency Inversion):**
   - Always depend on abstractions (Interfaces), not concretions.
-  - Inject dependencies via Constructor Injection (`@RequiredArgsConstructor`).
+  - **Package-based Versioning**: Organize all version-specific logic into sub-packages: `domain/{domain_name}/v1`, `domain/{domain_name}/v2`.
+  - **Naming Convention**: Do NOT include version numbers in class names (e.g., use `PdfRequestDto`, not `PdfRequestDtoV1`). The version context must be provided ONLY by the package path. This applies to Controllers, Services, and DTOs.
+  - **Encapsulation**: Keep the `v1` package as a completely independent "Actor". Shared JPA Entities remain in the root of the domain package.
+  - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15.
+  - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
-### 2. Spring Boot Best Practices
+### 6. Spring Boot Best Practices
 
-- **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs (suffix `Dto`).
-- **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `PdfExtractionResultDto`, `CardRequestDto`).
+- **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs.
+- **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `CardRequestDto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
 - **Import Style:**
-  - **Class Imports:** NO Wildcards. Explicitly import each class (e.g., `import java.util.List;`).
-  - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods to improve readability (e.g., `import static org.springframework.http.HttpStatus.OK;`).
+  - **Class Imports:** NO Wildcards. Explicitly import each class.
+  - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods (e.g., `HttpStatus.OK`) to improve readability.
 - **Annotation Style:**
-  - **Implicit Names:** If a `@RequestParam`, `@PathVariable`, or `@Header` name matches the variable name, omit the name parameter (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
+  - **Implicit Names:** Omit the name parameter if the variable name matches (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
 
-### 3. Package Structure
+### 7. Object Creation & Mapping Strategy (Entity vs. DTO)
+
+To maintain consistency, readability, and encapsulation, we will distinguish how Entities and DTOs are instantiated.
+
+**A. Entity Creation (Domain Layer)**
+
+- **Context:** Creating new data in Service methods to save into the DB.
+- **Rule:** Use the Builder Pattern (`@Builder`) directly.
+- **Reason:** Entities represent the core state construction.
+- **Example:**
+  ```java
+  // ✅ Good: Service Layer
+  Bookmark bookmark = Bookmark.builder()
+      .userNickname(userNickname)
+      .sentence(sentence)
+      .build();
+  ```
+
+**B. DTO Creation (Response Layer)**
+
+- **Context:** Converting Entities to DTOs to return data to the Controller/Frontend.
+- **Rule:** Do NOT expose the .builder() of a DTO directly in the Service layer. Instead, use Static Factory Methods inside the DTO (Record).
+- **Naming:**
+  - `from(Entity entity)`: Mandatory for mapping an Entity to a DTO.
+  - `of(params...)`: For creating a DTO from individual arguments.
+    -- **Implementation:** Use Java record and `@Builder` together.
+- **Example:**
+  ```java
+  @Builder(access = AccessLevel.PRIVATE)
+  public record MyDto(String name, int age) {
+      public static MyDto from(MyEntity entity) {
+          return MyDto.builder()
+                  .name(entity.getName())
+                  .age(entity.getAge())
+                  .build();
+      }
+  }
+  ```
+
+### 8. Package Structure
 
 - **Flat Architecture:** Keep domain packages flat (e.g., `domain/pdf` contains Controller, Service, Repository, DTOs).
 - **Refactoring Rule:** Only split a domain package into subpackages (`dto`, `service`, `controller`, etc.) when the file count in that package exceeds 15.
 
-### 4. API Versioning Strategy
+### 9. API Versioning Strategy
 
 - **URI Versioning:** Use URI versioning for all REST API endpoints (e.g., `/api/v1/cards`).
-- **Evolution:**
-  - Start with `v1` for the MVP.
-  - When breaking changes are introduced, create a new controller/endpoint with `v2` (e.g., `/api/v2/cards`).
-  - Maintain `v1` for backward compatibility until it can be safely deprecated.
-- **Consistency:** Ensure all related endpoints (Controller methods) share the same version prefix.
+- **Evolution:** Start with v1 for the MVP. When breaking changes are introduced, create a new controller/endpoint with v2. Maintain v1 for backward compatibility.
 
-### 5. Frontend Integration
+### 10. Frontend Integration
 
-- **Syncing:** When backend API endpoints change (e.g., versioning updates), IMMEDIATELY update the corresponding frontend API calls.
-- **Search:** Grep for the old endpoint path in the `frontend` directory to find all occurrences.
+- **Syncing:** When backend API endpoints change, IMMEDIATELY update the corresponding frontend API calls.
+- **Search:** Grep for the old endpoint path in the frontend directory to find all occurrences.
 
-### 6. Svelte 5 Refactoring Rules (Runes)
+### 11. Svelte 5 Refactoring Rules (Runes)
 
 - **State ($state):** Convert `let var = val;` to `let var = $state(val);`.
-- **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`. Use `$bindable()` only if necessary.
+- **Props ($props):** Replace `export let prop;` with `let { prop } = $props();`.
 - **Derived ($derived):** Convert `$: double = count * 2;` to `let double = $derived(count * 2);`.
 - **Effects ($effect):** Convert `$: { sideEffect(); }` to `$effect(() => { sideEffect(); });`.
 - **Events:** Prefer callback props over `createEventDispatcher`.
-- **Icons:** Use `@lucide/svelte` for icon imports (e.g., `import { X } from "@lucide/svelte";`).
+- **Icons:** Use `@lucide/svelte` for icon imports.
 - **Cleanup:** Remove unused imports and ensure `lang="ts"`.
 
-### 7. Documentation Strategy (API & Code)
+### 12. Frontend Logging & Environment Checks
 
-**Rule:** Whenever you create or modify a Controller or DTO class, you **MUST** immediately apply the following documentation annotations.
+- **Logging:** All `console.log`, `console.error`, and other debug logs MUST be wrapped in an environment check to prevent leaking information in production.
+- **Environment Check:** Use `import.meta.env.DEV` (Vite standard) to check if the app is running in development mode.
+- **Example:**
+  ```javascript
+  if (import.meta.env.DEV) {
+    console.log("Debug info:", data);
+  }
+  ```
 
-- **Controllers (Endpoints):**
+## 13. Documentation Strategy (API & Code)
 
-  - MUST use **`@Operation`** to describe what the API does.
-  - **Example:**
-    ```java
-    @Operation(summary = "Generate Flashcards", description = "Generates Q&A cards from PDF highlights. Returns 429 if quota exceeded.")
-    @PostMapping("/generate")
-    public ResponseEntity<CardResponseDto> generate(...)
-    ```
+Rule: Whenever you create or modify a Controller or DTO class, you MUST immediately apply the following documentation annotations.
 
-- **DTOs (Request/Response Bodies):**
+- **Controllers (Endpoints):** MUST use `@Operation` to describe what the API does.
+  -- **DTOs (Request/Response Bodies):** MUST use `@Schema` for fields to provide descriptions and examples.
+- **Internal Logic:** No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
 
-  - MUST use **`@Schema`** for fields to provide descriptions and examples.
-  - **Reason:** To populate "Body Params" and "Example Value" in Apidog/Swagger.
-  - **Example:**
-
-    ```java
-    public record CardRequestDto(
-        @Schema(description = "Extracted text from PDF", example = "TCP is a connection-oriented protocol...")
-        String sourceText,
-
-        @Schema(description = "User Type", example = "FREE_USER")
-        String userTier
-    ) {}
-    ```
-
-- **Internal Logic:**
-  - No boilerplate Javadoc. Use inline comments (`//`) only for complex business logic.
-
-### 8. Localization Rule
+## 14. Localization Rule
 
 - **English Only:** All annotations, comments, and documentation MUST be written in English. This applies to all files (Java, Svelte, JS, etc.).
+
+## 15. 📁 File Upload & Validation Rules
+
+- **Size Limit:** The maximum allowed size is **20MB** (Total and individual files).
+- **Validation Logic:** - If any file or the total size exceeds 20MB, prevent the "Generate All Decks" action.
+- **UI/UX Feedback:**
+  - **Global Error:** Show a **Red Toast notification** with a message like "Total file size exceeds the 20MB limit."
+  - **Individual File Feedback:** For specific files exceeding the limit, highlight the file card with a **Red Border** and display a **Red Exclamation Icon (Tooltip)** explaining the error.
+- **Implementation Note:** Use Svelte 5 Runes for state management and ensure smooth transitions for toast/tooltip visibility.
+-
+
+## 16. 📦 Dependency Management (pnpm-lock.yaml)
+
+- **Rule: Review Lockfile After Changes.**
+- Whenever you add, remove, or update frontend dependencies (e.g., using `pnpm add`), you **MUST** run `pnpm install` to ensure `pnpm-lock.yaml` is up to date and consistent with `package.json`.
+- **Deployment Safety:** Before finishing a task that involves dependency changes, verify that the lockfile does not contain unexpected changes or conflicts that could break the deployment.
+
+## 17. 🗄️ Database Migrations (Flyway)
+
+- **Rule: Sync Entity Changes with Flyway.**
+- Whenever you add, remove, or modify a field in a JPA Entity (e.g., adding a new `@Column`), you **MUST** immediately create a corresponding Flyway migration script (e.g., `V{N}__Description.sql`) in `src/main/resources/db/migration`.
+- This ensures that the database schema remains in sync with the application's domain model across all environments.

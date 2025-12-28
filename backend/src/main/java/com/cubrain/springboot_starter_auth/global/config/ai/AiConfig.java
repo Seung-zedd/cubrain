@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+
 @Configuration
 public class AiConfig {
 
@@ -32,6 +34,7 @@ public class AiConfig {
                 .apiKey(chatApiKey)
                 .modelName(chatModelName)
                 .temperature(chatTemperature)
+                .timeout(Duration.ofSeconds(300))
                 .build();
     }
 

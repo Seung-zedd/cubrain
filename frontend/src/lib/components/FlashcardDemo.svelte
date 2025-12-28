@@ -129,7 +129,7 @@
     currentContext = captureContext(range, text);
     if (!currentContext) return;
 
-    if (import.meta.env.LOCAL || import.meta.env.VITE_SHOW_LOGS === "true") {
+    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Captured Context Data:", {
         Layer1_Selection: currentContext.selection,
         Layer2_LocalContext: currentContext.localContext,
@@ -181,6 +181,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(currentContext),
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -222,7 +223,9 @@
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error:", error);
+      }
       showError("Network error: Could not connect to server.");
     } finally {
       isLoading = false;
@@ -231,7 +234,7 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    if (import.meta.env.LOCAL || import.meta.env.VITE_SHOW_LOGS === "true") {
+    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Debug Info:");
       console.log("API_BASE_URL:", API_BASE_URL);
       console.log("import.meta.env:", import.meta.env);

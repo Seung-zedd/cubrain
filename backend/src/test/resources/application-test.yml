@@ -1,19 +1,19 @@
 spring:
   config:
     activate:
-      on-profile: test  # 테스트 프로파일
+      on-profile: test # 테스트 프로파일
 
   # 데이터베이스 설정 (테스트용 in-memory H2 DB – 실제 DB 대신 사용)
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE  # 메모리 DB
-    username: test-username  # 더미 값
-    password: test-password  # 더미 값
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE # 메모리 DB
+    username: test-username # 더미 값
+    password: test-password # 더미 값
 
   # Disable Flyway for tests to avoid migration issues
   flyway:
     enabled: false
-    
+
   # JPA 설정 (테스트에서 테이블 자동 생성)
   jpa:
     hibernate:
@@ -22,8 +22,37 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: false
-    
+
 # Disable p6Spy completely for tests
 decorator:
   datasource:
     enabled: false
+
+# Mock AI Config for Tests
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: "test-api-key"
+      model-name: "gemini-1.5-flash"
+      temperature: 0.7
+    embedding-model:
+      api-key: "test-api-key"
+      model-name: "text-embedding-004"
+
+  document-splitter:
+    chunk-size: 1000
+    chunk-overlap: 200
+
+# JWT 설정 (테스트용)
+jwt:
+  secret: "e5V1vprqaXAy/yPCemmDZgEY7ciIEMZDDsGjH7tRBmgJI7nKmpLAMMx7irdw/2nzcheuXHVIB7XYqqSsVKi0pw==" # 256-bit (32-byte) 이상의 Base64 인코딩된 문자열
+  access-token-expiration: 3600000 # 1 hour
+  refresh-token-expiration: 1209600000 # 14 days
+  cookie:
+    secure: false
+    samesite: Lax
+
+# Resend 설정 (테스트용)
+resend:
+  api-key: "re_test_123456789"
+  from: "onboarding@resend.dev"

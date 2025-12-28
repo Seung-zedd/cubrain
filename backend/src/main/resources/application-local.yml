@@ -11,10 +11,11 @@ spring:
   # JPA 설정 (로컬: create로 초기화)
   # hibernate와 flyway schema가 일치하지 않기 때문에 local에서만 사용
   jpa:
+    hibernate:
+      ddl-auto: create # 매번 테이블 재생성 (테스트용)
     properties:
       hibernate:
         "[format_sql]": true
-        ddl-auto: create # 매번 테이블 재생성 (테스트용)
       naming:
         physical-strategy: com.cubrain.springboot_starter_auth.global.logging.CamelCaseToSnakeAndUpperCaseStrategy
 
@@ -47,7 +48,7 @@ langchain4j:
   google-ai-gemini:
     chat-model:
       api-key: "${GEMINI_API_KEY_LOCAL}" # .env 파일에서 가져옴
-      model-name: gemini-2.0-flash-exp
+      model-name: gemini-2.0-flash-lite
       temperature: 0.7
     embedding-model:
       api-key: "${GEMINI_API_KEY_LOCAL}"
