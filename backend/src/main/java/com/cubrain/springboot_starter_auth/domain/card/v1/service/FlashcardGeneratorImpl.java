@@ -1,5 +1,6 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.service;
 
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardResponseDto;
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.pdf.v1.AnnotationResultDto;
 import com.cubrain.springboot_starter_auth.domain.pdf.v1.PdfExtractionResultDto;

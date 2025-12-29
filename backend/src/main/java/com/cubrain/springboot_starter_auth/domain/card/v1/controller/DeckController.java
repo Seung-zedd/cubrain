@@ -1,5 +1,12 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.controller;
 
+import com.cubrain.springboot_starter_auth.domain.card.Deck;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckCreateRequestDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckResponseDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.repository.DeckRepository;
+import com.cubrain.springboot_starter_auth.domain.card.v1.repository.FlashcardRepository;
+import com.cubrain.springboot_starter_auth.domain.card.v1.service.CardService;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,11 +18,22 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static com.cubrain.springboot_starter_auth.domain.card.QFlashcard.flashcard;
+import static java.util.stream.Collectors.toMap;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api/v1/decks")
@@ -28,28 +46,33 @@ public class DeckController {
     private final FlashcardRepository flashcardRepository;
     private final MemberRepository memberRepository;
 
-    @Operation(summary = "Get Decks", description = "Retrieves a paginated list of the user's decks with card counts (Semi-Join optimized).")
+    @Operation(summary = "Get Decks", description = "Retrieves a paginated list of the user's decks with card counts (Semi-Join optimized). Supports dynamic search by title via the 'keyword' parameter.")
     @GetMapping
     public ResponseEntity<Page<DeckResponseDto>> getDecks(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 20) Pageable pageable) {
 
         Member member = getMember(jwt);
-        Page<Deck> deckPage = deckRepository.findByMemberIdOrderByCreatedAtDesc(member.getId(), pageable);
+        Page<Deck> deckPage = deckRepository.findAllByKeyword(keyword, member.getId(), pageable);
 
         List<Long> deckIds = deckPage.getContent().stream()
                 .map(Deck::getId)
                 .toList();
 
+        if (deckIds.isEmpty()) {
+            return ok(deckPage.map(deck -> DeckResponseDto.from(deck, 0L)));
+        }
+
         Map<Long, Long> cardCounts = flashcardRepository.countByDeckIds(deckIds).stream()
-                .collect(Collectors.toMap(
-                        row -> (Long) row[0],
-                        row -> (Long) row[1]));
+                .collect(toMap(
+                        tuple -> tuple.get(flashcard.deck.id),
+                        tuple -> tuple.get(flashcard.count())));
 
         Page<DeckResponseDto> responsePage = deckPage
                 .map(deck -> DeckResponseDto.from(deck, cardCounts.getOrDefault(deck.getId(), 0L)));
 
-        return ResponseEntity.ok(responsePage);
+        return ok(responsePage);
     }
 
     @Operation(summary = "Get Deck Cards", description = "Retrieves all flashcards for a specific deck.")
@@ -70,7 +93,7 @@ public class DeckController {
                 .map(FlashcardDto::from)
                 .toList();
 
-        return ResponseEntity.ok(cards);
+        return ok(cards);
     }
 
     @Operation(summary = "Save Deck", description = "Saves a new deck with generated flashcards.")
@@ -81,7 +104,7 @@ public class DeckController {
 
         Member member = getMember(jwt);
         DeckResponseDto savedDeck = cardService.saveDeck(request.title(), request.cards(), member);
-        return ResponseEntity.ok(savedDeck);
+        return ok(savedDeck);
     }
 
     @Operation(summary = "Update Progress", description = "Updates the study progress and last studied time for a deck.")
@@ -103,7 +126,7 @@ public class DeckController {
         deck.updateLastStudiedAt(progress);
         deckRepository.save(deck);
 
-        return ResponseEntity.ok().build();
+        return ok().build();
     }
 
     @Operation(summary = "Delete Deck", description = "Deletes a deck and all its flashcards.")

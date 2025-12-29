@@ -1,5 +1,6 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.dto;
 
+import com.cubrain.springboot_starter_auth.domain.card.Deck;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;

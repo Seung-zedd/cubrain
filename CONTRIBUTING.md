@@ -1,4 +1,4 @@
-# 🤝 Contributing to Cubrain
+# 🤝 Contributing rule for clean architecture
 
 Welcome to the Cubrain project! We're excited to have you here. To ensure code quality, stability, and a smooth development experience, we follow a structured **Feature Branch Workflow** and specific coding conventions.
 
@@ -148,4 +148,4 @@ To maintain a high-quality codebase, we adhere to the following principles. For 
 - **Documentation**: Update `README.md` or relevant docs if your changes introduce new features.
 - **Communication**: If you're unsure about something, open an issue or ask in the project's communication channel.
 
-Thank you for contributing to Cubrain! 🚀
+Thank you for comply to contributing rule! 🚀

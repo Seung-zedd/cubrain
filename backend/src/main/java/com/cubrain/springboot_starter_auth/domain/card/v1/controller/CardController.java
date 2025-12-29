@@ -1,5 +1,8 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.controller;
 
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.CardRequestDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardResponseDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.service.CardService;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
@@ -19,6 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/api/v1/cards")
 @RequiredArgsConstructor
@@ -35,12 +42,12 @@ public class CardController {
         if (request.selection() == null || request.selection().trim().isEmpty() ||
                 request.localContext() == null || request.localContext().trim().isEmpty() ||
                 request.globalContext() == null || request.globalContext().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
+            return badRequest().body(null);
         }
         FlashcardResponseDto flashcard = cardService.generateCardDemo(request.selection(), request.localContext(),
                 request.globalContext());
 
-        return ResponseEntity.ok(flashcard);
+        return ok(flashcard);
     }
 
     @Operation(summary = "Generate Flashcards from PDF", description = "Generates Q&A cards from an uploaded PDF file. Enforces daily limits.")
@@ -61,12 +68,11 @@ public class CardController {
             Member member = memberRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, member.getTier());
-            return ResponseEntity.ok(results);
+            return ok(results);
         } else {
             usageLimitService.checkAndIncrementGuest(clientIp);
-            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file,
-                    com.cubrain.springboot_starter_auth.domain.user.UserTier.GUEST);
-            return ResponseEntity.ok(results);
+            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, GUEST);
+            return ok(results);
         }
     }
 }

@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Agent Behavioral Rules
 
 ♻️ _This markdown file can be re-used anytime you wanna build a new app_
@@ -86,12 +90,13 @@ Always provide the TestSprite markdown report after running tests.
   - Design for extension. Use **Interfaces** for components that might change implementations.
   - Do not use `if-else` blocks for switching logic; use Strategy Pattern or Polymorphism.
 - **DIP (Dependency Inversion):**
+
   - Always depend on abstractions (Interfaces), not concretions.
   - **Package-based Versioning**: Organize all version-specific logic into sub-packages: `domain/{domain_name}/v1`, `domain/{domain_name}/v2`.
   - **Naming Convention**: Do NOT include version numbers in class names (e.g., use `PdfRequestDto`, not `PdfRequestDtoV1`). The version context must be provided ONLY by the package path. This applies to Controllers, Services, and DTOs.
   - **Encapsulation**: Keep the `v1` package as a completely independent "Actor". Shared JPA Entities remain in the root of the domain package.;
-  
-  - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15. if the file count exceeds 15, create a sub-folder like `/v1/dto/`.
+
+  - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15. if the file count exceeds 15, create a sub-folder like `/v1/dto/`. In addition, if the sub-folder also exceeds 15, create a sub-folder like `/v1/dto/{sub-folder}` but the sub-folder naming should be related with the domain name.
   - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
 ### 6. Spring Boot Best Practices

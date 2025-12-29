@@ -1,4 +1,4 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;

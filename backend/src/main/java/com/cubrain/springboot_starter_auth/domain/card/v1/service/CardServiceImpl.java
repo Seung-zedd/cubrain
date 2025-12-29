@@ -1,5 +1,10 @@
-package com.cubrain.springboot_starter_auth.domain.card.v1;
+package com.cubrain.springboot_starter_auth.domain.card.v1.service;
 
+import com.cubrain.springboot_starter_auth.domain.card.Deck;
+import com.cubrain.springboot_starter_auth.domain.card.Flashcard;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckResponseDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardResponseDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.repository.DeckRepository;
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;

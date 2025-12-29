@@ -2,7 +2,7 @@ package com.cubrain.springboot_starter_auth.domain.pdf.v1;
 
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
-import com.cubrain.springboot_starter_auth.domain.card.v1.CardService;
+import com.cubrain.springboot_starter_auth.domain.card.v1.service.CardService;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
