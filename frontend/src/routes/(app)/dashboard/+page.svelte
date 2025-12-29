@@ -18,6 +18,7 @@
   import DeckList from "$lib/components/deck/DeckList.svelte";
   import Toast from "$lib/components/ui/Toast.svelte";
   import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
+  import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
   import { cn } from "$lib/utils";
 
   interface Flashcard {
@@ -42,12 +43,14 @@
   let generatedCards = $state<Flashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
+  let showSaveModal = $state(false);
   let showProModal = $state(false);
   let proModalType = $state<"daily_limit">("daily_limit");
   let recentDecks = $state<Deck[]>([]);
   let pollInterval: ReturnType<typeof setInterval> | null = null;
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
+  let sourceFileName = $state<string | null>(null);
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -148,6 +151,9 @@
         )
     );
     files = [...files, ...uniqueNewFiles];
+    if (files.length > 0 && !sourceFileName) {
+      sourceFileName = files[0].name.replace(".pdf", "");
+    }
   }
 
   function removeFile(index: number) {
@@ -263,9 +269,10 @@
     files = [];
     errorMessage = null;
     jobMetadata = {};
+    sourceFileName = null;
   }
 
-  async function saveToLibrary() {
+  async function saveToLibrary(customTitle: string) {
     if (!user.current || generatedCards.length === 0) return;
 
     try {
@@ -275,16 +282,14 @@
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title:
-            jobMetadata.title ||
-            files[0]?.name.replace(".pdf", "") ||
-            "New Deck",
+          title: customTitle,
           cards: generatedCards,
         }),
       });
 
       if (response.ok) {
         await fetchRecentDecks();
+        showSaveModal = false;
         resetView();
       }
     } catch (error) {
@@ -374,7 +379,7 @@
                 </button>
               {:else}
                 <button
-                  onclick={saveToLibrary}
+                  onclick={() => (showSaveModal = true)}
                   class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 bg-amber-500 text-black hover:bg-amber-400"
                 >
                   <Save class="w-4 h-4" />
@@ -525,5 +530,13 @@
     type={proModalType}
     mode={user.current ? "free" : "guest"}
     onclose={() => (showProModal = false)}
+  />
+{/if}
+
+{#if showSaveModal}
+  <SaveDeckModal
+    initialTitle={jobMetadata.title || sourceFileName || ""}
+    onclose={() => (showSaveModal = false)}
+    onsave={saveToLibrary}
   />
 {/if}
