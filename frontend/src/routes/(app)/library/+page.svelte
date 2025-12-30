@@ -81,13 +81,6 @@
       }
     }
   }
-
-  function handleUpdate(id: number, updates: any) {
-    const deckIndex = decks.findIndex((d) => d.id === id);
-    if (deckIndex !== -1) {
-      decks[deckIndex] = { ...decks[deckIndex], ...updates };
-    }
-  }
 </script>
 
 <div class="space-y-8" in:fade>
@@ -137,7 +130,6 @@
       decks={filteredDecks}
       onDelete={(id) => (deckToDelete = id)}
       onEditCards={handleEditCards}
-      onUpdate={handleUpdate}
     />
   {:else}
     <div
