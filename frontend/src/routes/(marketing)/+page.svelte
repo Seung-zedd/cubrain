@@ -82,7 +82,12 @@
   class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
 >
   <nav
-    class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
+    class={cn(
+      "fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 transition-all duration-300",
+      isMobileMenuOpen
+        ? "bg-transparent border-transparent"
+        : "bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
+    )}
   >
     <a href="/" class="z-50">
       <img
@@ -142,44 +147,55 @@
     <!-- Mobile Menu Overlay -->
     {#if isMobileMenuOpen}
       <div
-        class="fixed inset-0 bg-black/95 backdrop-blur-2xl md:hidden flex flex-col items-center justify-center gap-8 z-40 rounded-4xl"
-        transition:fade={{ duration: 200 }}
+        class="fixed inset-0 bg-black/98 backdrop-blur-3xl md:hidden flex flex-col items-start justify-center px-12 gap-8 z-40"
+        transition:fade={{ duration: 300 }}
       >
-        <a
-          href="#features"
-          onclick={toggleMobileMenu}
-          class="text-2xl font-bold text-white/80 hover:text-[#FFD700] transition-colors"
-          >Features</a
-        >
-        <a
-          href="/dashboard"
-          onclick={toggleMobileMenu}
-          class="text-2xl font-bold text-white/80 hover:text-[#FFD700] transition-colors"
-          >Dashboard</a
-        >
-        {#if user.current}
+        <div class="flex flex-col gap-6 w-full">
+          <a
+            href="#features"
+            onclick={toggleMobileMenu}
+            class="text-4xl font-bold text-white/90 hover:text-[#FFD700] transition-colors"
+            in:fly={{ y: 20, duration: 400, delay: 100 }}>Features</a
+          >
           <a
             href="/dashboard"
             onclick={toggleMobileMenu}
-            class="px-8 py-4 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black"
-            >Go to Dashboard</a
+            class="text-4xl font-bold text-white/90 hover:text-[#FFD700] transition-colors"
+            in:fly={{ y: 20, duration: 400, delay: 200 }}>Dashboard</a
           >
-        {:else}
-          <button
-            onclick={() => {
-              toggleMobileMenu();
-              showLoginModal = true;
-            }}
-            class="text-xl font-medium text-white/60 hover:text-white transition-colors"
-            >Sign In</button
-          >
-          <a
-            href="#waitlist"
-            onclick={toggleMobileMenu}
-            class="px-8 py-4 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black"
-            >Get Early Access</a
-          >
-        {/if}
+          <div
+            class="h-px w-full bg-white/10 my-4"
+            in:fade={{ delay: 300 }}
+          ></div>
+          {#if user.current}
+            <a
+              href="/dashboard"
+              onclick={toggleMobileMenu}
+              class="inline-flex items-center justify-center px-8 py-4 text-xl rounded-2xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black w-full"
+              in:fly={{ y: 20, duration: 400, delay: 300 }}>Go to Dashboard</a
+            >
+          {:else}
+            <div
+              class="flex flex-col gap-4 w-full"
+              in:fly={{ y: 20, duration: 400, delay: 300 }}
+            >
+              <button
+                onclick={() => {
+                  toggleMobileMenu();
+                  showLoginModal = true;
+                }}
+                class="text-2xl font-medium text-white/60 hover:text-white transition-colors text-left"
+                >Sign In</button
+              >
+              <a
+                href="#waitlist"
+                onclick={toggleMobileMenu}
+                class="inline-flex items-center justify-center px-8 py-4 text-xl rounded-2xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black w-full"
+                >Get Early Access</a
+              >
+            </div>
+          {/if}
+        </div>
       </div>
     {/if}
   </nav>
