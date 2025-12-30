@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { X, Plus, Trash2, Save } from "@lucide/svelte";
+  import { X, Plus, Trash2, Save, CircleAlert } from "@lucide/svelte";
   import { fade, fly } from "svelte/transition";
   import { authFetch } from "$lib/api";
 
@@ -54,6 +54,12 @@
     });
 
     if (hasError) {
+      // Force re-trigger of shake animation by clearing and re-setting errors
+      const currentErrors = { ...validationErrors };
+      validationErrors = {};
+      setTimeout(() => {
+        validationErrors = currentErrors;
+      }, 10);
       return;
     }
 
@@ -160,19 +166,35 @@
                   class="block text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-1.5"
                   for="q-{index}">Question</label
                 >
-                <input
-                  id="q-{index}"
-                  bind:value={card.question}
-                  oninput={() => {
-                    validationErrors[`q-${index}`] = false;
-                  }}
-                  placeholder="Enter question..."
-                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 {validationErrors[
-                    `q-${index}`
-                  ]
-                    ? 'border-red-500/50 animate-shake'
-                    : 'border-zinc-700/50'}"
-                />
+                <div class="relative">
+                  <input
+                    id="q-{index}"
+                    bind:value={card.question}
+                    oninput={() => {
+                      validationErrors[`q-${index}`] = false;
+                    }}
+                    placeholder="Enter question..."
+                    class="w-full bg-zinc-900/50 border p-2.5 pr-10 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 {validationErrors[
+                      `q-${index}`
+                    ]
+                      ? 'border-red-500/50 animate-shake'
+                      : 'border-zinc-700/50'}"
+                  />
+                  {#if validationErrors[`q-${index}`]}
+                    <div
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 animate-in fade-in zoom-in duration-200"
+                    >
+                      <CircleAlert class="w-4 h-4" />
+                    </div>
+                  {/if}
+                </div>
+                {#if validationErrors[`q-${index}`]}
+                  <p
+                    class="text-[10px] text-red-500 mt-1.5 ml-1 font-medium animate-in fade-in slide-in-from-top-1"
+                  >
+                    Question is required
+                  </p>
+                {/if}
               </div>
 
               <div>
@@ -180,20 +202,36 @@
                   class="block text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-1.5"
                   for="a-{index}">Answer</label
                 >
-                <textarea
-                  id="a-{index}"
-                  bind:value={card.answer}
-                  oninput={() => {
-                    validationErrors[`a-${index}`] = false;
-                  }}
-                  placeholder="Enter answer..."
-                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none {validationErrors[
-                    `a-${index}`
-                  ]
-                    ? 'border-red-500/50 animate-shake'
-                    : 'border-zinc-700/50'}"
-                  rows="2"
-                ></textarea>
+                <div class="relative">
+                  <textarea
+                    id="a-{index}"
+                    bind:value={card.answer}
+                    oninput={() => {
+                      validationErrors[`a-${index}`] = false;
+                    }}
+                    placeholder="Enter answer..."
+                    class="w-full bg-zinc-900/50 border p-2.5 pr-10 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none {validationErrors[
+                      `a-${index}`
+                    ]
+                      ? 'border-red-500/50 animate-shake'
+                      : 'border-zinc-700/50'}"
+                    rows="2"
+                  ></textarea>
+                  {#if validationErrors[`a-${index}`]}
+                    <div
+                      class="absolute right-3 top-6 text-red-500 animate-in fade-in zoom-in duration-200"
+                    >
+                      <CircleAlert class="w-4 h-4" />
+                    </div>
+                  {/if}
+                </div>
+                {#if validationErrors[`a-${index}`]}
+                  <p
+                    class="text-[10px] text-red-500 mt-1.5 ml-1 font-medium animate-in fade-in slide-in-from-top-1"
+                  >
+                    Answer is required
+                  </p>
+                {/if}
               </div>
             </div>
           </div>
