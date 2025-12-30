@@ -91,16 +91,12 @@
   <nav
     class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
   >
-    <a href="/" class="z-50 flex items-center gap-2 group">
+    <a href="/" class="z-50">
       <img
-        src="/logo-premium.png"
+        src="/logo-gold.png"
         alt="Cubrain AI Logo"
-        class="h-10 md:h-12 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
+        class="h-8 md:h-10 w-auto object-contain"
       />
-      <span
-        class="text-xl font-bold tracking-tighter text-white hidden sm:block"
-        >CUBRAIN</span
-      >
     </a>
 
     <!-- Desktop Menu -->
@@ -168,16 +164,11 @@
         <div
           class="flex items-center justify-between p-6 border-b border-white/5"
         >
-          <div class="flex items-center gap-2">
-            <img
-              src="/logo-premium.png"
-              alt="Cubrain AI Logo"
-              class="h-10 w-auto object-contain"
-            />
-            <span class="text-lg font-bold tracking-tighter text-white"
-              >CUBRAIN</span
-            >
-          </div>
+          <img
+            src="/logo-gold.png"
+            alt="Cubrain AI Logo"
+            class="h-8 w-auto object-contain"
+          />
           <button
             onclick={toggleMobileMenu}
             class="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
@@ -308,9 +299,11 @@
         <p
           class="text-base md:text-xl text-white/60 mb-8 md:mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed"
         >
-          Zero hallucinations. Zero manual entry. <br class="hidden md:block" />
-          Every flashcard is backed by a direct link to the source text, turning
-          your PDFs into an interactive knowledge base.
+          Soak your brain with AI-generated flashcards. <br
+            class="hidden md:block"
+          />
+          Every flashcard is backed by your PDF file and keeps the text context to
+          ensure zero hallucinations.
         </p>
         <div
           class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
@@ -436,7 +429,6 @@
       <div
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"
       ></div>
-
       <div
         class="bg-black/40 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-3xl w-full relative overflow-hidden"
       >
