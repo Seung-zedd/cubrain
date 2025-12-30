@@ -6,6 +6,7 @@ import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckResponseDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardRequestDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardResponseDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.repository.DeckRepository;
+import com.cubrain.springboot_starter_auth.domain.card.v1.repository.FlashcardRepository;
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
@@ -29,6 +30,7 @@ public class CardServiceImpl implements CardService {
 
     private final JobManager jobManager;
     private final DeckRepository deckRepository;
+    private final FlashcardRepository flashcardRepository;
     private final FlashcardGenerator flashcardGenerator;
 
     @Qualifier("pdfProcessingExecutor")
@@ -158,5 +160,14 @@ public class CardServiceImpl implements CardService {
 
         deckRepository.save(deck);
         log.info("✅ [Transaction Success] Deck cards synchronized.");
+    }
+
+    @Override
+    @Transactional
+    public void deleteDeck(Long deckId) {
+        log.info("🗑️ [Transaction Start] Deleting deck ID: {}", deckId);
+        flashcardRepository.deleteByDeckId(deckId);
+        deckRepository.deleteById(deckId);
+        log.info("✅ [Transaction Success] Deck and associated cards deleted.");
     }
 }

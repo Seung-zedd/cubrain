@@ -18,10 +18,11 @@
   let { deck, onclose, onsave } = $props<{
     deck: Deck;
     onclose: () => void;
-    onsave: (updatedCards: Flashcard[]) => void;
+    onsave: (updatedTitle: string, updatedCards: Flashcard[]) => void;
   }>();
 
   let cards = $state<Flashcard[]>(JSON.parse(JSON.stringify(deck.cards)));
+  let editedTitle = $state(deck.title);
   let isSaving = $state(false);
 
   function addCard() {
@@ -35,18 +36,27 @@
   async function handleSave() {
     isSaving = true;
     try {
+      // Save title if changed
+      if (editedTitle !== deck.title) {
+        await authFetch(`/api/v1/decks/${deck.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ title: editedTitle }),
+        });
+      }
+
+      // Save cards
       const response = await authFetch(`/api/v1/decks/${deck.id}/cards`, {
         method: "PUT",
         body: JSON.stringify(cards),
       });
 
       if (response.ok) {
-        onsave(cards);
+        onsave(editedTitle, cards);
         onclose();
       }
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.error("Failed to save cards:", error);
+        console.error("Failed to save deck:", error);
       }
     } finally {
       isSaving = false;
@@ -68,57 +78,83 @@
     >
       <div>
         <h2 class="text-xl font-bold text-white">Edit Deck</h2>
-        <p class="text-zinc-500 text-sm">{deck.title}</p>
+        <p class="text-zinc-500 text-sm">{editedTitle}</p>
       </div>
       <button
         onclick={onclose}
-        class="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+        class="p-2 hover:bg-zinc-800 rounded-full text-zinc-500 hover:text-white transition-colors"
       >
         <X class="w-6 h-6" />
       </button>
     </div>
 
     <!-- Content -->
-    <div class="p-6 overflow-y-auto max-h-[70vh] space-y-4 custom-scrollbar">
+    <div class="p-6 overflow-y-auto max-h-[70vh] space-y-6 custom-scrollbar">
+      <!-- Deck Title Section -->
+      <div class="pb-6 border-b border-zinc-800">
+        <label
+          class="block text-sm font-medium text-zinc-400 mb-2"
+          for="deck-title">Deck Title</label
+        >
+        <input
+          id="deck-title"
+          bind:value={editedTitle}
+          placeholder="Enter deck title..."
+          class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl text-white focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600 font-bold text-lg"
+        />
+      </div>
+
       <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-medium text-zinc-400">Flashcards</h3>
+          <span class="text-xs text-zinc-500">{cards.length} cards</span>
+        </div>
+
         {#each cards as card, index}
           <div
-            class="border rounded-lg p-4 bg-zinc-800/50 border-zinc-700 shadow-sm relative group animate-in fade-in slide-in-from-bottom-2 duration-300"
+            class="border rounded-xl p-5 bg-zinc-800/30 border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm relative group animate-in fade-in slide-in-from-bottom-2 duration-300"
           >
-            <div class="flex justify-between mb-2">
-              <span class="font-bold text-zinc-500">Card #{index + 1}</span>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-xs font-bold text-zinc-500"
+                >
+                  {index + 1}
+                </span>
+                <span class="text-sm font-bold text-zinc-400">Card</span>
+              </div>
               <button
-                class="text-red-500 hover:text-red-400 transition-colors text-sm flex items-center gap-1"
+                class="text-zinc-500 hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded-lg"
                 onclick={() => removeCard(index)}
+                title="Delete Card"
               >
                 <Trash2 class="w-4 h-4" />
-                Delete
               </button>
             </div>
-            <div class="space-y-3">
+            <div class="space-y-4">
               <div>
                 <label
-                  class="block text-sm font-medium text-zinc-300 mb-1"
+                  class="block text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-1.5"
                   for="q-{index}">Question</label
                 >
                 <input
                   id="q-{index}"
                   bind:value={card.question}
                   placeholder="Enter question..."
-                  class="w-full bg-zinc-900 border border-zinc-700 p-2.5 rounded-lg text-white focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600"
+                  class="w-full bg-zinc-900/50 border border-zinc-700/50 p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600"
                 />
               </div>
 
               <div>
                 <label
-                  class="block text-sm font-medium text-zinc-300 mb-1"
+                  class="block text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-1.5"
                   for="a-{index}">Answer</label
                 >
                 <textarea
                   id="a-{index}"
                   bind:value={card.answer}
                   placeholder="Enter answer..."
-                  class="w-full bg-zinc-900 border border-zinc-700 p-2.5 rounded-lg text-white focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600 resize-none"
+                  class="w-full bg-zinc-900/50 border border-zinc-700/50 p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none"
                   rows="2"
                 ></textarea>
               </div>

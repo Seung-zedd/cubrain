@@ -146,7 +146,8 @@ public class DeckController {
             return ResponseEntity.status(403).build();
         }
 
-        deckRepository.delete(deck);
+        log.info("🗑️ [API Request] DELETE /api/v1/decks/{} - User: {}", id, member.getEmail());
+        cardService.deleteDeck(id);
         return ResponseEntity.noContent().build();
     }
 

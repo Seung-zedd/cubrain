@@ -86,11 +86,12 @@ Always provide the TestSprite markdown report after running tests.
   - Design for extension. Use **Interfaces** for components that might change implementations.
   - Do not use `if-else` blocks for switching logic; use Strategy Pattern or Polymorphism.
 - **DIP (Dependency Inversion):**
+
   - Always depend on abstractions (Interfaces), not concretions.
   - **Package-based Versioning**: Organize all version-specific logic into sub-packages: `domain/{domain_name}/v1`, `domain/{domain_name}/v2`.
   - **Naming Convention**: Do NOT include version numbers in class names (e.g., use `PdfRequestDto`, not `PdfRequestDtoV1`). The version context must be provided ONLY by the package path. This applies to Controllers, Services, and DTOs.
   - **Encapsulation**: Keep the `v1` package as a completely independent "Actor". Shared JPA Entities remain in the root of the domain package.;
-  
+
   - **Flat Architecture**: Keep all files directly under the `v1` or `v2` folder. Do not create deeper sub-folders like `/v1/dto/` unless the file count exceeds 15. if the file count exceeds 15, create a sub-folder like `/v1/dto/`.
   - **Dependency Injection**: Always inject the interface, not the concrete class. Use `@RequiredArgsConstructor` for constructor injection. Use `@Primary` or `@Qualifier` if multiple versions exist.
 
@@ -100,7 +101,7 @@ Always provide the TestSprite markdown report after running tests.
 - **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `CardRequestDto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
-Also, declare `@Transactional(readOnly = true)` for class level and override for method level if need for every ServiceImpl layer.
+  Also, declare `@Transactional(readOnly = true)` for class level and override for method level if need for every ServiceImpl layer.
 - **Import Style:**
   - **Class Imports:** NO Wildcards. Explicitly import each class.
   - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods (e.g., `HttpStatus.OK`) to improve readability.
@@ -215,3 +216,17 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 - **Rule: Sync Entity Changes with Flyway.**
 - Whenever you add, remove, or modify a field in a JPA Entity (e.g., adding a new `@Column`), you **MUST** immediately create a corresponding Flyway migration script (e.g., `V{N}__Description.sql`) in `src/main/resources/db/migration`.
 - This ensures that the database schema remains in sync with the application's domain model across all environments.
+
+## 18. 🔍 QueryDSL vs. Native Queries
+
+- **Preference**: Always prefer **QueryDSL** over Native SQL queries for complex or dynamic queries.
+- **Type Safety**: QueryDSL provides compile-time type checking and better refactoring support.
+- **Readability**: Use QueryDSL's fluent API to build queries that are easier to read and maintain than raw string-based SQL.
+- **Native Query Exception**: Only use Native Queries if a specific database feature is required that is not supported by QueryDSL or JPA, and only after consulting with the team.
+
+## 19. ♿ Accessibility (a11y)
+
+- **Interactive Elements**: Use semantic tags like `<button>` or `<a>` for clickable elements. Avoid adding `onclick` to non-interactive tags like `<div>`, `<span>`, or `<h3>`. If a non-interactive tag must be used, it MUST be accompanied by appropriate ARIA roles and keyboard event handlers.
+- **Focus Management**: Avoid the `autofocus` attribute as it can disrupt screen readers and navigation flow. Use a custom Svelte action (e.g., `use:focus`) to manage focus programmatically when elements appear or state changes.
+- **Keyboard Support**: Ensure all interactive elements are reachable and operable via keyboard. Standard `<button>` and `<a>` tags provide this by default.
+- **Alt Text**: All images and icons must have descriptive `alt` text or be marked as decorative (e.g., `aria-hidden="true"`) if they don't convey unique information.

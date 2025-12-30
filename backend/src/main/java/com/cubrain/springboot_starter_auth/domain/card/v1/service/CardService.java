@@ -29,4 +29,6 @@ public interface CardService {
         void updateDeckTitle(Long deckId, String newTitle);
 
         void updateDeckCards(Long deckId, List<FlashcardRequestDto> newCards);
+
+        void deleteDeck(Long deckId);
 }

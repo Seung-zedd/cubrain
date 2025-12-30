@@ -5,12 +5,16 @@
   import { Library as LibraryIcon, Plus, Search } from "@lucide/svelte";
   import { fade } from "svelte/transition";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
+  import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
 
   let decks = $state<any[]>([]);
   let isLoading = $state(true);
   let searchQuery = $state("");
   let selectedDeck = $state<any | null>(null);
   let showEditModal = $state(false);
+
+  // Deletion state
+  let deckToDelete = $state<number | null>(null);
 
   let filteredDecks = $derived(
     decks.filter((deck) =>
@@ -34,8 +38,10 @@
     }
   });
 
-  async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this deck?")) return;
+  async function confirmDelete() {
+    if (!deckToDelete) return;
+    const id = deckToDelete;
+    deckToDelete = null;
 
     try {
       const response = await authFetch(`/api/v1/decks/${id}`, {
@@ -66,12 +72,20 @@
     }
   }
 
-  function handleSaveCards(updatedCards: any[]) {
+  function handleSaveCards(updatedTitle: string, updatedCards: any[]) {
     if (selectedDeck) {
       const deckIndex = decks.findIndex((d) => d.id === selectedDeck.id);
       if (deckIndex !== -1) {
+        decks[deckIndex].title = updatedTitle;
         decks[deckIndex].cardCount = updatedCards.length;
       }
+    }
+  }
+
+  function handleUpdate(id: number, updates: any) {
+    const deckIndex = decks.findIndex((d) => d.id === id);
+    if (deckIndex !== -1) {
+      decks[deckIndex] = { ...decks[deckIndex], ...updates };
     }
   }
 </script>
@@ -121,8 +135,9 @@
   {:else if filteredDecks.length > 0}
     <DeckList
       decks={filteredDecks}
-      onDelete={handleDelete}
+      onDelete={(id) => (deckToDelete = id)}
       onEditCards={handleEditCards}
+      onUpdate={handleUpdate}
     />
   {:else}
     <div
@@ -156,5 +171,15 @@
     deck={selectedDeck}
     onclose={() => (showEditModal = false)}
     onsave={handleSaveCards}
+  />
+{/if}
+
+{#if deckToDelete !== null}
+  <ConfirmModal
+    title="Delete Deck"
+    message="Are you sure you want to delete this deck? All associated flashcards will be permanently removed."
+    confirmText="Delete Deck"
+    onconfirm={confirmDelete}
+    oncancel={() => (deckToDelete = null)}
   />
 {/if}

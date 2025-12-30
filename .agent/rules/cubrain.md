@@ -4,7 +4,7 @@ trigger: always_on
 
 # Agent Behavioral Rules
 
-♻️ _This markdown file can be re-used anytime you wanna build a new app_
+⚠️since i can write up to 12000 text, please refer to AGENTS.md secondary.
 
 ## 1. 🧠 Cognitive Protocol (Mandatory MCP Usage)
 

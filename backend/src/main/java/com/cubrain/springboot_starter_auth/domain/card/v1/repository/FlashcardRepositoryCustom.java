@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface FlashcardRepositoryCustom {
     List<Tuple> countByDeckIds(List<Long> deckIds);
+
+    void deleteByDeckId(Long deckId);
 }

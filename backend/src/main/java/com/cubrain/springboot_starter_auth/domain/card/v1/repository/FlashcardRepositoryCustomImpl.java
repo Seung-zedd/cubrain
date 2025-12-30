@@ -24,4 +24,12 @@ public class FlashcardRepositoryCustomImpl implements FlashcardRepositoryCustom 
                 .groupBy(flashcard.deck.id)
                 .fetch();
     }
+
+    @Override
+    public void deleteByDeckId(Long deckId) {
+        queryFactory
+                .delete(flashcard)
+                .where(flashcard.deck.id.eq(deckId))
+                .execute();
+    }
 }
