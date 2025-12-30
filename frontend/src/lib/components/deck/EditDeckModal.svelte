@@ -45,7 +45,9 @@
         onclose();
       }
     } catch (error) {
-      console.error("Failed to save cards:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to save cards:", error);
+      }
     } finally {
       isSaving = false;
     }

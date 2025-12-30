@@ -48,7 +48,9 @@
         deck.title = editedTitle;
       }
     } catch (error) {
-      console.error("Failed to update title:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to update title:", error);
+      }
     } finally {
       isEditingTitle = false;
     }
