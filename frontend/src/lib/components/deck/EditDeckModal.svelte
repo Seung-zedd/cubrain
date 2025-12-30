@@ -24,6 +24,7 @@
   let cards = $state<Flashcard[]>(JSON.parse(JSON.stringify(deck.cards)));
   let editedTitle = $state(deck.title);
   let isSaving = $state(false);
+  let validationErrors = $state<Set<string>>(new Set());
 
   function addCard() {
     cards = [...cards, { question: "", answer: "" }];
@@ -31,15 +32,38 @@
 
   function removeCard(index: number) {
     cards = cards.filter((_, i) => i !== index);
+    // Clear errors for removed card
+    validationErrors.delete(`q-${index}`);
+    validationErrors.delete(`a-${index}`);
   }
 
   async function handleSave() {
+    validationErrors.clear();
+    let hasError = false;
+
+    cards.forEach((card, index) => {
+      if (!card.question.trim()) {
+        validationErrors.add(`q-${index}`);
+        hasError = true;
+      }
+      if (!card.answer.trim()) {
+        validationErrors.add(`a-${index}`);
+        hasError = true;
+      }
+    });
+
+    if (hasError) {
+      // Scroll to first error if needed, or just let the animation show
+      return;
+    }
+
     isSaving = true;
     try {
       // Save title if changed
       if (editedTitle !== deck.title) {
         await authFetch(`/api/v1/decks/${deck.id}`, {
           method: "PATCH",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: editedTitle }),
         });
       }
@@ -47,6 +71,7 @@
       // Save cards
       const response = await authFetch(`/api/v1/decks/${deck.id}/cards`, {
         method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cards),
       });
 
@@ -140,8 +165,13 @@
                 <input
                   id="q-{index}"
                   bind:value={card.question}
+                  oninput={() => validationErrors.delete(`q-${index}`)}
                   placeholder="Enter question..."
-                  class="w-full bg-zinc-900/50 border border-zinc-700/50 p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600"
+                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 {validationErrors.has(
+                    `q-${index}`
+                  )
+                    ? 'border-red-500/50 animate-shake'
+                    : 'border-zinc-700/50'}"
                 />
               </div>
 
@@ -153,8 +183,13 @@
                 <textarea
                   id="a-{index}"
                   bind:value={card.answer}
+                  oninput={() => validationErrors.delete(`a-${index}`)}
                   placeholder="Enter answer..."
-                  class="w-full bg-zinc-900/50 border border-zinc-700/50 p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none"
+                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none {validationErrors.has(
+                    `a-${index}`
+                  )
+                    ? 'border-red-500/50 animate-shake'
+                    : 'border-zinc-700/50'}"
                   rows="2"
                 ></textarea>
               </div>
@@ -212,5 +247,32 @@
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #52525b;
+  }
+
+  .animate-shake {
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
   }
 </style>
