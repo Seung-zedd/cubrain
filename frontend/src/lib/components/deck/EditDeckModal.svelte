@@ -192,7 +192,7 @@
                   <p
                     class="text-[11px] tracking-wider font-bold text-red-500 mt-2 ml-1 animate-in fade-in slide-in-from-top-1"
                   >
-                    Question is required
+                    Question is required.
                   </p>
                 {/if}
               </div>
@@ -229,7 +229,7 @@
                   <p
                     class="text-[11px] tracking-wider font-bold text-red-500 mt-2 ml-1 animate-in fade-in slide-in-from-top-1"
                   >
-                    Answer is required
+                    Answer is required.
                   </p>
                 {/if}
               </div>
