@@ -147,7 +147,7 @@
     {#if isMobileMenuOpen}
       <!-- Backdrop -->
       <div
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden"
+        class="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] md:hidden"
         onclick={toggleMobileMenu}
         onkeydown={(e) => e.key === "Escape" && toggleMobileMenu()}
         role="button"
@@ -158,8 +158,8 @@
 
       <!-- Sidebar Panel -->
       <div
-        class="fixed inset-y-0 right-0 w-[280px] bg-zinc-900 border-l border-white/10 z-[70] md:hidden flex flex-col shadow-2xl"
-        transition:fly={{ x: 280, duration: 300, opacity: 1 }}
+        class="fixed inset-y-0 right-0 w-[300px] bg-zinc-950 border-l border-white/10 z-[110] md:hidden flex flex-col shadow-2xl"
+        transition:fly={{ x: 300, duration: 300, opacity: 1 }}
       >
         <!-- Sidebar Header -->
         <div
@@ -179,42 +179,73 @@
         </div>
 
         <!-- Sidebar Content -->
-        <div class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-          <a
-            href="/"
-            onclick={toggleMobileMenu}
-            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
-          >
-            <Home class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]" />
-            <span class="font-medium">Home</span>
-          </a>
-          <a
-            href="#features"
-            onclick={toggleMobileMenu}
-            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
-          >
-            <Brain class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]" />
-            <span class="font-medium">Features</span>
-          </a>
-          <a
-            href="/dashboard"
-            onclick={toggleMobileMenu}
-            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
-          >
-            <LayoutDashboard
-              class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]"
-            />
-            <span class="font-medium">Dashboard</span>
-          </a>
+        <div class="flex-1 overflow-y-auto py-8 px-4 space-y-8">
+          <!-- Navigation Section -->
+          <div>
+            <p
+              class="px-4 text-[10px] font-bold tracking-widest text-white/30 uppercase mb-4"
+            >
+              Navigation
+            </p>
+            <div class="space-y-1">
+              <a
+                href="/"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <Home
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Home</span>
+              </a>
+              <a
+                href="#features"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <Brain
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Features</span>
+              </a>
+              <a
+                href="/dashboard"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <LayoutDashboard
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Dashboard</span>
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Sidebar Footer -->
-        <div class="p-6 border-t border-white/5 space-y-4">
+        <div class="p-6 border-t border-white/5 space-y-4 bg-zinc-900/50">
+          <p
+            class="px-4 text-[10px] font-bold tracking-widest text-white/30 uppercase mb-2"
+          >
+            Account
+          </p>
           {#if user.current}
             <a
               href="/dashboard"
               onclick={toggleMobileMenu}
-              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-lg"
+              class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <LayoutDashboard class="w-5 h-5" />
               Go to Dashboard
@@ -225,7 +256,7 @@
                 toggleMobileMenu();
                 showLoginModal = true;
               }}
-              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all"
+              class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-[0.98]"
             >
               <LogIn class="w-5 h-5" />
               Sign In
@@ -233,7 +264,7 @@
             <a
               href="#waitlist"
               onclick={toggleMobileMenu}
-              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-lg"
+              class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <Zap class="w-5 h-5" />
               Get Early Access
