@@ -50,4 +50,8 @@ public class Deck extends BaseTimeEntity {
             this.studyProgress = progress;
         }
     }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
 }

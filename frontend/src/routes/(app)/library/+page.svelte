@@ -4,10 +4,13 @@
   import DeckList from "$lib/components/deck/DeckList.svelte";
   import { Library as LibraryIcon, Plus, Search } from "@lucide/svelte";
   import { fade } from "svelte/transition";
+  import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
 
   let decks = $state<any[]>([]);
   let isLoading = $state(true);
   let searchQuery = $state("");
+  let selectedDeck = $state<any | null>(null);
+  let showEditModal = $state(false);
 
   let filteredDecks = $derived(
     decks.filter((deck) =>
@@ -30,6 +33,47 @@
       isLoading = false;
     }
   });
+
+  async function handleDelete(id: number) {
+    if (!confirm("Are you sure you want to delete this deck?")) return;
+
+    try {
+      const response = await authFetch(`/api/v1/decks/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        decks = decks.filter((d) => d.id !== id);
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to delete deck:", error);
+      }
+    }
+  }
+
+  async function handleEditCards(deck: any) {
+    try {
+      const response = await authFetch(`/api/v1/decks/${deck.id}/cards`);
+      if (response.ok) {
+        const cards = await response.json();
+        selectedDeck = { ...deck, cards };
+        showEditModal = true;
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch deck cards:", error);
+      }
+    }
+  }
+
+  function handleSaveCards(updatedCards: any[]) {
+    if (selectedDeck) {
+      const deckIndex = decks.findIndex((d) => d.id === selectedDeck.id);
+      if (deckIndex !== -1) {
+        decks[deckIndex].cardCount = updatedCards.length;
+      }
+    }
+  }
 </script>
 
 <div class="space-y-8" in:fade>
@@ -75,7 +119,11 @@
       {/each}
     </div>
   {:else if filteredDecks.length > 0}
-    <DeckList decks={filteredDecks} />
+    <DeckList
+      decks={filteredDecks}
+      onDelete={handleDelete}
+      onEditCards={handleEditCards}
+    />
   {:else}
     <div
       class="flex flex-col items-center justify-center py-20 text-center space-y-4"
@@ -102,3 +150,11 @@
     </div>
   {/if}
 </div>
+
+{#if showEditModal && selectedDeck}
+  <EditDeckModal
+    deck={selectedDeck}
+    onclose={() => (showEditModal = false)}
+    onsave={handleSaveCards}
+  />
+{/if}

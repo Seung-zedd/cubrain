@@ -9,11 +9,15 @@
     createdAt: string;
   }
 
-  let { decks } = $props<{ decks: Deck[] }>();
+  let { decks, onDelete, onEditCards } = $props<{
+    decks: Deck[];
+    onDelete: (id: number) => void;
+    onEditCards: (deck: Deck) => void;
+  }>();
 </script>
 
 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 pb-4">
   {#each decks as deck (deck.id)}
-    <DeckCard {deck} />
+    <DeckCard {deck} {onDelete} {onEditCards} />
   {/each}
 </div>

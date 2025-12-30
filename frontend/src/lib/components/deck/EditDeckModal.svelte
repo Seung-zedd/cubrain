@@ -1,0 +1,178 @@
+<script lang="ts">
+  import { X, Plus, Trash2, Save } from "@lucide/svelte";
+  import { fade, fly } from "svelte/transition";
+  import { authFetch } from "$lib/api";
+
+  interface Flashcard {
+    id?: number;
+    question: string;
+    answer: string;
+  }
+
+  interface Deck {
+    id: number;
+    title: string;
+    cards: Flashcard[];
+  }
+
+  let { deck, onclose, onsave } = $props<{
+    deck: Deck;
+    onclose: () => void;
+    onsave: (updatedCards: Flashcard[]) => void;
+  }>();
+
+  let cards = $state<Flashcard[]>(JSON.parse(JSON.stringify(deck.cards)));
+  let isSaving = $state(false);
+
+  function addCard() {
+    cards = [...cards, { question: "", answer: "" }];
+  }
+
+  function removeCard(index: number) {
+    cards = cards.filter((_, i) => i !== index);
+  }
+
+  async function handleSave() {
+    isSaving = true;
+    try {
+      const response = await authFetch(`/api/v1/decks/${deck.id}/cards`, {
+        method: "PUT",
+        body: JSON.stringify(cards),
+      });
+
+      if (response.ok) {
+        onsave(cards);
+        onclose();
+      }
+    } catch (error) {
+      console.error("Failed to save cards:", error);
+    } finally {
+      isSaving = false;
+    }
+  }
+</script>
+
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+  transition:fade={{ duration: 200 }}
+>
+  <div
+    class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col"
+    transition:fly={{ y: 20, duration: 300 }}
+  >
+    <!-- Header -->
+    <div
+      class="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50"
+    >
+      <div>
+        <h2 class="text-xl font-bold text-white">Edit Deck</h2>
+        <p class="text-zinc-500 text-sm">{deck.title}</p>
+      </div>
+      <button
+        onclick={onclose}
+        class="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+      >
+        <X class="w-6 h-6" />
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 overflow-y-auto max-h-[70vh] space-y-4 custom-scrollbar">
+      <div class="space-y-4">
+        {#each cards as card, index}
+          <div
+            class="border rounded-lg p-4 bg-zinc-800/50 border-zinc-700 shadow-sm relative group animate-in fade-in slide-in-from-bottom-2 duration-300"
+          >
+            <div class="flex justify-between mb-2">
+              <span class="font-bold text-zinc-500">Card #{index + 1}</span>
+              <button
+                class="text-red-500 hover:text-red-400 transition-colors text-sm flex items-center gap-1"
+                onclick={() => removeCard(index)}
+              >
+                <Trash2 class="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label
+                  class="block text-sm font-medium text-zinc-300 mb-1"
+                  for="q-{index}">Question</label
+                >
+                <input
+                  id="q-{index}"
+                  bind:value={card.question}
+                  placeholder="Enter question..."
+                  class="w-full bg-zinc-900 border border-zinc-700 p-2.5 rounded-lg text-white focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600"
+                />
+              </div>
+
+              <div>
+                <label
+                  class="block text-sm font-medium text-zinc-300 mb-1"
+                  for="a-{index}">Answer</label
+                >
+                <textarea
+                  id="a-{index}"
+                  bind:value={card.answer}
+                  placeholder="Enter answer..."
+                  class="w-full bg-zinc-900 border border-zinc-700 p-2.5 rounded-lg text-white focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600 resize-none"
+                  rows="2"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        {/each}
+
+        <button
+          class="w-full py-4 border-2 border-dashed border-zinc-800 text-zinc-500 rounded-xl hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/5 transition-all flex items-center justify-center gap-2 font-medium"
+          onclick={addCard}
+        >
+          <Plus class="w-5 h-5" />
+          Add New Card
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex gap-3">
+      <button
+        onclick={onclose}
+        class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-800 text-white font-bold hover:bg-zinc-700 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        onclick={handleSave}
+        disabled={isSaving}
+        class="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-black font-bold hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {#if isSaving}
+          <div
+            class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"
+          ></div>
+          Saving...
+        {:else}
+          <Save class="w-5 h-5" />
+          Save Changes
+        {/if}
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+  }
+</style>

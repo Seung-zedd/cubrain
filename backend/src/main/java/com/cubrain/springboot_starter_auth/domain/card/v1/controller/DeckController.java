@@ -4,11 +4,14 @@ import com.cubrain.springboot_starter_auth.domain.card.Deck;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckCreateRequestDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckResponseDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardDto;
+import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardRequestDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.repository.DeckRepository;
 import com.cubrain.springboot_starter_auth.domain.card.v1.repository.FlashcardRepository;
 import com.cubrain.springboot_starter_auth.domain.card.v1.service.CardService;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
+import java.util.List;
+import java.util.Map;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +26,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.cubrain.springboot_starter_auth.domain.card.QFlashcard.flashcard;
 import static java.util.stream.Collectors.toMap;
@@ -145,6 +146,49 @@ public class DeckController {
 
         deckRepository.delete(deck);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Update Deck Title", description = "Updates the title of a specific deck.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateDeckTitle(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Member member = getMember(jwt);
+        Deck deck = deckRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        if (!deck.getMember().getId().equals(member.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        String newTitle = request.get("title");
+        if (newTitle == null || newTitle.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        cardService.updateDeckTitle(id, newTitle);
+        return ok().build();
+    }
+
+    @Operation(summary = "Update Deck Cards", description = "Replaces all flashcards in a deck with a new list.")
+    @PutMapping("/{id}/cards")
+    public ResponseEntity<Void> updateDeckCards(
+            @PathVariable Long id,
+            @RequestBody List<FlashcardRequestDto> newCards,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Member member = getMember(jwt);
+        Deck deck = deckRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        if (!deck.getMember().getId().equals(member.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        cardService.updateDeckCards(id, newCards);
+        return ok().build();
     }
 
     private Member getMember(Jwt jwt) {

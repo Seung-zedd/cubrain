@@ -12,7 +12,14 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { BookOpen, CircleCheck, RefreshCw, Plus, Save } from "@lucide/svelte";
+  import {
+    BookOpen,
+    CircleCheck,
+    RefreshCw,
+    Plus,
+    Save,
+    CircleAlert,
+  } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import DeckList from "$lib/components/deck/DeckList.svelte";
@@ -347,9 +354,25 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h2 class="text-xl font-bold text-white">
-                    Generation Complete!
-                  </h2>
+                  <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-white">
+                      Generation Complete!
+                    </h2>
+                    <div class="group relative">
+                      <CircleAlert
+                        class="w-5 h-5 text-amber-500 cursor-help transition-transform hover:scale-110"
+                      />
+                      <div
+                        class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-zinc-300 shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50"
+                      >
+                        The AI can mistake some flashcards, but don't worry! You
+                        can edit them in the library section on the sidebar!
+                        <div
+                          class="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-zinc-900 border-r border-b border-zinc-700 rotate-45 -mt-1"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
                   <div
                     class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
                   >
