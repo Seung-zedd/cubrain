@@ -37,7 +37,7 @@ public class DeckRepositoryCustomImpl implements DeckRepositoryCustom {
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(deck.createdAt.desc())
+                .orderBy(deck.studyProgress.asc(), deck.createdAt.desc())
                 .fetch();
 
         long total = queryFactory
