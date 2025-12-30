@@ -9,6 +9,7 @@ import com.cubrain.springboot_starter_auth.domain.card.v1.repository.DeckReposit
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import java.util.concurrent.Executor;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class CardServiceImpl implements CardService {
 
     private final JobManager jobManager;
@@ -50,17 +52,20 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext) {
         return flashcardGenerator.generateCardDemo(selection, localContext, globalContext);
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
             String annotationType) {
         return flashcardGenerator.generateCardDemo(selection, localContext, globalContext, annotationType);
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
             String annotationType, String targetLanguage) {
         return flashcardGenerator.generateCardDemo(selection, localContext, globalContext, annotationType,
@@ -68,11 +73,13 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier) {
         return flashcardGenerator.generateCardsFromPdf(file, userTier);
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
         return flashcardGenerator.generateCardsFromPdf(file, userTier, jobId);
     }
@@ -102,15 +109,18 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public void updateDeckTitle(Long deckId, String newTitle) {
+        log.info("📝 [Transaction Start] Updating title for deck ID: {} to '{}'", deckId, newTitle);
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
         deck.updateTitle(newTitle);
         deckRepository.save(deck);
+        log.info("✅ [Transaction Success] Deck title updated.");
     }
 
     @Override
     @Transactional
     public void updateDeckCards(Long deckId, List<FlashcardRequestDto> newCards) {
+        log.info("🗂️ [Transaction Start] Updating cards for deck ID: {}. New card count: {}", deckId, newCards.size());
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
@@ -120,24 +130,33 @@ public class CardServiceImpl implements CardService {
                 .filter(java.util.Objects::nonNull)
                 .toList();
 
+        int removedCount = deck.getCards().size();
         deck.getCards().removeIf(card -> !newCardIds.contains(card.getId()));
+        removedCount -= deck.getCards().size();
+        log.info("🗑️ Removed {} cards from deck ID: {}", removedCount, deckId);
 
         // Update existing or add new
+        int updatedCount = 0;
+        int addedCount = 0;
         for (FlashcardRequestDto dto : newCards) {
             if (dto.id() != null) {
                 deck.getCards().stream()
                         .filter(card -> card.getId().equals(dto.id()))
                         .findFirst()
                         .ifPresent(card -> card.updateContent(dto.question(), dto.answer()));
+                updatedCount++;
             } else {
                 deck.getCards().add(Flashcard.builder()
                         .deck(deck)
                         .question(dto.question())
                         .answer(dto.answer())
                         .build());
+                addedCount++;
             }
         }
+        log.info("✨ Processed {} updates and {} new cards for deck ID: {}", updatedCount, addedCount, deckId);
 
         deckRepository.save(deck);
+        log.info("✅ [Transaction Success] Deck cards synchronized.");
     }
 }

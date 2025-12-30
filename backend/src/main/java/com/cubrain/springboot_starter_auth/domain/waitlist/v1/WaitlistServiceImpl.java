@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class WaitlistServiceImpl implements WaitlistService {
 
     private final WaitlistRepository waitlistRepository;

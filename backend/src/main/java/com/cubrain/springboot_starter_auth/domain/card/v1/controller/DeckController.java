@@ -15,6 +15,7 @@ import java.util.Map;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -39,6 +40,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/api/v1/decks")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Decks", description = "Deck management APIs")
 public class DeckController {
 
@@ -168,6 +170,7 @@ public class DeckController {
             return ResponseEntity.badRequest().build();
         }
 
+        log.info("🚀 [API Request] PATCH /api/v1/decks/{} - User: {}", id, member.getEmail());
         cardService.updateDeckTitle(id, newTitle);
         return ok().build();
     }
@@ -187,6 +190,7 @@ public class DeckController {
             return ResponseEntity.status(403).build();
         }
 
+        log.info("🚀 [API Request] PUT /api/v1/decks/{}/cards - User: {}", id, member.getEmail());
         cardService.updateDeckCards(id, newCards);
         return ok().build();
     }

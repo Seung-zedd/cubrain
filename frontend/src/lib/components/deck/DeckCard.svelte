@@ -83,6 +83,10 @@
       return () => window.removeEventListener("click", handleClickOutside);
     }
   });
+
+  function focus(node: HTMLInputElement) {
+    node.focus();
+  }
 </script>
 
 <div class="relative group">
@@ -120,12 +124,13 @@
               onblur={saveTitle}
               onkeydown={handleKeydown}
               onclick={(e) => e.stopPropagation()}
+              use:focus
               class="w-full bg-zinc-800 border border-amber-500 rounded px-2 py-0.5 text-lg font-bold text-white outline-none"
-              autofocus
             />
           {:else}
-            <h3
-              class="text-lg font-bold text-zinc-100 group-hover:text-[#FFD700] transition-colors truncate pr-8"
+            <button
+              type="button"
+              class="w-full text-left text-lg font-bold text-zinc-100 group-hover:text-[#FFD700] transition-colors truncate pr-8 block"
               title={deck.title}
               onclick={(e) => {
                 e.preventDefault();
@@ -134,7 +139,7 @@
               }}
             >
               {deck.title}
-            </h3>
+            </button>
           {/if}
 
           <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500">
