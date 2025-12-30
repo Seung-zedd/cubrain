@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { FileText, X, CircleCheck, CircleAlert } from "@lucide/svelte";
+  import FileText from "@lucide/svelte/icons/file-text";
+  import X from "@lucide/svelte/icons/x";
+  import CircleCheck from "@lucide/svelte/icons/circle-check";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import { fly } from "svelte/transition";
 
   let {

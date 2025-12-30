@@ -2,7 +2,9 @@
   import { API_BASE_URL } from "$lib/config";
   import { fetchUser } from "$lib/stores/user.svelte";
   import { supabase } from "$lib/supabaseClient";
-  import { X, CircleAlert, CircleCheck } from "@lucide/svelte";
+  import X from "@lucide/svelte/icons/x";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import CircleCheck from "@lucide/svelte/icons/circle-check";
   import { fade, scale, slide, fly } from "svelte/transition";
 
   let { onclose } = $props<{ onclose: () => void }>();

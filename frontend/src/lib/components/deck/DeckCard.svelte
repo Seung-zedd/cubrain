@@ -1,12 +1,10 @@
 <script lang="ts">
-  import {
-    Book,
-    Zap,
-    Clock,
-    EllipsisVertical,
-    Pencil,
-    Trash2,
-  } from "@lucide/svelte";
+  import Book from "@lucide/svelte/icons/book";
+  import Zap from "@lucide/svelte/icons/zap";
+  import Clock from "@lucide/svelte/icons/clock";
+  import EllipsisVertical from "@lucide/svelte/icons/ellipsis-vertical";
+  import Pencil from "@lucide/svelte/icons/pencil";
+  import Trash2 from "@lucide/svelte/icons/trash-2";
   import { getRelativeTime } from "$lib/utils";
 
   interface Deck {

@@ -6,7 +6,12 @@
   import { fade, fly } from "svelte/transition";
   import { user } from "$lib/stores/user.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
-  import { Menu, X, Zap, Brain, RefreshCw, CheckCircle2 } from "@lucide/svelte";
+  import Menu from "@lucide/svelte/icons/menu";
+  import X from "@lucide/svelte/icons/x";
+  import Zap from "@lucide/svelte/icons/zap";
+  import Brain from "@lucide/svelte/icons/brain";
+  import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+  import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import { cn } from "$lib/utils";
 
   let email = $state("");

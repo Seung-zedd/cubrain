@@ -1,12 +1,10 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import {
-    LayoutDashboard,
-    CloudUpload,
-    Library,
-    Settings,
-    LogOut,
-  } from "@lucide/svelte";
+  import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
+  import CloudUpload from "@lucide/svelte/icons/cloud-upload";
+  import Library from "@lucide/svelte/icons/library";
+  import Settings from "@lucide/svelte/icons/settings";
+  import LogOut from "@lucide/svelte/icons/log-out";
   import { cn } from "$lib/utils";
   import { user, logout } from "$lib/stores/user.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";

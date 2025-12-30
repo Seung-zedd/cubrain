@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
-  import { CircleAlert, X } from "@lucide/svelte";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import X from "@lucide/svelte/icons/x";
 
   let {
     message,

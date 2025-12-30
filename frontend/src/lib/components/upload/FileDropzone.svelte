@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { CloudUpload, FileText, CircleAlert, Info } from "@lucide/svelte";
+  import CloudUpload from "@lucide/svelte/icons/cloud-upload";
+  import FileText from "@lucide/svelte/icons/file-text";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import Info from "@lucide/svelte/icons/info";
   import { fade } from "svelte/transition";
 
   let { isGuest = false, onFileSelect } = $props<{

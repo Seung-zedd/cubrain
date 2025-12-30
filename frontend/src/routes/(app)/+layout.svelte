@@ -1,6 +1,6 @@
 <script lang="ts">
   import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
-  import { Menu } from "@lucide/svelte";
+  import Menu from "@lucide/svelte/icons/menu";
   import { fade, fly } from "svelte/transition";
 
   let { children } = $props();
