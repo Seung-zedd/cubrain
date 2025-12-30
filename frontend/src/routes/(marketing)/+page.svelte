@@ -97,7 +97,10 @@
         alt="Cubrain AI Logo"
         class="h-10 md:h-12 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
       />
-      <span class="text-xl font-bold tracking-tighter text-white hidden sm:block">CUBRAIN</span>
+      <span
+        class="text-xl font-bold tracking-tighter text-white hidden sm:block"
+        >CUBRAIN</span
+      >
     </a>
 
     <!-- Desktop Menu -->
@@ -157,6 +160,29 @@
       ></div>
 
       <!-- Sidebar Panel -->
+      <div
+        class="fixed inset-y-0 right-0 w-[300px] bg-zinc-950 border-l border-white/10 z-110 md:hidden flex flex-col shadow-2xl"
+        transition:fly={{ x: 300, duration: 300, opacity: 1 }}
+      >
+        <!-- Sidebar Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-white/5"
+        >
+          <div class="flex items-center gap-2">
+            <img
+              src="/logo-premium.png"
+              alt="Cubrain AI Logo"
+              class="h-10 w-auto object-contain"
+            />
+            <span class="text-lg font-bold tracking-tighter text-white"
+              >CUBRAIN</span
+            >
+          </div>
+          <button
+            onclick={toggleMobileMenu}
+            class="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+          >
+            <X class="w-6 h-6" />
           </button>
         </div>
 
@@ -308,7 +334,7 @@
             class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"
           ></div>
           <img
-            src="/hero-premium.png"
+            src="/og-image.png"
             alt="Cubrain Interface"
             class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50"
           />
