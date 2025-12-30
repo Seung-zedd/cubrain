@@ -1,6 +1,5 @@
 <script lang="ts">
   import heroImage from "$lib/assets/hero.png";
-
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
@@ -12,6 +11,9 @@
   import Brain from "@lucide/svelte/icons/brain";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
+  import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
+  import LogIn from "@lucide/svelte/icons/log-in";
+  import Home from "@lucide/svelte/icons/home";
   import { cn } from "$lib/utils";
 
   let email = $state("");
@@ -88,12 +90,7 @@
   class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
 >
   <nav
-    class={cn(
-      "fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 transition-all duration-300",
-      isMobileMenuOpen
-        ? "bg-transparent border-transparent"
-        : "bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
-    )}
+    class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
   >
     <a href="/" class="z-50">
       <img
@@ -143,63 +140,104 @@
       onclick={toggleMobileMenu}
       aria-label="Toggle Menu"
     >
-      {#if isMobileMenuOpen}
-        <X class="w-6 h-6" />
-      {:else}
-        <Menu class="w-6 h-6" />
-      {/if}
+      <Menu class="w-6 h-6" />
     </button>
 
-    <!-- Mobile Menu Overlay -->
+    <!-- Mobile Sidebar Drawer -->
     {#if isMobileMenuOpen}
+      <!-- Backdrop -->
       <div
-        class="fixed inset-0 bg-black/98 backdrop-blur-3xl md:hidden flex flex-col items-start justify-center px-12 gap-8 z-40"
-        transition:fade={{ duration: 300 }}
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden"
+        onclick={toggleMobileMenu}
+        onkeydown={(e) => e.key === "Escape" && toggleMobileMenu()}
+        role="button"
+        tabindex="0"
+        aria-label="Close Menu"
+        transition:fade={{ duration: 200 }}
+      ></div>
+
+      <!-- Sidebar Panel -->
+      <div
+        class="fixed inset-y-0 right-0 w-[280px] bg-zinc-900 border-l border-white/10 z-[70] md:hidden flex flex-col shadow-2xl"
+        transition:fly={{ x: 280, duration: 300, opacity: 1 }}
       >
-        <div class="flex flex-col gap-6 w-full">
+        <!-- Sidebar Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-white/5"
+        >
+          <img
+            src="/logo-gold.png"
+            alt="Cubrain AI Logo"
+            class="h-8 w-auto object-contain"
+          />
+          <button
+            onclick={toggleMobileMenu}
+            class="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+          >
+            <X class="w-6 h-6" />
+          </button>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+          <a
+            href="/"
+            onclick={toggleMobileMenu}
+            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+          >
+            <Home class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]" />
+            <span class="font-medium">Home</span>
+          </a>
           <a
             href="#features"
             onclick={toggleMobileMenu}
-            class="text-4xl font-bold text-white/90 hover:text-[#FFD700] transition-colors"
-            in:fly={{ y: 20, duration: 400, delay: 100 }}>Features</a
+            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
           >
+            <Brain class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]" />
+            <span class="font-medium">Features</span>
+          </a>
           <a
             href="/dashboard"
             onclick={toggleMobileMenu}
-            class="text-4xl font-bold text-white/90 hover:text-[#FFD700] transition-colors"
-            in:fly={{ y: 20, duration: 400, delay: 200 }}>Dashboard</a
+            class="flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
           >
-          <div
-            class="h-px w-full bg-white/10 my-4"
-            in:fade={{ delay: 300 }}
-          ></div>
+            <LayoutDashboard
+              class="w-5 h-5 text-zinc-500 group-hover:text-[#FFD700]"
+            />
+            <span class="font-medium">Dashboard</span>
+          </a>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="p-6 border-t border-white/5 space-y-4">
           {#if user.current}
             <a
               href="/dashboard"
               onclick={toggleMobileMenu}
-              class="inline-flex items-center justify-center px-8 py-4 text-xl rounded-2xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black w-full"
-              in:fly={{ y: 20, duration: 400, delay: 300 }}>Go to Dashboard</a
+              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-lg"
             >
+              <LayoutDashboard class="w-5 h-5" />
+              Go to Dashboard
+            </a>
           {:else}
-            <div
-              class="flex flex-col gap-4 w-full"
-              in:fly={{ y: 20, duration: 400, delay: 300 }}
+            <button
+              onclick={() => {
+                toggleMobileMenu();
+                showLoginModal = true;
+              }}
+              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all"
             >
-              <button
-                onclick={() => {
-                  toggleMobileMenu();
-                  showLoginModal = true;
-                }}
-                class="text-2xl font-medium text-white/60 hover:text-white transition-colors text-left"
-                >Sign In</button
-              >
-              <a
-                href="#waitlist"
-                onclick={toggleMobileMenu}
-                class="inline-flex items-center justify-center px-8 py-4 text-xl rounded-2xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black w-full"
-                >Get Early Access</a
-              >
-            </div>
+              <LogIn class="w-5 h-5" />
+              Sign In
+            </button>
+            <a
+              href="#waitlist"
+              onclick={toggleMobileMenu}
+              class="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-lg"
+            >
+              <Zap class="w-5 h-5" />
+              Get Early Access
+            </a>
           {/if}
         </div>
       </div>
