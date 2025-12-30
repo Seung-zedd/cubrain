@@ -255,7 +255,9 @@
     >
       ✨ Interactive Demo
     </span>
-    <h3 class="text-2xl font-bold text-white m-0">Try it yourself</h3>
+    <h3 class="text-xl md:text-2xl font-bold text-white m-0">
+      Try it yourself
+    </h3>
   </div>
 
   <div class="demo-content">

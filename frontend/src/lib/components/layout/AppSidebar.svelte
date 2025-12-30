@@ -11,6 +11,11 @@
   import { user, logout } from "$lib/stores/user.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
 
+  let { class: className, onNavItemClick } = $props<{
+    class?: string;
+    onNavItemClick?: () => void;
+  }>();
+
   let showLoginModal = $state(false);
 
   const navItems = [
@@ -22,11 +27,14 @@
 </script>
 
 <aside
-  class="hidden h-screen w-64 flex-col border-r border-zinc-800 bg-zinc-900 md:flex"
+  class={cn(
+    "flex h-screen w-64 flex-col border-r border-zinc-800 bg-zinc-900",
+    className
+  )}
 >
   <!-- Brand Logo -->
   <div class="flex h-16 items-center px-6 border-b border-zinc-800/50">
-    <a href="/" class="flex items-center gap-2">
+    <a href="/" class="flex items-center gap-2" onclick={onNavItemClick}>
       <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
     </a>
   </div>
@@ -39,6 +47,7 @@
         : page.url.pathname === item.href && page.url.search === ""}
       <a
         href={item.href}
+        onclick={onNavItemClick}
         class={cn(
           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
           isActive

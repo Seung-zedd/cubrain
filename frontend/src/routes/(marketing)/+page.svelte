@@ -3,15 +3,20 @@
 
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import { authFetch } from "$lib/api";
+  import { fade, fly } from "svelte/transition";
+  import { user } from "$lib/stores/user.svelte";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
+  import { Menu, X, Zap, Brain, RefreshCw, CheckCircle2 } from "@lucide/svelte";
 
   let email = $state("");
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
   let message = $state("");
-
-  import { user } from "$lib/stores/user.svelte";
-  import LoginModal from "$lib/components/auth/LoginModal.svelte";
-
   let showLoginModal = $state(false);
+  let isMobileMenuOpen = $state(false);
+
+  const toggleMobileMenu = () => {
+    isMobileMenuOpen = !isMobileMenuOpen;
+  };
 
   const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
@@ -73,17 +78,21 @@
   {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
 </svelte:head>
 
-<div class="min-h-screen flex flex-col bg-background text-foreground">
+<div
+  class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
+>
   <nav
-    class="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
+    class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
   >
-    <a href="/">
+    <a href="/" class="z-50">
       <img
         src="/logo-gold.png"
         alt="Cubrain AI Logo"
-        class="h-10 w-auto object-contain"
+        class="h-8 md:h-10 w-auto object-contain"
       />
     </a>
+
+    <!-- Desktop Menu -->
     <div class="hidden md:flex gap-8 items-center">
       <a
         href="#features"
@@ -116,16 +125,73 @@
         </div>
       {/if}
     </div>
+
+    <!-- Mobile Menu Button -->
+    <button
+      class="md:hidden z-50 p-2 text-white/80 hover:text-white transition-colors"
+      onclick={toggleMobileMenu}
+      aria-label="Toggle Menu"
+    >
+      {#if isMobileMenuOpen}
+        <X class="w-6 h-6" />
+      {:else}
+        <Menu class="w-6 h-6" />
+      {/if}
+    </button>
+
+    <!-- Mobile Menu Overlay -->
+    {#if isMobileMenuOpen}
+      <div
+        class="fixed inset-0 bg-black/95 backdrop-blur-2xl md:hidden flex flex-col items-center justify-center gap-8 z-40 rounded-4xl"
+        transition:fade={{ duration: 200 }}
+      >
+        <a
+          href="#features"
+          onclick={toggleMobileMenu}
+          class="text-2xl font-bold text-white/80 hover:text-[#FFD700] transition-colors"
+          >Features</a
+        >
+        <a
+          href="/dashboard"
+          onclick={toggleMobileMenu}
+          class="text-2xl font-bold text-white/80 hover:text-[#FFD700] transition-colors"
+          >Dashboard</a
+        >
+        {#if user.current}
+          <a
+            href="/dashboard"
+            onclick={toggleMobileMenu}
+            class="px-8 py-4 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black"
+            >Go to Dashboard</a
+          >
+        {:else}
+          <button
+            onclick={() => {
+              toggleMobileMenu();
+              showLoginModal = true;
+            }}
+            class="text-xl font-medium text-white/60 hover:text-white transition-colors"
+            >Sign In</button
+          >
+          <a
+            href="#waitlist"
+            onclick={toggleMobileMenu}
+            class="px-8 py-4 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black"
+            >Get Early Access</a
+          >
+        {/if}
+      </div>
+    {/if}
   </nav>
 
   <header
-    class="pt-40 pb-20 grid grid-cols-1 md:grid-cols-2 gap-16 max-w-6xl mx-auto items-center min-h-[90vh] px-6"
+    class="pt-32 md:pt-40 pb-12 md:pb-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 max-w-6xl mx-auto items-center min-h-[90vh] px-6"
   >
     <div class="text-center md:text-left z-10">
       <h1
-        class="text-5xl md:text-7xl font-extrabold leading-tight mb-8 text-white tracking-tight"
+        class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6 md:mb-8 text-white tracking-tight"
       >
-        Turn Your PDFs into <br />
+        Turn Your PDFs into <br class="hidden sm:block" />
         <span
           class="bg-linear-to-r from-[#FFD700] via-[#FDB931] to-[#FFD700] bg-clip-text text-transparent bg-size-[200%_auto] animate-gradient"
           >Flashcards</span
@@ -133,22 +199,22 @@
         in Seconds.
       </h1>
       <p
-        class="text-lg md:text-xl text-white/60 mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed"
+        class="text-base md:text-xl text-white/60 mb-8 md:mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed"
       >
-        Zero hallucinations. Zero manual entry. <br /> Every flashcard is backed
-        by a direct link to the source text, turning your PDFs into an interactive
-        knowledge base.
+        Zero hallucinations. Zero manual entry. <br class="hidden md:block" /> Every
+        flashcard is backed by a direct link to the source text, turning your PDFs
+        into an interactive knowledge base.
       </p>
       <div
         class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
       >
         <a
           href="#waitlist"
-          class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1"
+          class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
           >Join the Waitlist</a
         >
         <button
-          class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all"
+          class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
           >Learn More</button
         >
       </div>
@@ -199,7 +265,7 @@
         <div
           class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
         >
-          <span class="text-2xl">⚡</span>
+          <Zap class="w-6 h-6 text-[#FFD700]" />
         </div>
         <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
         <p class="text-white/60 leading-relaxed">
@@ -215,7 +281,7 @@
         <div
           class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
         >
-          <span class="text-2xl">🧠</span>
+          <Brain class="w-6 h-6 text-[#FFD700]" />
         </div>
         <h3 class="text-2xl font-bold mb-3 text-white">Context Aware</h3>
         <p class="text-white/60 leading-relaxed">
@@ -231,7 +297,7 @@
         <div
           class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
         >
-          <span class="text-2xl">🔄</span>
+          <RefreshCw class="w-6 h-6 text-[#FFD700]" />
         </div>
         <h3 class="text-2xl font-bold mb-3 text-white">Seamless Sync</h3>
         <p class="text-white/60 leading-relaxed">
@@ -247,7 +313,7 @@
         <div
           class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
         >
-          <span class="text-2xl">✅</span>
+          <CheckCircle2 class="w-6 h-6 text-[#FFD700]" />
         </div>
         <h3 class="text-2xl font-bold mb-3 text-white">AI Grading</h3>
         <p class="text-white/60 leading-relaxed">
@@ -265,14 +331,16 @@
     ></div>
 
     <div
-      class="bg-black/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl text-center max-w-3xl w-full relative overflow-hidden"
+      class="bg-black/40 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-3xl w-full relative overflow-hidden"
     >
       <div
         class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#FFD700] to-transparent opacity-50"
       ></div>
 
-      <h2 class="text-4xl font-bold mb-4 text-white">Join the Waitlist</h2>
-      <p class="text-white/60 mb-10 text-lg">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">
+        Join the Waitlist
+      </h2>
+      <p class="text-white/60 mb-10 text-base md:text-lg">
         Be the first to experience the future of learning. Limited spots
         available.
       </p>
