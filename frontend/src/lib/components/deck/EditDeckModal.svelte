@@ -24,7 +24,7 @@
   let cards = $state<Flashcard[]>(JSON.parse(JSON.stringify(deck.cards)));
   let editedTitle = $state(deck.title);
   let isSaving = $state(false);
-  let validationErrors = $state<Set<string>>(new Set());
+  let validationErrors = $state<Record<string, boolean>>({});
 
   function addCard() {
     cards = [...cards, { question: "", answer: "" }];
@@ -33,21 +33,22 @@
   function removeCard(index: number) {
     cards = cards.filter((_, i) => i !== index);
     // Clear errors for removed card
-    validationErrors.delete(`q-${index}`);
-    validationErrors.delete(`a-${index}`);
+    validationErrors[`q-${index}`] = false;
+    validationErrors[`a-${index}`] = false;
   }
 
   async function handleSave() {
-    validationErrors.clear();
+    // Reset errors
+    validationErrors = {};
     let hasError = false;
 
     cards.forEach((card, index) => {
       if (!card.question.trim()) {
-        validationErrors.add(`q-${index}`);
+        validationErrors[`q-${index}`] = true;
         hasError = true;
       }
       if (!card.answer.trim()) {
-        validationErrors.add(`a-${index}`);
+        validationErrors[`a-${index}`] = true;
         hasError = true;
       }
     });
@@ -162,11 +163,13 @@
                 <input
                   id="q-{index}"
                   bind:value={card.question}
-                  oninput={() => validationErrors.delete(`q-${index}`)}
+                  oninput={() => {
+                    validationErrors[`q-${index}`] = false;
+                  }}
                   placeholder="Enter question..."
-                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 {validationErrors.has(
+                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 {validationErrors[
                     `q-${index}`
-                  )
+                  ]
                     ? 'border-red-500/50 animate-shake'
                     : 'border-zinc-700/50'}"
                 />
@@ -180,11 +183,13 @@
                 <textarea
                   id="a-{index}"
                   bind:value={card.answer}
-                  oninput={() => validationErrors.delete(`a-${index}`)}
+                  oninput={() => {
+                    validationErrors[`a-${index}`] = false;
+                  }}
                   placeholder="Enter answer..."
-                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none {validationErrors.has(
+                  class="w-full bg-zinc-900/50 border p-2.5 rounded-lg text-white focus:border-amber-500/50 outline-none transition-all placeholder:text-zinc-600 resize-none {validationErrors[
                     `a-${index}`
-                  )
+                  ]
                     ? 'border-red-500/50 animate-shake'
                     : 'border-zinc-700/50'}"
                   rows="2"
