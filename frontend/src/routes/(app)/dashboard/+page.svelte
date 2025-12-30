@@ -26,6 +26,8 @@
   import Toast from "$lib/components/ui/Toast.svelte";
   import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
+  import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
+  import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
   import { cn } from "$lib/utils";
 
   interface Flashcard {
@@ -58,6 +60,11 @@
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
   let sourceFileName = $state<string | null>(null);
+
+  // Edit/Delete State
+  let selectedDeck = $state<any | null>(null);
+  let showEditModal = $state(false);
+  let deckToDelete = $state<number | null>(null);
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -305,6 +312,50 @@
       }
     }
   }
+
+  async function handleEditCards(deck: any) {
+    try {
+      const response = await authFetch(`/api/v1/decks/${deck.id}/cards`);
+      if (response.ok) {
+        const cards = await response.json();
+        selectedDeck = { ...deck, cards };
+        showEditModal = true;
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch deck cards:", error);
+      }
+    }
+  }
+
+  function handleSaveCards(updatedTitle: string, updatedCards: any[]) {
+    if (selectedDeck) {
+      const deckIndex = recentDecks.findIndex((d) => d.id === selectedDeck.id);
+      if (deckIndex !== -1) {
+        recentDecks[deckIndex].title = updatedTitle;
+        recentDecks[deckIndex].cardCount = updatedCards.length;
+      }
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deckToDelete) return;
+    const id = deckToDelete;
+    deckToDelete = null;
+
+    try {
+      const response = await authFetch(`/api/v1/decks/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        recentDecks = recentDecks.filter((d) => d.id !== id);
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to delete deck:", error);
+      }
+    }
+  }
 </script>
 
 <div class="space-y-8">
@@ -532,7 +583,11 @@
         </a>
       </div>
 
-      <DeckList decks={recentDecks} />
+      <DeckList
+        decks={recentDecks}
+        onDelete={(id) => (deckToDelete = id)}
+        onEditCards={handleEditCards}
+      />
     </section>
   {/if}
 </div>
@@ -561,5 +616,23 @@
     initialTitle={jobMetadata.title || sourceFileName || ""}
     onclose={() => (showSaveModal = false)}
     onsave={saveToLibrary}
+  />
+{/if}
+
+{#if showEditModal && selectedDeck}
+  <EditDeckModal
+    deck={selectedDeck}
+    onclose={() => (showEditModal = false)}
+    onsave={handleSaveCards}
+  />
+{/if}
+
+{#if deckToDelete !== null}
+  <ConfirmModal
+    title="Delete Deck"
+    message="Are you sure you want to delete this deck? All associated flashcards will be permanently removed."
+    confirmText="Delete Deck"
+    onconfirm={confirmDelete}
+    oncancel={() => (deckToDelete = null)}
   />
 {/if}
