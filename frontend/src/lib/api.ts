@@ -16,6 +16,15 @@ export async function authFetch(path: string, options: RequestInit = {}) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
+  // Automatically set Content-Type for JSON bodies
+  if (
+    options.body &&
+    typeof options.body === "string" &&
+    !headers.has("Content-Type")
+  ) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const url = path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
 
   return fetch(url, {

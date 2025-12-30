@@ -53,7 +53,6 @@
     });
 
     if (hasError) {
-      // Scroll to first error if needed, or just let the animation show
       return;
     }
 
@@ -63,7 +62,6 @@
       if (editedTitle !== deck.title) {
         await authFetch(`/api/v1/decks/${deck.id}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: editedTitle }),
         });
       }
@@ -71,7 +69,6 @@
       // Save cards
       const response = await authFetch(`/api/v1/decks/${deck.id}/cards`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cards),
       });
 
