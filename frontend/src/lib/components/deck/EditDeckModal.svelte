@@ -190,7 +190,7 @@
                 </div>
                 {#if validationErrors[`q-${index}`]}
                   <p
-                    class="text-[10px] text-red-500 mt-1.5 ml-1 font-medium animate-in fade-in slide-in-from-top-1"
+                    class="text-[11px] uppercase tracking-wider font-bold text-red-500 mt-2 ml-1 animate-in fade-in slide-in-from-top-1"
                   >
                     Question is required
                   </p>
@@ -227,7 +227,7 @@
                 </div>
                 {#if validationErrors[`a-${index}`]}
                   <p
-                    class="text-[10px] text-red-500 mt-1.5 ml-1 font-medium animate-in fade-in slide-in-from-top-1"
+                    class="text-[11px] uppercase tracking-wider font-bold text-red-500 mt-2 ml-1 animate-in fade-in slide-in-from-top-1"
                   >
                     Answer is required
                   </p>

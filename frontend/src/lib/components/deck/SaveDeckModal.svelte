@@ -1,24 +1,29 @@
 <script lang="ts">
-  import { X, Save, BookText } from "@lucide/svelte";
+  import { X, Save, BookText, CircleAlert } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
 
   let {
     onclose,
     onsave,
     initialTitle = "",
+    isSaving = false,
   } = $props<{
     onclose: () => void;
     onsave: (title: string) => void;
     initialTitle?: string;
+    isSaving?: boolean;
   }>();
 
   let title = $state(initialTitle);
   let inputError = $state(false);
 
   function handleSave() {
+    if (isSaving) return;
     if (!title || title.trim().length === 0) {
-      inputError = true;
-      setTimeout(() => (inputError = false), 500);
+      inputError = false;
+      setTimeout(() => {
+        inputError = true;
+      }, 10);
       return;
     }
     onsave(title.trim());
@@ -87,18 +92,28 @@
           >
             Deck Name
           </label>
-          <input
-            id="deck-name"
-            type="text"
-            placeholder="write your deck name"
-            bind:value={title}
-            use:focusAction
-            class="w-full rounded-lg bg-zinc-800/50 border {inputError
-              ? 'border-red-500 ring-1 ring-red-500'
-              : 'border-zinc-700'} px-4 py-3 text-white placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all {inputError
-              ? 'animate-shake'
-              : ''}"
-          />
+          <div class="relative">
+            <input
+              id="deck-name"
+              type="text"
+              placeholder="write your deck name"
+              bind:value={title}
+              use:focusAction
+              oninput={() => (inputError = false)}
+              class="w-full rounded-lg bg-zinc-800/50 border {inputError
+                ? 'border-red-500 ring-1 ring-red-500'
+                : 'border-zinc-700'} px-4 pr-10 py-3 text-white placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all {inputError
+                ? 'animate-shake'
+                : ''}"
+            />
+            {#if inputError}
+              <div
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 animate-in fade-in zoom-in duration-200"
+              >
+                <CircleAlert class="w-4 h-4" />
+              </div>
+            {/if}
+          </div>
 
           {#if inputError}
             <p
@@ -119,10 +134,18 @@
           </button>
           <button
             onclick={handleSave}
-            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-500 text-black font-bold hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all"
+            disabled={isSaving}
+            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-500 text-black font-bold hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save class="w-4 h-4" />
-            Save to Library
+            {#if isSaving}
+              <div
+                class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"
+              ></div>
+              Saving...
+            {:else}
+              <Save class="w-4 h-4" />
+              Save to Library
+            {/if}
           </button>
         </div>
       </div>

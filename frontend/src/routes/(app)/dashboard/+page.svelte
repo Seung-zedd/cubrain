@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { goto } from "$app/navigation";
   import { authFetch } from "$lib/api";
   import {
     user,
@@ -60,6 +61,7 @@
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
   let sourceFileName = $state<string | null>(null);
+  let isSavingDeck = $state(false);
 
   // Edit/Delete State
   let selectedDeck = $state<any | null>(null);
@@ -289,12 +291,10 @@
   async function saveToLibrary(customTitle: string) {
     if (!user.current || generatedCards.length === 0) return;
 
+    isSavingDeck = true;
     try {
       const response = await authFetch("/api/v1/decks", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: customTitle,
           cards: generatedCards,
@@ -305,11 +305,15 @@
         await fetchRecentDecks();
         showSaveModal = false;
         resetView();
+        // Redirect to upload mode to allow another upload
+        goto("/dashboard?mode=upload");
       }
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error("Failed to save deck:", error);
       }
+    } finally {
+      isSavingDeck = false;
     }
   }
 
@@ -611,6 +615,7 @@
     initialTitle={jobMetadata.title || sourceFileName || ""}
     onclose={() => (showSaveModal = false)}
     onsave={saveToLibrary}
+    isSaving={isSavingDeck}
   />
 {/if}
 
