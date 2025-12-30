@@ -7,6 +7,7 @@
   import { user } from "$lib/stores/user.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import { Menu, X, Zap, Brain, RefreshCw, CheckCircle2 } from "@lucide/svelte";
+  import { cn } from "$lib/utils";
 
   let email = $state("");
   let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
