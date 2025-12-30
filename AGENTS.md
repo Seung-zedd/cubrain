@@ -427,6 +427,7 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 - **Alt Text**: All images and icons must have descriptive `alt` text or be marked as decorative (e.g., `aria-hidden="true"`) if they don't convey unique information.
 
 ## 20. API Request Headers (415 Error Prevention)
+
 - **Content-Type**: When making `POST`, `PUT`, or `PATCH` requests using `fetch` or `authFetch`, you **MUST** explicitly set the `Content-Type` header to `application/json` if the body is a JSON string.
 - **Example**:
   ```javascript
@@ -435,4 +436,17 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  ```
+
+## 21. 📊 Vercel Insights & Analytics
+
+- **Rule: Wrap Injection in Environment Checks.**
+- Always wrap `injectSpeedInsights()` and `injectAnalytics()` in a check for `browser && !dev` from `$app/environment`.
+- This prevents 404 errors and console noise in local development and non-production environments where these services might not be enabled.
+- **Example:**
+  ```javascript
+  if (browser && !dev) {
+    injectSpeedInsights();
+    injectAnalytics();
+  }
   ```

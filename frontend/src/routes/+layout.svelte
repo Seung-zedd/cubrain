@@ -1,13 +1,16 @@
 <script lang="ts">
   import "../app.css";
+  import { browser, dev } from "$app/environment";
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
 
   import { onMount } from "svelte";
   import { fetchUser } from "$lib/stores/user.svelte";
 
-  injectSpeedInsights();
-  injectAnalytics();
+  if (browser && !dev) {
+    injectSpeedInsights();
+    injectAnalytics();
+  }
 
   let { children } = $props();
 
