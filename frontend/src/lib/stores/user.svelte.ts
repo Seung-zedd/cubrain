@@ -2,6 +2,7 @@ import { supabase } from "$lib/supabaseClient";
 import { authFetch } from "$lib/api";
 
 export interface User {
+  id: number;
   email: string;
   role: string;
   tier: string;
@@ -54,6 +55,7 @@ export async function fetchUser() {
       // Fallback: Use session data if backend is unreachable or returns error
       // This allows local frontend development without a running backend
       user.current = {
+        id: 0,
         email: session.user.email || "",
         role: "USER",
         tier: "FREE_USER",
@@ -71,6 +73,7 @@ export async function fetchUser() {
       } = await supabase.auth.getSession();
       if (session) {
         user.current = {
+          id: 0,
           email: session.user.email || "",
           role: "USER",
           tier: "FREE_USER",

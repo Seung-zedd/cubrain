@@ -2,6 +2,8 @@
   import { X, Zap, CircleCheck, Rocket } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
+  import UpgradeButton from "$lib/components/UpgradeButton.svelte";
+  import { goto } from "$app/navigation";
 
   let {
     onclose,
@@ -124,23 +126,25 @@
       </div>
 
       <div class="space-y-4">
-        <button
-          class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300"
-        >
-          <div class="flex items-center justify-center gap-2">
-            <span
-              >{mode === "guest"
-                ? "Sign up for Free"
-                : "Upgrade to Cubrain Pro"}</span
-            >
-            <Zap class="w-5 h-5 fill-current" />
-          </div>
-
-          <!-- Shine effect -->
-          <div
-            class="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"
-          ></div>
-        </button>
+        {#if mode === "guest"}
+          <button
+            onclick={() => {
+              close();
+              goto("/login");
+            }}
+            class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <span>Sign up for Free</span>
+              <Zap class="w-5 h-5 fill-current" />
+            </div>
+            <div
+              class="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shine"
+            ></div>
+          </button>
+        {:else}
+          <UpgradeButton class="w-full h-14" text="Upgrade to Cubrain Pro" />
+        {/if}
 
         <button
           onclick={close}

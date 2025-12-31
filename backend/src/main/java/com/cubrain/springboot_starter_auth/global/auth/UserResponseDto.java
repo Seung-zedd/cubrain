@@ -7,13 +7,15 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record UserResponseDto(
+        @Schema(description = "User ID", example = "1") Long id,
         @Schema(description = "User email address", example = "user@example.com") String email,
         @Schema(description = "User role", example = "USER") String role,
         @Schema(description = "User tier", example = "FREE_USER") String tier,
         @Schema(description = "Daily upload count", example = "5") int dailyUploadCount) {
-    
+
     public static UserResponseDto from(Member member) {
         return UserResponseDto.builder()
+                .id(member.getId())
                 .email(member.getEmail())
                 .role(member.getRole().name())
                 .tier(member.getTier().name())
