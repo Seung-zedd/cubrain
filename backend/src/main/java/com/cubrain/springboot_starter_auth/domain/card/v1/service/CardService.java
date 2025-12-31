@@ -31,4 +31,6 @@ public interface CardService {
         void updateDeckCards(Long deckId, List<FlashcardRequestDto> newCards);
 
         void deleteDeck(Long deckId);
+
+        String exportToAnki(Long deckId);
 }

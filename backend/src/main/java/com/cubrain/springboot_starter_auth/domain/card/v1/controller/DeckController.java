@@ -196,6 +196,32 @@ public class DeckController {
         return ok().build();
     }
 
+    @Operation(summary = "Export Deck to Anki", description = "Exports the deck's flashcards to an Anki-compatible CSV format.")
+    @GetMapping("/{id}/export/anki")
+    public ResponseEntity<String> exportToAnki(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Member member = getMember(jwt);
+        Deck deck = deckRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        if (!deck.getMember().getId().equals(member.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        log.info("📤 [API Request] GET /api/v1/decks/{}/export/anki - User: {}", id, member.getEmail());
+        String csv = cardService.exportToAnki(id);
+
+        String filename = deck.getTitle().replaceAll("[^a-zA-Z0-9]", "_") + "_anki.csv";
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\"")
+                .contentType(org.springframework.http.MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csv);
+    }
+
     private Member getMember(Jwt jwt) {
         if (jwt == null) {
             throw new IllegalArgumentException("Authentication required");

@@ -170,4 +170,34 @@ public class CardServiceImpl implements CardService {
         deckRepository.deleteById(deckId);
         log.info("✅ [Transaction Success] Deck and associated cards deleted.");
     }
+
+    @Override
+    public String exportToAnki(Long deckId) {
+        log.info("📤 Exporting deck ID: {} to Anki CSV", deckId);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        StringBuilder csv = new StringBuilder();
+        for (Flashcard card : deck.getCards()) {
+            String question = sanitizeForCsv(card.getQuestion());
+            String answer = sanitizeForCsv(card.getAnswer());
+            csv.append(question).append(";").append(answer).append("\n");
+        }
+
+        return csv.toString();
+    }
+
+    private String sanitizeForCsv(String text) {
+        if (text == null) {
+            return "";
+        }
+        // 1. Convert newlines to <br> (Anki compatibility)
+        String sanitized = text.replace("\n", "<br>").replace("\r", "");
+
+        // 2. Escape double quotes by doubling them (" -> "")
+        sanitized = sanitized.replace("\"", "\"\"");
+
+        // 3. Wrap in double quotes to preserve semicolons and commas
+        return "\"" + sanitized + "\"";
+    }
 }

@@ -5,7 +5,9 @@
   import EllipsisVertical from "@lucide/svelte/icons/ellipsis-vertical";
   import Pencil from "@lucide/svelte/icons/pencil";
   import Trash2 from "@lucide/svelte/icons/trash-2";
+  import FileDown from "@lucide/svelte/icons/file-down";
   import { getRelativeTime } from "$lib/utils";
+  import { authFetch } from "$lib/api";
 
   interface Deck {
     id: number;
@@ -34,6 +36,31 @@
   function handleClickOutside(e: MouseEvent) {
     if (showMenu && menuRef && !menuRef.contains(e.target as Node)) {
       showMenu = false;
+    }
+  }
+
+  async function handleExport(e: MouseEvent) {
+    e.stopPropagation();
+    showMenu = false;
+
+    try {
+      const response = await authFetch(`/api/v1/decks/${deck.id}/export/anki`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const filename = deck.title.replace(/[^a-zA-Z0-9]/g, "_") + "_anki.csv";
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to export deck:", error);
+      }
     }
   }
 
@@ -126,7 +153,7 @@
 
       {#if showMenu}
         <div
-          class="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95 duration-200"
+          class="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95 duration-200"
         >
           {#if onEditCards}
             <button
@@ -141,6 +168,15 @@
               Edit Cards
             </button>
           {/if}
+
+          <button
+            onclick={handleExport}
+            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+          >
+            <FileDown class="w-4 h-4" />
+            Export to Anki (.csv)
+          </button>
+
           {#if onDelete}
             <button
               onclick={(e) => {
