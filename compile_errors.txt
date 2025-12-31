@@ -1,6 +1,0 @@
-Reusing configuration cache.
-> Task :backend:compileJava
-
-BUILD SUCCESSFUL in 9s
-1 actionable task: 1 executed
-Configuration cache entry reused.

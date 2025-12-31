@@ -37,3 +37,10 @@ spring:
           # or the legacy JWT_SECRET environment variable.
           issuer-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1
           jwk-set-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1/get_jwks
+
+# Lemon Squeezy Webhook Settings (Common Structure)
+lemonsqueezy:
+  webhook:
+    # Key point: Put an 'environment variable holder' here, not a specific value.
+    # This means that the value will be injected under the name 'LEMONSQUEEZY_WEBHOOK_SECRET' from the OS or distribution environment (Railway).
+    secret: ${LEMONSQUEEZY_WEBHOOK_SECRET} 
