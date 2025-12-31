@@ -35,19 +35,24 @@ public class WebhookController {
             @RequestHeader("X-Signature") String signature,
             @RequestBody String payload) {
 
-        log.info("[Webhook] Received Lemon Squeezy webhook. Signature: {}", signature);
+        log.info("[Webhook] Received Lemon Squeezy webhook.");
 
         if (!verifySignature(payload, signature)) {
-            log.warn("[Webhook] Invalid signature received for Lemon Squeezy webhook.");
+            log.warn("[Webhook] Invalid signature received.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Signature");
         }
 
-        log.info("[Webhook] Webhook Verified: {}", payload);
+        try {
+            log.info("[Webhook] Signature verified. Payload: {}", payload);
 
-        // TODO: Process the webhook payload based on event type (e.g.,
-        // subscription_created, subscription_updated)
+            // TODO: Process the webhook payload based on event type (e.g.,
+            // subscription_created, subscription_updated)
 
-        return ResponseEntity.ok("Webhook processed");
+            return ResponseEntity.ok("Webhook processed successfully");
+        } catch (Exception e) {
+            log.error("[Webhook] Critical error during processing. Payload: {}", payload, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Processing Error");
+        }
     }
 
     private boolean verifySignature(String payload, String signature) {
