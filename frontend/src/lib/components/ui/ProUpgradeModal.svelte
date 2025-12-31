@@ -1,6 +1,7 @@
 <script lang="ts">
   import { X, Zap, CircleCheck, Rocket } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
+  import { useModal } from "$lib/modal.svelte";
 
   let {
     onclose,
@@ -16,11 +17,7 @@
     onclose();
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      close();
-    }
-  }
+  const { handleBackdropClick, handleKeydown } = useModal(close);
 
   const content: Record<
     "daily_limit",
@@ -67,16 +64,10 @@
   transition:fade={{ duration: 200 }}
   role="dialog"
   aria-modal="true"
+  onclick={handleBackdropClick}
+  onkeydown={handleKeydown}
+  tabindex="-1"
 >
-  <!-- Backdrop click handler -->
-  <div
-    class="absolute inset-0"
-    onclick={close}
-    role="button"
-    tabindex="-1"
-    onkeydown={(e) => e.key === "Enter" && close()}
-  ></div>
-
   <div
     class="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/30 bg-[#0f0f0f] shadow-[0_0_50px_rgba(255,215,0,0.15)]"
     transition:scale={{ duration: 300, start: 0.9, opacity: 0 }}

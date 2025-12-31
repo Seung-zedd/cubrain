@@ -1,6 +1,7 @@
 <script lang="ts">
   import { TriangleAlert, X } from "@lucide/svelte";
   import { fade, fly } from "svelte/transition";
+  import { useModal } from "$lib/modal.svelte";
 
   type ModalType = "danger" | "warning" | "info";
 
@@ -35,11 +36,17 @@
     warning: "text-amber-500 bg-amber-500/10",
     info: "text-blue-500 bg-blue-500/10",
   };
+
+  const { handleBackdropClick, handleKeydown } = useModal(oncancel);
 </script>
 
 <div
   class="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
   transition:fade={{ duration: 200 }}
+  onclick={handleBackdropClick}
+  role="button"
+  tabindex="-1"
+  onkeydown={handleKeydown}
 >
   <div
     class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"

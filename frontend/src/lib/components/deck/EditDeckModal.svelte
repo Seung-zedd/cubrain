@@ -2,6 +2,7 @@
   import { X, Plus, Trash2, Save, CircleAlert } from "@lucide/svelte";
   import { fade, fly } from "svelte/transition";
   import { authFetch } from "$lib/api";
+  import { useModal } from "$lib/modal.svelte";
 
   interface Flashcard {
     id?: number;
@@ -92,22 +93,7 @@
     }
   }
 
-  function handleBackdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) {
-      onclose();
-    }
-  }
-
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      onclose();
-    }
-  }
-
-  $effect(() => {
-    window.addEventListener("keydown", handleKeydown);
-    return () => window.removeEventListener("keydown", handleKeydown);
-  });
+  const { handleBackdropClick, handleKeydown } = useModal(onclose);
 </script>
 
 <div

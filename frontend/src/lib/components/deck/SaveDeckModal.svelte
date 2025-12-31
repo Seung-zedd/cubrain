@@ -1,6 +1,7 @@
 <script lang="ts">
   import { X, Save, BookText, CircleAlert } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
+  import { useModal } from "$lib/modal.svelte";
 
   let {
     onclose,
@@ -30,34 +31,33 @@
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      onclose();
-    } else if (e.key === "Enter") {
+    if (e.key === "Enter") {
       handleSave();
     }
+  }
+
+  const { handleBackdropClick, handleKeydown: handleEsc } = useModal(onclose);
+
+  function handleGlobalKeydown(e: KeyboardEvent) {
+    handleEsc(e);
+    handleKeydown(e);
   }
   function focusAction(node: HTMLInputElement) {
     node.focus();
   }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleGlobalKeydown} />
 
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
   transition:fade={{ duration: 200 }}
   role="dialog"
   aria-modal="true"
+  onclick={handleBackdropClick}
+  onkeydown={handleGlobalKeydown}
+  tabindex="-1"
 >
-  <!-- Backdrop click handler -->
-  <div
-    class="absolute inset-0"
-    onclick={onclose}
-    role="button"
-    tabindex="-1"
-    onkeydown={(e) => e.key === "Enter" && onclose()}
-  ></div>
-
   <div
     class="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-700 bg-[#1a1a1a] shadow-2xl"
     transition:scale={{ duration: 200, start: 0.95 }}

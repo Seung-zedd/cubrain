@@ -6,6 +6,7 @@
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import CircleCheck from "@lucide/svelte/icons/circle-check";
   import { fade, scale, slide, fly } from "svelte/transition";
+  import { useModal } from "$lib/modal.svelte";
 
   let { onclose } = $props<{ onclose: () => void }>();
 
@@ -26,11 +27,7 @@
     onclose();
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      close();
-    }
-  }
+  const { handleBackdropClick, handleKeydown } = useModal(close);
 
   async function handleRequestCode() {
     if (!email || !validateEmail(email)) {
@@ -111,23 +108,15 @@
   }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
   transition:fade={{ duration: 200 }}
   role="dialog"
   aria-modal="true"
+  onclick={handleBackdropClick}
+  onkeydown={handleKeydown}
+  tabindex="-1"
 >
-  <!-- Backdrop click handler -->
-  <div
-    class="absolute inset-0"
-    onclick={close}
-    role="button"
-    tabindex="-1"
-    onkeydown={(e) => e.key === "Enter" && close()}
-  ></div>
-
   <div
     class="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-700 bg-[#1a1a1a] shadow-2xl"
     transition:scale={{ duration: 200, start: 0.95 }}
