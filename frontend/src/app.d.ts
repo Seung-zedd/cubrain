@@ -21,6 +21,7 @@ declare global {
       }) => void;
       Refresh: () => void;
     };
+    createLemonSqueezy?: () => void;
   }
 }
 

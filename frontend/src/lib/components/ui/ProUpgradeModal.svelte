@@ -7,10 +7,12 @@
 
   let {
     onclose,
+    onsignup,
     type = "daily_limit",
     mode = "free",
   } = $props<{
     onclose: () => void;
+    onsignup?: () => void;
     type?: "daily_limit";
     mode?: "guest" | "free";
   }>();
@@ -130,7 +132,11 @@
           <button
             onclick={() => {
               close();
-              goto("/login");
+              if (onsignup) {
+                onsignup();
+              } else {
+                goto("/login");
+              }
             }}
             class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300"
           >

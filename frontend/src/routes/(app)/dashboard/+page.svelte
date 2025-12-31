@@ -607,6 +607,7 @@
     type={proModalType}
     mode={user.current ? "free" : "guest"}
     onclose={() => (showProModal = false)}
+    onsignup={() => (showLoginModal = true)}
   />
 {/if}
 

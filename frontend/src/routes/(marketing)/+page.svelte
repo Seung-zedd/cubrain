@@ -1,5 +1,6 @@
 <script lang="ts">
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
+  import { onMount } from "svelte";
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
   import { user } from "$lib/stores/user.svelte";
@@ -13,11 +14,11 @@
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Star from "@lucide/svelte/icons/star";
+  import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import { cn } from "$lib/utils";
 
-  let email = $state("");
-  let status = $state("idle"); // 'idle' | 'loading' | 'success' | 'error'
-  let message = $state("");
   let showLoginModal = $state(false);
   let isMobileMenuOpen = $state(false);
 
@@ -25,51 +26,12 @@
     isMobileMenuOpen = !isMobileMenuOpen;
   };
 
-  const joinWaitlist = async () => {
-    if (!email || !email.includes("@")) {
-      status = "error";
-      message = "Please enter a valid email address.";
-      return;
+  onMount(() => {
+    // Initialize Lemon Squeezy if available
+    if (window.createLemonSqueezy) {
+      window.createLemonSqueezy();
     }
-
-    status = "loading";
-    message = "";
-
-    try {
-      const response = await authFetch("/api/v1/waitlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        status = "success";
-        message = "Thanks for joining! We'll be in touch soon.";
-        email = "";
-      } else {
-        const text = await response.text();
-        status = "error";
-        try {
-          const errorData = JSON.parse(text);
-          message =
-            errorData.message ||
-            errorData.details ||
-            "Something went wrong. Please try again.";
-        } catch (e) {
-          message = text || "Something went wrong. Please try again.";
-        }
-      }
-    } catch (err) {
-      if (import.meta.env.DEV) {
-        console.error(err);
-      }
-      status = "error";
-      message =
-        "Failed to connect to the server. Please check your connection.";
-    }
-  };
+  });
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -115,7 +77,7 @@
         <a
           href="/dashboard"
           class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >Go to Dashboard</a
+          >Dashboard</a
         >
       {:else}
         <div class="flex items-center gap-4">
@@ -125,9 +87,9 @@
             >Sign In</button
           >
           <a
-            href="#waitlist"
+            href="/login"
             class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-            >Get Early Access</a
+            >Get Started</a
           >
         </div>
       {/if}
@@ -247,7 +209,7 @@
               class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <LayoutDashboard class="w-5 h-5" />
-              Go to Dashboard
+              Dashboard
             </a>
           {:else}
             <button
@@ -261,12 +223,12 @@
               Sign In
             </button>
             <a
-              href="#waitlist"
+              href="/login"
               onclick={toggleMobileMenu}
               class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <Zap class="w-5 h-5" />
-              Get Early Access
+              Get Started
             </a>
           {/if}
         </div>
@@ -309,13 +271,14 @@
           class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
         >
           <a
-            href="#waitlist"
-            class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-            >Join the Waitlist</a
+            href="/login"
+            class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
+            >Start for Free</a
           >
-          <button
+          <a
+            href="#pricing"
             class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
-            >Learn More</button
+            >View Pricing</a
           >
         </div>
       </div>
@@ -344,6 +307,17 @@
         class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
       ></div>
       <FlashcardDemo />
+
+      <div class="mt-12 text-center">
+        <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
+        <a
+          href="/dashboard"
+          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
+        >
+          Upload Now
+          <ArrowRight class="w-5 h-5" />
+        </a>
+      </div>
     </section>
 
     <section id="features" class="py-24 px-6 max-w-7xl mx-auto">
@@ -424,68 +398,131 @@
       </div>
     </section>
 
-    <section id="waitlist" class="py-24 px-6 flex justify-center relative">
+    <section id="pricing" class="py-24 px-6 relative">
       <!-- Background Glow -->
       <div
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"
       ></div>
-      <div
-        class="bg-black/40 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-3xl w-full relative overflow-hidden"
-      >
-        <div
-          class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#FFD700] to-transparent opacity-50"
-        ></div>
 
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">
-          Join the Waitlist
-        </h2>
-        <p class="text-white/60 mb-10 text-base md:text-lg">
-          Be the first to experience the future of learning. Limited spots
-          available.
-        </p>
-
-        <form
-          class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto"
-          onsubmit={(e) => {
-            e.preventDefault();
-            joinWaitlist();
-          }}
-        >
-          <input
-            type="email"
-            placeholder="Enter your email address"
-            required
-            bind:value={email}
-            disabled={status === "loading" || status === "success"}
-            class="flex-1 px-6 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            class="px-8 py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] disabled:opacity-50 transition-all whitespace-nowrap transform hover:-translate-y-0.5"
-            disabled={status === "loading" || status === "success"}
-          >
-            {#if status === "loading"}
-              Joining...
-            {:else if status === "success"}
-              ✓ Joined!
-            {:else}
-              Join Now
-            {/if}
-          </button>
-        </form>
-        {#if message}
-          <p
-            class="mt-6 font-medium"
-            style="color: {status === 'success' ? '#4ade80' : '#f87171'};"
-          >
-            {message}
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+            Simple, <span class="text-[#FFD700]">Transparent</span> Pricing
+          </h2>
+          <p class="text-white/60 max-w-2xl mx-auto text-lg">
+            Choose the plan that fits your study needs.
           </p>
-        {/if}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          <!-- Free Plan -->
+          <div
+            class="flex flex-col p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm relative overflow-hidden"
+          >
+            <div class="mb-8">
+              <h3 class="text-xl font-bold text-white mb-2">Free</h3>
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold text-white">$0</span>
+                <span class="text-white/40">/month</span>
+              </div>
+            </div>
+
+            <ul class="space-y-4 mb-10 flex-1">
+              <li class="flex items-center gap-3 text-white/70">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>3 PDFs / day</span>
+              </li>
+              <li class="flex items-center gap-3 text-white/70">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>First 50 pages only</span>
+              </li>
+              <li class="flex items-center gap-3 text-white/70">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Anki Export Support</span>
+              </li>
+            </ul>
+
+            <a
+              href="/login"
+              class="w-full py-4 rounded-xl font-bold bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all text-center"
+            >
+              Start for Free
+            </a>
+          </div>
+
+          <!-- Pro Plan -->
+          <div
+            class="flex flex-col p-8 rounded-3xl bg-zinc-900 border-2 border-[#FFD700] shadow-[0_0_40px_rgba(255,215,0,0.15)] relative overflow-hidden"
+          >
+            <!-- Badge -->
+            <div
+              class="absolute top-0 right-0 bg-[#FFD700] text-black px-4 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1"
+            >
+              <Star class="w-3 h-3 fill-current" />
+              LAUNCH OFFER
+            </div>
+
+            <div class="mb-8">
+              <h3 class="text-xl font-bold text-white mb-2">Pro</h3>
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold text-white">$19</span>
+                <span class="text-white/40">/month</span>
+              </div>
+            </div>
+
+            <ul class="space-y-4 mb-10 flex-1">
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>100 PDFs / day</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Full Book Support (1,000 pages)</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Priority AI processing</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Anki Export Support</span>
+              </li>
+            </ul>
+
+            <UpgradeButton class="w-full h-14" text="Upgrade to Cubrain Pro" />
+          </div>
+        </div>
       </div>
     </section>
 
-    <footer class="text-center py-12 text-white/40 border-t border-white/5">
-      <p>&copy; 2025 Cubrain. All rights reserved.</p>
+    <footer class="py-16 px-6 border-t border-white/5">
+      <div
+        class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8"
+      >
+        <div class="flex flex-col items-center md:items-start gap-4">
+          <img
+            src="/logo-gold.png"
+            alt="Cubrain AI Logo"
+            class="h-8 w-auto opacity-80"
+          />
+          <p class="text-white/40 text-sm">
+            &copy; 2026 Cubrain. All rights reserved.
+          </p>
+        </div>
+
+        <div class="flex gap-8">
+          <a
+            href="/terms"
+            class="text-white/40 hover:text-[#FFD700] text-sm transition-colors"
+            >Terms of Service</a
+          >
+          <a
+            href="/privacy"
+            class="text-white/40 hover:text-[#FFD700] text-sm transition-colors"
+            >Privacy Policy</a
+          >
+        </div>
+      </div>
     </footer>
   </main>
 </div>
