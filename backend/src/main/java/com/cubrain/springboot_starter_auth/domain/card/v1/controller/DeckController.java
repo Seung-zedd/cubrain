@@ -213,11 +213,14 @@ public class DeckController {
         log.info("📤 [API Request] GET /api/v1/decks/{}/export/anki - User: {}", id, member.getEmail());
         String csv = cardService.exportToAnki(id);
 
-        String filename = deck.getTitle().replaceAll("[^a-zA-Z0-9]", "_") + "_anki.csv";
+        String baseFilename = deck.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_") + "_anki.csv";
+        org.springframework.http.ContentDisposition contentDisposition = org.springframework.http.ContentDisposition
+                .attachment()
+                .filename(baseFilename, java.nio.charset.StandardCharsets.UTF_8)
+                .build();
 
         return ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + filename + "\"")
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .contentType(org.springframework.http.MediaType.parseMediaType("text/csv; charset=UTF-8"))
                 .body(csv);
     }

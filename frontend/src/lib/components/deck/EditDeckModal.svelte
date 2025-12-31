@@ -91,11 +91,32 @@
       isSaving = false;
     }
   }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onclose();
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      onclose();
+    }
+  }
+
+  $effect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  });
 </script>
 
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
   transition:fade={{ duration: 200 }}
+  onclick={handleBackdropClick}
+  role="button"
+  tabindex="-1"
+  onkeydown={handleKeydown}
 >
   <div
     class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col"
