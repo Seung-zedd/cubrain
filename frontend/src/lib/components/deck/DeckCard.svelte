@@ -50,7 +50,31 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        const filename = deck.title.replace(/[^a-zA-Z0-9]/g, "_") + "_anki.csv";
+
+        // Try to get filename from Content-Disposition header
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "";
+        if (contentDisposition) {
+          const filenameStarMatch = contentDisposition.match(
+            /filename\*=UTF-8''([^;]+)/
+          );
+          if (filenameStarMatch) {
+            filename = decodeURIComponent(filenameStarMatch[1]);
+          } else {
+            const filenameMatch = contentDisposition.match(
+              /filename="?([^";]+)"?/
+            );
+            if (filenameMatch) {
+              filename = filenameMatch[1];
+            }
+          }
+        }
+
+        // Fallback to deck title if header parsing fails
+        if (!filename) {
+          filename = deck.title.replace(/[\\/:*?"<>|]/g, "_") + "_anki.csv";
+        }
+
         a.download = filename;
         document.body.appendChild(a);
         a.click();

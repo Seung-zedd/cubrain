@@ -12,6 +12,8 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import java.util.List;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import org.springframework.web.util.UriUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -214,13 +216,11 @@ public class DeckController {
         String csv = cardService.exportToAnki(id);
 
         String baseFilename = deck.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_") + "_anki.csv";
-        org.springframework.http.ContentDisposition contentDisposition = org.springframework.http.ContentDisposition
-                .attachment()
-                .filename(baseFilename, java.nio.charset.StandardCharsets.UTF_8)
-                .build();
+        String encodedFilename = UriUtils.encode(baseFilename, StandardCharsets.UTF_8);
 
         return ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + encodedFilename + "\"; filename*=UTF-8''" + encodedFilename)
                 .contentType(org.springframework.http.MediaType.parseMediaType("text/csv; charset=UTF-8"))
                 .body(csv);
     }
