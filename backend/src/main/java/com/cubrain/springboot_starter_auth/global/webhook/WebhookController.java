@@ -2,6 +2,7 @@ package com.cubrain.springboot_starter_auth.global.webhook;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,10 @@ import java.util.HexFormat;
 @RestController
 @RequestMapping("/api/webhooks")
 @Tag(name = "Webhook", description = "Webhook management APIs")
+@RequiredArgsConstructor
 public class WebhookController {
+
+    private final WebhookService webhookService;
 
     @Value("${lemonsqueezy.webhook.secret}")
     private String webhookSecret;
@@ -43,11 +47,8 @@ public class WebhookController {
         }
 
         try {
-            log.info("[Webhook] Signature verified. Payload: {}", payload);
-
-            // TODO: Process the webhook payload based on event type (e.g.,
-            // subscription_created, subscription_updated)
-
+            log.info("[Webhook] Signature verified. Processing payload...");
+            webhookService.handleSubscriptionEvent(payload);
             return ResponseEntity.ok("Webhook processed successfully");
         } catch (Exception e) {
             log.error("[Webhook] Critical error during processing. Payload: {}", payload, e);

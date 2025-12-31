@@ -100,7 +100,6 @@ Always provide the TestSprite markdown report after running tests.
 - **DTOs:** Never return `@Entity` objects in Controllers. Always map them to `Record` DTOs.
 - **Naming Convention:** All Data Transfer Objects must end with the suffix `Dto` (e.g., `CardRequestDto`).
 - **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
-- **Transactional:** Do NOT apply `@Transactional` on methods involving external API calls (AI, S3, etc.) to prevent connection pool starvation. Apply it only to the DB access layer.
   Also, declare `@Transactional(readOnly = true)` for class level and override for method level if need for every ServiceImpl layer.
 - **Import Style:**
   - **Class Imports:** NO Wildcards. Explicitly import each class.
