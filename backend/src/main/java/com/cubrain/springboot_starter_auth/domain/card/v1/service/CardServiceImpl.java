@@ -177,7 +177,8 @@ public class CardServiceImpl implements CardService {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
-        StringBuilder csv = new StringBuilder();
+        // Prepend UTF-8 BOM (\uFEFF) for Excel compatibility with non-ASCII characters
+        StringBuilder csv = new StringBuilder("\uFEFF");
         for (Flashcard card : deck.getCards()) {
             String question = sanitizeForCsv(card.getQuestion());
             String answer = sanitizeForCsv(card.getAnswer());
