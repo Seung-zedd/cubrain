@@ -150,11 +150,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/webhooks/**"))
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint()))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth
+                            .requestMatchers("/api/webhooks/**").permitAll()
                             .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                             .requestMatchers("/", "/index.html", "/favicon.ico", "/manifest.json", "/robots.txt",
                                     "/site.webmanifest")
