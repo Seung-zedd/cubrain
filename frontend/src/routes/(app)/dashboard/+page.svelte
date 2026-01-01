@@ -281,7 +281,18 @@
     return text.replace(/\{\{c\d+::.*?\}\}/g, "______");
   }
 
-  function resetView() {
+  async function resetView() {
+    if (jobId) {
+      try {
+        await authFetch(`/api/v1/pdf/jobs/${jobId}/dismiss`, {
+          method: "POST",
+        });
+      } catch (e) {
+        if (import.meta.env.DEV) {
+          console.error("Failed to dismiss job:", e);
+        }
+      }
+    }
     isEmptyState = false;
     showResults = false;
     generatedCards = [];
@@ -310,7 +321,7 @@
       if (response.ok) {
         await fetchRecentDecks();
         showSaveModal = false;
-        resetView();
+        await resetView();
         // Redirect to library to see the newly saved deck
         goto("/library");
       }

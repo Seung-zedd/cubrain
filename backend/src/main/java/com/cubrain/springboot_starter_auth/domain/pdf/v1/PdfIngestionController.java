@@ -139,6 +139,10 @@ public class PdfIngestionController {
         }
 
         return jobIdOpt
+                .filter(jobId -> {
+                    Map<String, Object> metadata = jobManager.getMetadata(jobId);
+                    return !Boolean.TRUE.equals(metadata.get("dismissed"));
+                })
                 .map(jobId -> {
                     JobStatus status = jobManager.getStatus(jobId);
                     int progress = jobManager.getProgress(jobId);
@@ -147,6 +151,16 @@ public class PdfIngestionController {
                     return ok(JobStatusResponseDto.of(status, progress, results, metadata));
                 })
                 .orElse(notFound().build());
+    }
+
+    @Operation(summary = "Dismiss Job", description = "Marks a job as dismissed so it no longer appears as the recent job.")
+    @PostMapping("/jobs/{jobId}/dismiss")
+    public ResponseEntity<?> dismissJob(@PathVariable String jobId) {
+        if (jobManager.getStatus(jobId) == null) {
+            return notFound().build();
+        }
+        jobManager.updateMetadata(jobId, "dismissed", true);
+        return ok().build();
     }
 
     @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
