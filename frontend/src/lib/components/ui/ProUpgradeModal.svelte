@@ -38,7 +38,7 @@
       description:
         mode === "guest"
           ? "Sign up for free to get more daily uploads and save your decks."
-          : "Finish the entire exam scope with Cubrain Pro.",
+          : "Get unlimited uploads for just $5.99/mo. (Limited Time Launch Offer)",
       highlight:
         mode === "guest" ? "Guest Limit Reached" : "Daily limit reached (3/3)",
       features:
@@ -51,9 +51,9 @@
             ]
           : [
               "Unlimited daily uploads",
-              "Process entire textbooks",
+              "Process entire textbooks (1,000 pages)",
               "Priority AI generation",
-              "Advanced study modes",
+              "Export to Anki (.csv)",
             ],
     },
   };

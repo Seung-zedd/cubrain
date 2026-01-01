@@ -464,8 +464,9 @@
 
             <div class="mb-8">
               <h3 class="text-xl font-bold text-white mb-2">Pro</h3>
-              <div class="flex items-baseline gap-1">
-                <span class="text-4xl font-bold text-white">$19</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-4xl font-bold text-white">$5.99</span>
+                <span class="text-white/40 line-through text-lg">$11.99</span>
                 <span class="text-white/40">/month</span>
               </div>
             </div>
@@ -473,7 +474,7 @@
             <ul class="space-y-4 mb-10 flex-1">
               <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>100 PDFs / day</span>
+                <span>Unlimited daily uploads</span>
               </li>
               <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
@@ -485,7 +486,7 @@
               </li>
               <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>Anki Export Support</span>
+                <span>Anki Export Support (.csv)</span>
               </li>
             </ul>
 
