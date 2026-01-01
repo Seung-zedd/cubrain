@@ -3,9 +3,7 @@ package com.cubrain.springboot_starter_auth.domain.job.v1;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
-
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.FAILED;
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.PROCESSING;
@@ -133,15 +131,20 @@ public class JobManagerImpl implements JobManager {
 
     @Override
     public java.util.Optional<String> findLastJobIdByOwner(String ownerId) {
+        return findAllJobsByOwner(ownerId).stream().findFirst();
+    }
+
+    @Override
+    public java.util.List<String> findAllJobsByOwner(String ownerId) {
         return jobOwners.entrySet().stream()
                 .filter(e -> e.getValue().equals(ownerId))
                 .map(Map.Entry::getKey)
                 .sorted((id1, id2) -> {
                     Instant t1 = jobCompletionTimes.getOrDefault(id1, Instant.MIN);
                     Instant t2 = jobCompletionTimes.getOrDefault(id2, Instant.MIN);
-                    return t2.compareTo(t1); // Descending
+                    return t2.compareTo(t1); // Descending (most recent first)
                 })
-                .findFirst();
+                .toList();
     }
 
     @Override

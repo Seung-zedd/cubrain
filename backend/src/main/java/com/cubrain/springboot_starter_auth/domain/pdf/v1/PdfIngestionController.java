@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 import java.util.Optional;
-
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED;
 import static org.springframework.http.ResponseEntity.notFound;
 import static org.springframework.http.ResponseEntity.ok;
@@ -125,32 +124,44 @@ public class PdfIngestionController {
         }
 
         String ownerId = email != null ? email.toLowerCase() : clientIp;
-        Optional<String> jobIdOpt = jobManager.findLastJobIdByOwner(ownerId);
+        log.info("[Job] Fetching recent job for owner: {}", ownerId);
 
-        // If authenticated but no job found for email, check if there's a recent job
-        // for this IP to claim
+        // 1. Try to find the last non-dismissed job for the primary owner
+        Optional<String> jobIdOpt = jobManager.findAllJobsByOwner(ownerId).stream()
+                .filter(jobId -> !isDismissed(jobId))
+                .findFirst();
+
+        // 2. If authenticated but no job found for email, check IP
         if (jobIdOpt.isEmpty() && email != null) {
-            jobIdOpt = jobManager.findLastJobIdByOwner(clientIp);
+            log.info("[Job] No email job found, checking IP: {}", clientIp);
+            jobIdOpt = jobManager.findAllJobsByOwner(clientIp).stream()
+                    .filter(jobId -> !isDismissed(jobId))
+                    .findFirst();
             if (jobIdOpt.isPresent()) {
                 String jobId = jobIdOpt.get();
-                log.info("[UsageLimit] Claiming guest job {} for user {}", jobId, email);
+                log.info("[Job] Claiming guest job {} for user {}", jobId, email);
                 jobManager.changeOwner(jobId, email.toLowerCase());
             }
         }
 
         return jobIdOpt
-                .filter(jobId -> {
-                    Map<String, Object> metadata = jobManager.getMetadata(jobId);
-                    return !Boolean.TRUE.equals(metadata.get("dismissed"));
-                })
                 .map(jobId -> {
                     JobStatus status = jobManager.getStatus(jobId);
                     int progress = jobManager.getProgress(jobId);
                     Object results = status == COMPLETED ? jobManager.getResults(jobId) : null;
                     Map<String, Object> metadata = jobManager.getMetadata(jobId);
+                    log.info("[Job] Found recent job: {} (Status: {})", jobId, status);
                     return ok(JobStatusResponseDto.of(status, progress, results, metadata));
                 })
-                .orElse(notFound().build());
+                .orElseGet(() -> {
+                    log.info("[Job] No recent non-dismissed job found for {}", ownerId);
+                    return notFound().build();
+                });
+    }
+
+    private boolean isDismissed(String jobId) {
+        Map<String, Object> metadata = jobManager.getMetadata(jobId);
+        return Boolean.TRUE.equals(metadata.get("dismissed"));
     }
 
     @Operation(summary = "Dismiss Job", description = "Marks a job as dismissed so it no longer appears as the recent job.")
@@ -159,6 +170,7 @@ public class PdfIngestionController {
         if (jobManager.getStatus(jobId) == null) {
             return notFound().build();
         }
+        log.info("[Job] Dismissing job: {}", jobId);
         jobManager.updateMetadata(jobId, "dismissed", true);
         return ok().build();
     }

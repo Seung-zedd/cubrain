@@ -31,5 +31,7 @@ public interface JobManager {
 
     java.util.Optional<String> findLastJobIdByOwner(String ownerId);
 
+    java.util.List<String> findAllJobsByOwner(String ownerId);
+
     void changeOwner(String jobId, String newOwnerId);
 }
