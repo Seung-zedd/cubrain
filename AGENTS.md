@@ -261,3 +261,10 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 - **Backend (Java):** Ensure no wildcard imports are used and every new class is explicitly imported.
 - **Frontend (Svelte/TS):** Ensure all components, icons, and utilities are correctly imported and unused imports are removed.
 - **Verification:** Before finishing a task, run a build or check (e.g., `pnpm run check` or `./gradlew compileJava`) to ensure no "cannot find symbol" or "missing import" errors exist.
+
+## 19. 🛡️ XSS Prevention Rule
+
+- **Rule: Avoid `{@html}` with User-Controlled Input.**
+- To prevent Cross-Site Scripting (XSS) attacks, **NEVER** use Svelte's `{@html}` tag to render strings that contain or are derived from user input (e.g., selected text, form inputs, URL parameters).
+- **Safe Alternative for Line Breaks:** Use standard Svelte interpolation `{}` combined with the CSS property `white-space: pre-wrap;` and newline characters (`\n`) in your strings. This allows Svelte to automatically escape dangerous HTML while still rendering line breaks correctly.
+- **Exception:** Only use `{@html}` for trusted, hardcoded content or content that has been explicitly sanitized using a robust library like DOMPurify.
