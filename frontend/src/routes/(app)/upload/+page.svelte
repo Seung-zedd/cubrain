@@ -373,6 +373,12 @@
             </div>
           </div>
           <div class="flex items-center gap-4">
+            <div
+              class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
+            >
+              {dailyUploadCount} / {maxLimit} Daily Uploads
+            </div>
+
             {#if isSaved}
               <div
                 class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500"
@@ -422,12 +428,6 @@
                 </button>
               {/if}
             {/if}
-
-            <div
-              class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
-            >
-              {dailyUploadCount} / {maxLimit} Daily Uploads
-            </div>
           </div>
         </div>
 
