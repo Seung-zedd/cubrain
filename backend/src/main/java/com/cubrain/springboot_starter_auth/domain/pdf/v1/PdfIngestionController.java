@@ -175,6 +175,23 @@ public class PdfIngestionController {
         return ok().build();
     }
 
+    @Operation(summary = "Dismiss All Jobs", description = "Marks all jobs for the current user as dismissed.")
+    @PostMapping("/jobs/dismiss-all")
+    public ResponseEntity<?> dismissAllJobs(
+            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request) {
+        String email = jwt != null ? jwt.getClaimAsString("email") : null;
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        }
+        String ownerId = email != null ? email.toLowerCase() : clientIp;
+
+        log.info("[Job] Dismissing all jobs for owner: {}", ownerId);
+        jobManager.findAllJobsByOwner(ownerId).forEach(jobId -> jobManager.updateMetadata(jobId, "dismissed", true));
+        return ok().build();
+    }
+
     @Operation(summary = "Get Job Status", description = "Retrieves the status and results of a background job.")
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<JobStatusResponseDto> getJobStatus(@PathVariable String jobId) {

@@ -48,6 +48,7 @@
   let jobMetadata = $state<Record<string, any>>({});
   let sourceFileName = $state<string | null>(null);
   let isSavingDeck = $state(false);
+  let isSaved = $state(false);
   let currentFileIndex = $state(0);
   let totalFiles = $state(0);
 
@@ -86,24 +87,9 @@
   );
 
   onMount(async () => {
-    // Check for pending guest cards after login redirect (IP-based persistence)
-    try {
-      const response = await authFetch("/api/v1/pdf/recent");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === "COMPLETED" && data.results) {
-          generatedCards = data.results;
-          showResults = true;
-          if (data.metadata) {
-            jobMetadata = data.metadata;
-          }
-        }
-      }
-    } catch (e) {
-      if (import.meta.env.DEV) {
-        console.error("Failed to fetch recent job", e);
-      }
-    }
+    // We no longer fetch recent jobs on mount to prevent stale data
+    // and to follow the "fresh start" principle.
+    // Guest-to-user transition is now handled via explicit save.
   });
 
   // Cleanup polling interval when component unmounts
@@ -251,20 +237,23 @@
     return text.replace(/\{\{c\d+::.*?\}\}/g, "______");
   }
 
-  async function resetView() {
-    if (jobId) {
-      try {
-        await authFetch(`/api/v1/pdf/jobs/${jobId}/dismiss`, {
-          method: "POST",
-        });
-      } catch (e) {
-        if (import.meta.env.DEV) {
-          console.error("Failed to dismiss job:", e);
-        }
+  async function dismissAllJobs() {
+    try {
+      await authFetch("/api/v1/pdf/jobs/dismiss-all", {
+        method: "POST",
+      });
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to dismiss all jobs:", e);
       }
     }
+  }
+
+  async function resetView() {
+    await dismissAllJobs();
     isEmptyState = false;
     showResults = false;
+    isSaved = false;
     generatedCards = [];
     files = [];
     errorMessage = null;
@@ -290,9 +279,9 @@
 
       if (response.ok) {
         showSaveModal = false;
-        await resetView();
-        // Redirect to library to see the newly saved deck
-        goto("/library");
+        isSaved = true;
+        // Dismiss jobs so they don't show up as "recent" anywhere else
+        await dismissAllJobs();
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -373,29 +362,54 @@
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <button
-              onclick={resetView}
-              class="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-white font-medium transition-colors"
-            >
-              <RefreshCw class="w-4 h-4" />
-              Start Over
-            </button>
-            {#if !user.current}
-              <button
-                onclick={() => (showLoginModal = true)}
-                class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+            {#if isSaved}
+              <div
+                class="flex items-center gap-4 animate-in fade-in slide-in-from-right-4"
               >
-                <Save class="w-4 h-4" />
-                <span>Sign in to Save</span>
-              </button>
+                <div class="flex flex-col items-end">
+                  <p class="text-green-400 font-bold text-sm">
+                    Deck Saved Successfully!
+                  </p>
+                  <button
+                    onclick={() => goto("/library")}
+                    class="text-zinc-400 hover:text-white text-xs underline underline-offset-4 transition-colors"
+                  >
+                    Go to Library
+                  </button>
+                </div>
+                <button
+                  onclick={resetView}
+                  class="flex items-center gap-2 px-6 py-2 bg-white hover:bg-zinc-200 text-black font-bold rounded-lg transition-all shadow-lg"
+                >
+                  <RefreshCw class="w-4 h-4" />
+                  Start Over
+                </button>
+              </div>
             {:else}
               <button
-                onclick={() => (showSaveModal = true)}
-                class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 bg-amber-500 text-black hover:bg-amber-400"
+                onclick={resetView}
+                class="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-white font-medium transition-colors"
               >
-                <Save class="w-4 h-4" />
-                <span>Save to Library</span>
+                <RefreshCw class="w-4 h-4" />
+                Start Over
               </button>
+              {#if !user.current}
+                <button
+                  onclick={() => (showLoginModal = true)}
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 border border-[#FFD700] text-white shadow-[0_0_10px_rgba(255,215,0,0.1)] hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Sign in to Save</span>
+                </button>
+              {:else}
+                <button
+                  onclick={() => (showSaveModal = true)}
+                  class="group flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition-all duration-300 bg-amber-500 text-black hover:bg-amber-400"
+                >
+                  <Save class="w-4 h-4" />
+                  <span>Save to Library</span>
+                </button>
+              {/if}
             {/if}
           </div>
         </div>
