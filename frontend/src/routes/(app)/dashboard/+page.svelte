@@ -168,7 +168,7 @@
     );
     files = [...files, ...uniqueNewFiles];
     if (files.length > 0 && !sourceFileName) {
-      sourceFileName = files[0].name.replace(".pdf", "");
+      sourceFileName = files[0].name.replace(/\.pdf$/i, "");
     }
   }
 

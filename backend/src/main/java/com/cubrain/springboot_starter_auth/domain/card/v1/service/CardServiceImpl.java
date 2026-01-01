@@ -42,6 +42,16 @@ public class CardServiceImpl implements CardService {
     public String generateCardsAsync(MultipartFile file, UserTier userTier, String ownerId) {
         String jobId = jobManager.createJob(ownerId);
 
+        // Set initial metadata: use filename (without .pdf) as default title
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null) {
+            // Normalize to NFC (composed) to handle different OS filename encodings (e.g.,
+            // macOS NFD)
+            String normalized = java.text.Normalizer.normalize(originalFilename, java.text.Normalizer.Form.NFC);
+            String title = normalized.replaceAll("(?i)\\.pdf$", "");
+            jobManager.updateMetadata(jobId, "title", title);
+        }
+
         CompletableFuture.runAsync(() -> {
             try {
                 List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(file, userTier, jobId);
