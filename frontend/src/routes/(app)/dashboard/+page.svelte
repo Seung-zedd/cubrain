@@ -289,6 +289,9 @@
     errorMessage = null;
     jobMetadata = {};
     sourceFileName = null;
+    jobId = null;
+    jobStatus = "PROCESSING";
+    jobProgress = 0;
   }
 
   async function saveToLibrary(customTitle: string) {
@@ -308,8 +311,8 @@
         await fetchRecentDecks();
         showSaveModal = false;
         resetView();
-        // Redirect to upload mode to allow another upload
-        goto("/dashboard?mode=upload");
+        // Redirect to library to see the newly saved deck
+        goto("/library");
       }
     } catch (error) {
       if (import.meta.env.DEV) {
