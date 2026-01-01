@@ -8,7 +8,10 @@
   import { fade, scale, slide, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
 
-  let { onclose } = $props<{ onclose: () => void }>();
+  let { onclose, redirectTo = "/library" } = $props<{
+    onclose: () => void;
+    redirectTo?: string;
+  }>();
 
   let email = $state("");
   let verificationCode = $state("");
@@ -87,7 +90,7 @@
 
       await fetchUser();
       setTimeout(() => {
-        window.location.href = "/library";
+        window.location.href = redirectTo;
       }, 800);
     } catch (err: any) {
       if (import.meta.env.DEV) {
@@ -157,7 +160,7 @@
             const { error } = await supabase.auth.signInWithOAuth({
               provider: "google",
               options: {
-                redirectTo: `${window.location.origin}/library`,
+                redirectTo: `${window.location.origin}${redirectTo}`,
               },
             });
             if (error && import.meta.env.DEV) {

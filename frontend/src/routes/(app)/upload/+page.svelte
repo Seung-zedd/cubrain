@@ -87,9 +87,24 @@
   );
 
   onMount(async () => {
-    // We no longer fetch recent jobs on mount to prevent stale data
-    // and to follow the "fresh start" principle.
-    // Guest-to-user transition is now handled via explicit save.
+    // Check for pending guest cards after login redirect (IP-based persistence)
+    try {
+      const response = await authFetch("/api/v1/pdf/recent");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "COMPLETED" && data.results) {
+          generatedCards = data.results;
+          showResults = true;
+          if (data.metadata) {
+            jobMetadata = data.metadata;
+          }
+        }
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch recent job", e);
+      }
+    }
   });
 
   // Cleanup polling interval when component unmounts
@@ -535,7 +550,7 @@
 </div>
 
 {#if showLoginModal}
-  <LoginModal onclose={() => (showLoginModal = false)} />
+  <LoginModal redirectTo="/upload" onclose={() => (showLoginModal = false)} />
 {/if}
 
 {#if showTotalSizeToast}
