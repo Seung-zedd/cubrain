@@ -185,9 +185,9 @@
         text.includes("higher quality")
       ) {
         mockFlashcard = {
-          question: "Why did you generate this Demo disclaimer text?",
+          question: "Why did you generate this text except for Demo phrase?",
           answer:
-            "Because I'm a very curious learner, so I wanna check this out.\n\n👇 I knew you would drag this text than you expected. Don't you curious about real AI generation? Just click below button!",
+            "Because I'm a very curious learner, so I wanna check this out. <br> I knew you would drag this text. Don't you curious about real AI generation? Just click below button!👇",
         };
       } else if (text.includes("simulation") || text.includes("intelligence")) {
         mockFlashcard = {
@@ -343,7 +343,7 @@
             Answer
           </span>
           <p class="text-gray-300 text-base leading-relaxed">
-            {flashcard.answer}
+            {@html flashcard.answer}
           </p>
         </div>
       </div>
