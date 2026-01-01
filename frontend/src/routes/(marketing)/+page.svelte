@@ -326,23 +326,13 @@
 
       <div class="mt-12 text-center">
         <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
-        {#if user.current}
-          <a
-            href="/dashboard"
-            class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
-          >
-            Upload Now
-            <ArrowRight class="w-5 h-5" />
-          </a>
-        {:else}
-          <button
-            onclick={() => (showLoginModal = true)}
-            class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
-          >
-            Upload Now
-            <ArrowRight class="w-5 h-5" />
-          </button>
-        {/if}
+        <a
+          href="/dashboard"
+          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
+        >
+          Upload Now
+          <ArrowRight class="w-5 h-5" />
+        </a>
       </div>
     </section>
 
