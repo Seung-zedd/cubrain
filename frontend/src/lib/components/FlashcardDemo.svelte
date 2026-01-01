@@ -179,11 +179,18 @@
       const text = selectedText.toLowerCase();
       let mockFlashcard: Flashcard;
 
-      // Easter Egg check
-      if (
-        text.includes("simplified interactive demo") &&
-        text.includes("higher quality")
-      ) {
+      // Easter Egg check: Trigger if selecting meta-text (headers, instructions, disclaimer, or result card)
+      const isMetaText =
+        text.includes("interactive demo") ||
+        text.includes("try it yourself") ||
+        text.includes("highlight any text") ||
+        text.includes("simplified interactive demo") ||
+        text.includes("generated flashcard") ||
+        text.includes("why did you generate this text") ||
+        text.includes("curious learner") ||
+        text.includes("real ai generation");
+
+      if (isMetaText) {
         mockFlashcard = {
           question: "Why did you generate this text except for Demo phrase?",
           answer:
