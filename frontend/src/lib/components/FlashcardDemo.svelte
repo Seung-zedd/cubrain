@@ -23,6 +23,7 @@
   let demoContainer = $state<HTMLElement>(); // Reference to the container
   let errorMessage = $state("");
   let errorTimeout: ReturnType<typeof setTimeout>;
+  let isMetaSelection = $state(false);
 
   const MAX_LOCAL_CONTEXT_LENGTH = 2000;
   const MAX_GLOBAL_CONTEXT_LENGTH = 4000;
@@ -139,6 +140,10 @@
 
     selectedText = text;
 
+    // Check if selection is within a meta area
+    const anchorElement = getNearestElement(selection.anchorNode);
+    isMetaSelection = !!anchorElement?.closest(".demo-meta");
+
     // Calculate position relative to the container
     // We use the container's rect to offset the button's position
     btnX = rect.left - containerRect.left + rect.width / 2;
@@ -179,18 +184,8 @@
       const text = selectedText.toLowerCase();
       let mockFlashcard: Flashcard;
 
-      // Easter Egg check: Trigger if selecting meta-text (headers, instructions, disclaimer, or result card)
-      const isMetaText =
-        text.includes("interactive demo") ||
-        text.includes("try it yourself") ||
-        text.includes("highlight any text") ||
-        text.includes("simplified interactive demo") ||
-        text.includes("generated flashcard") ||
-        text.includes("why did you generate this text") ||
-        text.includes("curious learner") ||
-        text.includes("real ai generation");
-
-      if (isMetaText) {
+      // Easter Egg check: Trigger if selection was within a meta area
+      if (isMetaSelection) {
         mockFlashcard = {
           question: "Why did you generate this text except for Demo phrase?",
           answer:
@@ -271,11 +266,11 @@
 >
   <div class="flex items-center gap-4 mb-8">
     <span
-      class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-[#FFD700] text-black shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+      class="demo-meta inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-[#FFD700] text-black shadow-[0_0_15px_rgba(255,215,0,0.3)]"
     >
       ✨ Interactive Demo
     </span>
-    <h3 class="text-xl md:text-2xl font-bold text-white m-0">
+    <h3 class="demo-meta text-xl md:text-2xl font-bold text-white m-0">
       Try it yourself
     </h3>
   </div>
@@ -299,11 +294,11 @@
       for a particular task. Strong AI, also known as artificial general
       intelligence, is an AI system with generalized human cognitive abilities.
     </p>
-    <p class="instruction-text">
+    <p class="demo-meta instruction-text">
       <span role="img" aria-label="Pointing up">👆</span>
       <strong>Highlight any text above to generate a flashcard!</strong>
     </p>
-    <p class="text-xs text-white/40 text-center mt-4 italic">
+    <p class="demo-meta text-xs text-white/40 text-center mt-4 italic">
       Note: This is a simplified interactive demo. Real AI generation in the
       dashboard provides significantly higher quality and deeper context
       analysis.
@@ -327,7 +322,10 @@
   {/if}
 
   {#if flashcard}
-    <div class="result-card" transition:fly={{ y: 20, duration: 300 }}>
+    <div
+      class="demo-meta result-card"
+      transition:fly={{ y: 20, duration: 300 }}
+    >
       <div class="card-header">
         <span class="icon">✨</span> Generated Flashcard
         <button class="close-btn" onclick={() => (flashcard = null)}>×</button>
