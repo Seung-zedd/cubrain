@@ -12,6 +12,9 @@
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import Tag from "@lucide/svelte/icons/tag";
+  import FileText from "@lucide/svelte/icons/file-text";
+  import ShieldCheck from "@lucide/svelte/icons/shield-check";
+  import GraduationCap from "@lucide/svelte/icons/graduation-cap";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
@@ -384,12 +387,12 @@
           <div
             class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
           >
-            <RefreshCw class="w-6 h-6 text-[#FFD700]" />
+            <GraduationCap class="w-6 h-6 text-[#FFD700]" />
           </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">Seamless Sync</h3>
+          <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
           <p class="text-white/60 leading-relaxed">
-            Automatically syncs with Anki, Notion, and other tools you already
-            use, fitting perfectly into your workflow.
+            Practice directly in your browser with our built-in flashcard player.
+            Track your progress and master concepts faster.
           </p>
         </div>
 
@@ -400,12 +403,12 @@
           <div
             class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
           >
-            <CheckCircle2 class="w-6 h-6 text-[#FFD700]" />
+            <FileText class="w-6 h-6 text-[#FFD700]" />
           </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">AI Grading</h3>
+          <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
           <p class="text-white/60 leading-relaxed">
-            Get instant feedback on your answers. The AI acts as your personal
-            tutor, explaining why you were right or wrong.
+            Export your generated flashcards to .csv format instantly. Perfectly
+            formatted for Anki and other major study tools.
           </p>
         </div>
       </div>
