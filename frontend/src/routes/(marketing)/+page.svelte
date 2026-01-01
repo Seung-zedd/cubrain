@@ -285,10 +285,10 @@
               >Start Learning</a
             >
           {:else}
-            <a
-              href="/upload"
+            <button
+              onclick={() => (showLoginModal = true)}
               class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >Start for Free</a
+              >Start for Free</button
             >
           {/if}
           <a
@@ -466,12 +466,12 @@
                 Start Learning
               </a>
             {:else}
-              <a
-                href="/upload"
+              <button
+                onclick={() => (showLoginModal = true)}
                 class="w-full py-4 rounded-xl font-bold bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all text-center"
               >
                 Start for Free
-              </a>
+              </button>
             {/if}
           </div>
 
