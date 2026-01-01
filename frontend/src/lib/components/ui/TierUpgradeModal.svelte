@@ -44,16 +44,16 @@
       features:
         mode === "guest"
           ? [
-              "3 daily PDF uploads",
               "Save decks to library",
-              "Track your progress",
+              "Track progress",
+              "Study mode with decks",
+              "Anki Export Support",
               "Access on any device",
             ]
           : [
-              "Unlimited daily uploads",
-              "Process entire textbooks (1,000 pages)",
-              "Priority AI generation",
-              "Export to Anki (.csv)",
+              "Unlimited uploads",
+              "Cover your entire Textbook",
+              "Priority AI processing",
             ],
     },
   };

@@ -101,8 +101,29 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                 case GUEST -> 10;
             };
 
+            int annotationLimit = switch (userTier) {
+                case PRO_USER -> 500;
+                case FREE_USER -> 50;
+                case GUEST -> 50;
+            };
+
             PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file, pageLimit);
-            List<AnnotationResultDto> annotations = extractionResult.annotations();
+            List<AnnotationResultDto> allAnnotations = extractionResult.annotations();
+
+            // Limit annotations to prevent token skyrocketing
+            List<AnnotationResultDto> annotations = allAnnotations.size() > annotationLimit
+                    ? allAnnotations.subList(0, annotationLimit)
+                    : allAnnotations;
+
+            if (allAnnotations.size() > annotationLimit) {
+                log.warn("Limiting annotations from {} to {} for user tier {}", allAnnotations.size(), annotationLimit,
+                        userTier);
+                if (jobId != null) {
+                    jobManager.updateMetadata(jobId, "isAnnotationLimited", true);
+                    jobManager.updateMetadata(jobId, "annotationLimit", annotationLimit);
+                }
+            }
+
             String firstPageText = extractionResult.detectionText();
 
             String targetLanguage = detectLanguage(firstPageText);

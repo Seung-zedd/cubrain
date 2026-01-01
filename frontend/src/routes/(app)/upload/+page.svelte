@@ -22,7 +22,7 @@
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import Toast from "$lib/components/ui/Toast.svelte";
-  import ProUpgradeModal from "$lib/components/ui/ProUpgradeModal.svelte";
+  import TierUpgradeModal from "$lib/components/ui/TierUpgradeModal.svelte";
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
   import { cn } from "$lib/utils";
 
@@ -41,13 +41,15 @@
   let showResults = $state(false);
   let showLoginModal = $state(false);
   let showSaveModal = $state(false);
-  let showProModal = $state(false);
+  let showTierModal = $state(false);
   let proModalType = $state<"daily_limit">("daily_limit");
   let pollInterval: ReturnType<typeof setInterval> | null = null;
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
   let sourceFileName = $state<string | null>(null);
   let isSavingDeck = $state(false);
+  let currentFileIndex = $state(0);
+  let totalFiles = $state(0);
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -141,96 +143,107 @@
     isEmptyState = false;
     showResults = false;
     generatedCards = [];
-    jobId = null;
-    jobProgress = 0;
-    jobStatus = "PROCESSING";
     errorMessage = null;
+    totalFiles = files.length;
+    currentFileIndex = 0;
+
+    const filesToProcess = [...files]; // Copy the files array to process
 
     try {
-      // Check daily limit
-      if (dailyUploadCount >= maxLimit) {
-        proModalType = "daily_limit";
-        showProModal = true;
-        isGenerating = false;
-        return;
-      }
+      for (let i = 0; i < filesToProcess.length; i++) {
+        currentFileIndex = i;
+        const file = filesToProcess[i];
 
-      const formData = new FormData();
-      formData.append("file", files[0]);
+        // 1. Check daily limit before each file
+        if (dailyUploadCount >= maxLimit) {
+          proModalType = "daily_limit";
+          showTierModal = true;
+          isGenerating = false;
+          // If we already have some cards, show them instead of just stopping
+          if (generatedCards.length > 0) {
+            showResults = true;
+          }
+          return;
+        }
 
-      const response = await authFetch("/api/v1/pdf/generate-cards", {
-        method: "POST",
-        body: formData,
-      });
+        // 2. Start the job for this file
+        const formData = new FormData();
+        formData.append("file", file);
 
-      if (response.ok) {
+        const response = await authFetch("/api/v1/pdf/generate-cards", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMsg =
+            errorData.error || `Failed to start generation for ${file.name}`;
+          errorMessage = errorMsg;
+          if (errorMsg.includes("Daily upload limit reached")) {
+            proModalType = "daily_limit";
+            showTierModal = true;
+            errorMessage = null;
+          }
+          break; // Stop the batch on error
+        }
+
         const data = await response.json();
         jobId = data.jobId;
+        jobStatus = "PROCESSING";
+        jobProgress = 0;
 
-        pollInterval = setInterval(async () => {
-          if (!jobId) return;
-
-          try {
-            const statusResponse = await authFetch(`/api/v1/pdf/jobs/${jobId}`);
-            if (statusResponse.ok) {
-              const statusData = await statusResponse.json();
-              jobStatus = statusData.status;
-              jobProgress = statusData.progress;
-              if (statusData.metadata) {
-                jobMetadata = statusData.metadata;
-              }
-
-              if (jobStatus === "COMPLETED") {
-                if (pollInterval) clearInterval(pollInterval);
-                pollInterval = null;
-                isGenerating = false;
-
-                // Refresh user data IMMEDIATELY to get updated upload count (including potential refund)
-                if (user.current) {
-                  await fetchUser();
-                } else {
-                  await fetchGuestUsage();
+        // 3. Poll for this specific job
+        const jobResult = await new Promise<Flashcard[]>((resolve, reject) => {
+          const interval = setInterval(async () => {
+            try {
+              const statusResponse = await authFetch(
+                `/api/v1/pdf/jobs/${jobId}`
+              );
+              if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
+                jobStatus = statusData.status;
+                jobProgress = statusData.progress;
+                if (statusData.metadata) {
+                  jobMetadata = { ...jobMetadata, ...statusData.metadata };
                 }
 
-                generatedCards = statusData.results || [];
-
-                if (generatedCards.length > 0) {
-                  showResults = true;
-                } else {
-                  isEmptyState = true;
+                if (jobStatus === "COMPLETED") {
+                  clearInterval(interval);
+                  // Refresh usage count after each successful job
+                  if (user.current) await fetchUser();
+                  else await fetchGuestUsage();
+                  resolve(statusData.results || []);
+                } else if (jobStatus === "FAILED") {
+                  clearInterval(interval);
+                  reject(new Error(`Generation failed for ${file.name}`));
                 }
-
-                files = [];
-              } else if (jobStatus === "FAILED") {
-                if (pollInterval) clearInterval(pollInterval);
-                pollInterval = null;
-                isGenerating = false;
-                errorMessage = "Generation failed. Please try again.";
               }
+            } catch (e) {
+              clearInterval(interval);
+              reject(e);
             }
-          } catch (e) {
-            if (pollInterval) clearInterval(pollInterval);
-            pollInterval = null;
-            isGenerating = false;
-          }
-        }, 1000);
-      } else {
-        const errorData = await response.json();
-        errorMessage = errorData.error || "Failed to start generation.";
+          }, 1000);
+        });
 
-        if (
-          errorMessage &&
-          errorMessage.includes("Daily upload limit reached")
-        ) {
-          proModalType = "daily_limit";
-          showProModal = true;
-          errorMessage = null;
-        }
-        isGenerating = false;
+        // 4. Accumulate results
+        generatedCards = [...generatedCards, ...jobResult];
       }
-    } catch (error) {
+
+      // Finalize batch
       isGenerating = false;
-      errorMessage = "An error occurred.";
+      if (generatedCards.length > 0) {
+        showResults = true;
+        files = []; // Clear queue only on success
+      } else if (!errorMessage) {
+        isEmptyState = true;
+      }
+    } catch (error: any) {
+      isGenerating = false;
+      errorMessage = error.message || "An error occurred during generation.";
+      if (generatedCards.length > 0) {
+        showResults = true;
+      }
     }
   }
 
@@ -342,8 +355,9 @@
                   >
                     <CircleAlert class="w-3.5 h-3.5" />
                     <span
-                      >AI can make mistakes. You can refine these in the
-                      library.</span
+                      >{jobMetadata.isAnnotationLimited
+                        ? `Limited to ${jobMetadata.annotationLimit} cards per file. Upgrade for more!`
+                        : "AI can make mistakes. You can refine these in the library."}</span
                     >
                   </div>
                 </div>
@@ -471,7 +485,9 @@
                 disabled={isGenerating || isGenerationBlocked}
                 class="px-6 py-2 bg-[#FFD700] hover:bg-[#FDB931] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isGenerating ? "Generating..." : "Generate All Decks"}
+                {isGenerating
+                  ? `Generating (${currentFileIndex + 1}/${totalFiles})...`
+                  : "Generate All Decks"}
               </button>
             </div>
           </div>
@@ -481,7 +497,9 @@
               <div class="w-full max-w-md">
                 <ProgressBar progress={jobProgress} status={jobStatus} />
               </div>
-              <p class="text-zinc-400 mt-4">Analyzing your document...</p>
+              <p class="text-zinc-400 mt-4">
+                Analyzing {files[currentFileIndex]?.name || "document"}...
+              </p>
             </div>
           {:else}
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -513,11 +531,11 @@
   />
 {/if}
 
-{#if showProModal}
-  <ProUpgradeModal
+{#if showTierModal}
+  <TierUpgradeModal
     type={proModalType}
     mode={user.current ? "free" : "guest"}
-    onclose={() => (showProModal = false)}
+    onclose={() => (showTierModal = false)}
     onsignup={() => (showLoginModal = true)}
   />
 {/if}
