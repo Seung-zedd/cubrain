@@ -149,7 +149,11 @@
             ></div>
           </button>
         {:else}
-          <UpgradeButton class="w-full h-14" text="Upgrade to Cubrain Pro" />
+          <UpgradeButton
+            class="w-full h-14"
+            text="Upgrade to Cubrain Pro"
+            onLoginRequired={onsignup}
+          />
         {/if}
 
         <button

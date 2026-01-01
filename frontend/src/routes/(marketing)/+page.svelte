@@ -11,6 +11,7 @@
   import Brain from "@lucide/svelte/icons/brain";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
+  import Tag from "@lucide/svelte/icons/tag";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
@@ -69,6 +70,11 @@
         >Features</a
       >
       <a
+        href="#pricing"
+        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        >Pricing</a
+      >
+      <a
         href="/dashboard"
         class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Dashboard</a
@@ -86,10 +92,10 @@
             class="text-sm font-medium text-white/60 hover:text-white transition-colors"
             >Sign In</button
           >
-          <a
-            href="/login"
+          <button
+            onclick={() => (showLoginModal = true)}
             class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-            >Get Started</a
+            >Get Started</button
           >
         </div>
       {/if}
@@ -178,6 +184,20 @@
                 <span class="font-medium">Features</span>
               </a>
               <a
+                href="#pricing"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <Tag
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Pricing</span>
+              </a>
+              <a
                 href="/dashboard"
                 onclick={toggleMobileMenu}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
@@ -222,14 +242,16 @@
               <LogIn class="w-5 h-5" />
               Sign In
             </button>
-            <a
-              href="/login"
-              onclick={toggleMobileMenu}
+            <button
+              onclick={() => {
+                toggleMobileMenu();
+                showLoginModal = true;
+              }}
               class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <Zap class="w-5 h-5" />
               Get Started
-            </a>
+            </button>
           {/if}
         </div>
       </div>
@@ -270,10 +292,10 @@
         <div
           class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
         >
-          <a
-            href="/login"
+          <button
+            onclick={() => (showLoginModal = true)}
             class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-            >Start for Free</a
+            >Start for Free</button
           >
           <a
             href="#pricing"
@@ -442,12 +464,12 @@
               </li>
             </ul>
 
-            <a
-              href="/login"
+            <button
+              onclick={() => (showLoginModal = true)}
               class="w-full py-4 rounded-xl font-bold bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all text-center"
             >
               Start for Free
-            </a>
+            </button>
           </div>
 
           <!-- Pro Plan -->
@@ -490,7 +512,11 @@
               </li>
             </ul>
 
-            <UpgradeButton class="w-full h-14" text="Upgrade to Cubrain Pro" />
+            <UpgradeButton
+              class="w-full h-14"
+              text="Upgrade to Cubrain Pro"
+              onLoginRequired={() => (showLoginModal = true)}
+            />
           </div>
         </div>
       </div>

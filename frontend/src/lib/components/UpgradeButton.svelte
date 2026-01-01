@@ -3,9 +3,14 @@
   import { user } from "$lib/stores/user.svelte";
   import { goto } from "$app/navigation";
 
-  let { class: className = "", text = "Upgrade to Pro 🚀" } = $props<{
+  let {
+    class: className = "",
+    text = "Upgrade to Pro 🚀",
+    onLoginRequired,
+  } = $props<{
     class?: string;
     text?: string;
+    onLoginRequired?: () => void;
   }>();
 
   const CHECKOUT_URL =
@@ -13,8 +18,11 @@
 
   function handleUpgrade() {
     if (!user.current) {
-      alert("Please log in first");
-      goto("/login");
+      if (onLoginRequired) {
+        onLoginRequired();
+      } else {
+        goto("/login");
+      }
       return;
     }
 
