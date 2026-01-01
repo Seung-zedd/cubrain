@@ -83,21 +83,14 @@
         <a
           href="/dashboard"
           class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >Dashboard</a
+          >Go Learning</a
         >
       {:else}
-        <div class="flex items-center gap-4">
-          <button
-            onclick={() => (showLoginModal = true)}
-            class="text-sm font-medium text-white/60 hover:text-white transition-colors"
-            >Sign In</button
-          >
-          <button
-            onclick={() => (showLoginModal = true)}
-            class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-            >Get Started</button
-          >
-        </div>
+        <button
+          onclick={() => (showLoginModal = true)}
+          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+          >Get Started</button
+        >
       {/if}
     </div>
 
@@ -229,19 +222,9 @@
               class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <LayoutDashboard class="w-5 h-5" />
-              Dashboard
+              Go Learning
             </a>
           {:else}
-            <button
-              onclick={() => {
-                toggleMobileMenu();
-                showLoginModal = true;
-              }}
-              class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/10 transition-all active:scale-[0.98]"
-            >
-              <LogIn class="w-5 h-5" />
-              Sign In
-            </button>
             <button
               onclick={() => {
                 toggleMobileMenu();
@@ -292,11 +275,19 @@
         <div
           class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
         >
-          <button
-            onclick={() => (showLoginModal = true)}
-            class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-            >Start for Free</button
-          >
+          {#if user.current}
+            <a
+              href="/dashboard"
+              class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
+              >Go Learning</a
+            >
+          {:else}
+            <button
+              onclick={() => (showLoginModal = true)}
+              class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
+              >Start for Free</button
+            >
+          {/if}
           <a
             href="#pricing"
             class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
