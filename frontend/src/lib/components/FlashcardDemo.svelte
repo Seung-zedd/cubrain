@@ -172,61 +172,64 @@
     isLoading = true;
     flashcard = null;
 
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     try {
-      // Use environment variable if set, otherwise default based on mode
-      // Use shared API URL configuration
-      const apiBaseUrl = API_BASE_URL;
+      const text = selectedText.toLowerCase();
+      let mockFlashcard: Flashcard;
 
-      const response = await fetch(`${apiBaseUrl}/api/v1/cards/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentContext),
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        flashcard = await response.json();
-        // Clear selection
-        const selection = window.getSelection();
-        if (selection) selection.removeAllRanges();
-        showButton = false;
+      if (text.includes("simulation") || text.includes("intelligence")) {
+        mockFlashcard = {
+          question:
+            "What is the core definition of Artificial Intelligence (AI)?",
+          answer:
+            "AI is the simulation of human intelligence processes by machines, especially computer systems, including learning, reasoning, and self-correction.",
+        };
+      } else if (text.includes("learning") || text.includes("reasoning")) {
+        mockFlashcard = {
+          question:
+            "What three processes are typically included in AI simulation?",
+          answer:
+            "AI simulation typically includes learning (acquiring information/rules), reasoning (using rules for conclusions), and self-correction.",
+        };
+      } else if (
+        text.includes("expert systems") ||
+        text.includes("speech recognition")
+      ) {
+        mockFlashcard = {
+          question:
+            "What are some practical applications of Artificial Intelligence?",
+          answer:
+            "Particular applications include expert systems, speech recognition, and machine vision.",
+        };
+      } else if (text.includes("weak") || text.includes("narrow")) {
+        mockFlashcard = {
+          question: "What is Weak AI (Narrow AI)?",
+          answer:
+            "Weak AI is an AI system specifically designed and trained for a particular, limited task.",
+        };
+      } else if (text.includes("strong") || text.includes("generalized")) {
+        mockFlashcard = {
+          question: "How is Strong AI defined?",
+          answer:
+            "Strong AI, or artificial general intelligence, is an AI system that possesses generalized human cognitive abilities.",
+        };
       } else {
-        let errorMsg = "Failed to generate flashcard. Please try again.";
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch (e) {
-          // Ignore JSON parse errors
-        }
-        switch (response.status) {
-          case 400:
-            showError("Bad request: " + errorMsg);
-            break;
-          case 401:
-            showError("Unauthorized: Please log in.");
-            break;
-          case 403:
-            showError(
-              "Forbidden: You do not have permission to perform this action."
-            );
-            break;
-          case 404:
-            showError("Not found: The requested resource could not be found.");
-            break;
-          case 500:
-            showError("Server error: Please try again later.");
-            break;
-          default:
-            showError(errorMsg);
-        }
+        // Generic fallback that looks like AI generation
+        mockFlashcard = {
+          question: `Can you explain the significance of "${selectedText}" in this context?`,
+          answer: `In the context of Artificial Intelligence, "${selectedText}" refers to a key concept or component that contributes to the simulation of human-like cognitive functions in machines.`,
+        };
       }
+
+      flashcard = mockFlashcard;
+      // Clear selection
+      const selection = window.getSelection();
+      if (selection) selection.removeAllRanges();
+      showButton = false;
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error("Error:", error);
-      }
-      showError("Network error: Could not connect to server.");
+      showError("An unexpected error occurred during the demo.");
     } finally {
       isLoading = false;
     }
