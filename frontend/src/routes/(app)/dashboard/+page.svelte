@@ -98,6 +98,7 @@
     user.current?.dailyUploadCount ?? guestUsage.count
   );
   let maxLimit = $derived(user.current?.tier === "PRO_USER" ? 100 : 3);
+  let pageTitle = $derived(mode === "upload" ? "Upload PDF" : "Dashboard");
   let badgeColor = $derived(
     dailyUploadCount >= maxLimit
       ? "bg-red-500/20 text-red-400 border-red-500/50"
@@ -226,6 +227,14 @@
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
                 isGenerating = false;
+
+                // Refresh user data IMMEDIATELY to get updated upload count (including potential refund)
+                if (user.current) {
+                  await fetchUser();
+                } else {
+                  await fetchGuestUsage();
+                }
+
                 generatedCards = statusData.results || [];
 
                 if (generatedCards.length > 0) {
@@ -235,12 +244,6 @@
                 }
 
                 files = [];
-                // Refresh user data to get updated upload count
-                if (user.current) {
-                  fetchUser();
-                } else {
-                  fetchGuestUsage();
-                }
               } else if (jobStatus === "FAILED") {
                 if (pollInterval) clearInterval(pollInterval);
                 pollInterval = null;
@@ -365,7 +368,9 @@
 <div class="space-y-8">
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+      <h1 class="text-3xl font-bold text-white tracking-tight">
+        {pageTitle}
+      </h1>
       <p class="text-zinc-400 mt-2">
         {#if showUpload}
           Upload your PDFs to generate new flashcard decks.
@@ -426,7 +431,7 @@
                   <div
                     class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
                   >
-                    Daily Limit {dailyUploadCount} / {maxLimit}
+                    {dailyUploadCount} / {maxLimit} Daily Uploads
                   </div>
                 </div>
                 <p class="text-zinc-400 text-sm">
@@ -499,7 +504,14 @@
           class="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-300"
         >
           <BookOpen class="w-16 h-16 text-zinc-500 mb-4" />
-          <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
+          <div class="flex items-center gap-3">
+            <h2 class="text-xl font-bold text-white">No Study Traces Found</h2>
+            <div
+              class="px-2 py-0.5 rounded-full {badgeColor} text-[10px] font-bold uppercase tracking-wider border transition-colors duration-300"
+            >
+              {dailyUploadCount} / {maxLimit} Daily Uploads
+            </div>
+          </div>
           <p class="text-zinc-400 mt-2">
             We don't provide flashcards without your annotation.<br />
             <span class="text-[#FFD700] font-bold"
