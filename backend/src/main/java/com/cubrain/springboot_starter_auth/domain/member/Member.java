@@ -74,4 +74,10 @@ public class Member extends BaseEntity {
             this.lastUploadDate = LocalDate.now();
         }
     }
+
+    public void decrementUploadCount() {
+        if (this.dailyUploadCount > 0) {
+            this.dailyUploadCount--;
+        }
+    }
 }

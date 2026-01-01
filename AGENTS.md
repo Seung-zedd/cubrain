@@ -253,3 +253,11 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
     injectAnalytics();
   }
   ```
+
+## 18. 📦 Import Verification Rule
+
+- **Rule: Verify Imports After Every Edit.**
+- Whenever you add a new class reference, service, or library to a file (Frontend or Backend), you **MUST** immediately verify and add the corresponding import statement.
+- **Backend (Java):** Ensure no wildcard imports are used and every new class is explicitly imported.
+- **Frontend (Svelte/TS):** Ensure all components, icons, and utilities are correctly imported and unused imports are removed.
+- **Verification:** Before finishing a task, run a build or check (e.g., `pnpm run check` or `./gradlew compileJava`) to ensure no "cannot find symbol" or "missing import" errors exist.

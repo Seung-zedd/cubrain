@@ -83,6 +83,25 @@ public class UsageLimitService {
         guestUsageMap.put(ip, usage);
     }
 
+    @Transactional
+    public void decrementUsage(String email) {
+        String normalizedEmail = email.toLowerCase();
+        memberRepository.findByEmail(normalizedEmail).ifPresent(member -> {
+            member.decrementUploadCount();
+            memberRepository.saveAndFlush(member);
+            log.info("[UsageLimit] Decremented count for {}. New count: {}", normalizedEmail,
+                    member.getDailyUploadCount());
+        });
+    }
+
+    public void decrementGuestUsage(String ip) {
+        GuestUsage usage = guestUsageMap.get(ip);
+        if (usage != null && usage.count > 0) {
+            usage.count--;
+            log.info("[UsageLimit] Decremented guest count for {}. New count: {}", ip, usage.count);
+        }
+    }
+
     public int getUsageCount(String email) {
         String normalizedEmail = email.toLowerCase();
         return memberRepository.findByEmail(normalizedEmail)

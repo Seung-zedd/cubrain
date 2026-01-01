@@ -179,7 +179,17 @@
       const text = selectedText.toLowerCase();
       let mockFlashcard: Flashcard;
 
-      if (text.includes("simulation") || text.includes("intelligence")) {
+      // Easter Egg check
+      if (
+        text.includes("simplified interactive demo") &&
+        text.includes("higher quality")
+      ) {
+        mockFlashcard = {
+          question: "Why did you generate this Demo disclaimer text?",
+          answer:
+            "Because I'm a very curious learner, so I wanna check this out.\n\n👇 I knew you would drag this text than you expected. Don't you curious about real AI generation? Just click below button!",
+        };
+      } else if (text.includes("simulation") || text.includes("intelligence")) {
         mockFlashcard = {
           question:
             "What is the core definition of Artificial Intelligence (AI)?",

@@ -10,12 +10,13 @@ import com.cubrain.springboot_starter_auth.domain.card.v1.repository.FlashcardRe
 import com.cubrain.springboot_starter_auth.domain.job.v1.JobManager;
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class CardServiceImpl implements CardService {
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final FlashcardGenerator flashcardGenerator;
+    private final UsageLimitService usageLimitService;
 
     @Qualifier("pdfProcessingExecutor")
     private final Executor pdfProcessingExecutor;
@@ -43,14 +45,27 @@ public class CardServiceImpl implements CardService {
         CompletableFuture.runAsync(() -> {
             try {
                 List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(file, userTier, jobId);
+                if (results.isEmpty()) {
+                    log.info("No cards generated for job {}, refunding usage", jobId);
+                    refundUsage(userTier, ownerId);
+                }
                 jobManager.completeJob(jobId, results);
             } catch (Exception e) {
-                log.error("Async job failed", e);
+                log.error("Async job failed, refunding usage", e);
+                refundUsage(userTier, ownerId);
                 jobManager.failJob(jobId);
             }
         }, pdfProcessingExecutor);
 
         return jobId;
+    }
+
+    private void refundUsage(UserTier userTier, String ownerId) {
+        if (userTier == UserTier.GUEST) {
+            usageLimitService.decrementGuestUsage(ownerId);
+        } else {
+            usageLimitService.decrementUsage(ownerId);
+        }
     }
 
     @Override
