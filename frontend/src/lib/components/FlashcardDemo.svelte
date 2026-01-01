@@ -286,6 +286,11 @@
       <span role="img" aria-label="Pointing up">👆</span>
       <strong>Highlight any text above to generate a flashcard!</strong>
     </p>
+    <p class="text-[10px] text-white/20 text-center mt-4 italic">
+      Note: This is a simplified interactive demo. Real AI generation in the
+      dashboard provides significantly higher quality and deeper context
+      analysis.
+    </p>
   </div>
 
   {#if showButton}
