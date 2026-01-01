@@ -189,7 +189,7 @@
         mockFlashcard = {
           question: "Why did you generate a flashcard from text outside the demo content?",
           answer:
-            "Because I'm a very curious learner, so I wanna check this out.\nI knew you would drag this text. Don't you curious about real AI generation? Just click below button!👇",
+            "Because I'm a very curious learner, so I wanted to check this out. \nI knew you would drag the text! Aren't you curious about real AI generation? Just click the button below! 👇",
         };
       } else if (text.includes("simulation") || text.includes("intelligence")) {
         mockFlashcard = {
