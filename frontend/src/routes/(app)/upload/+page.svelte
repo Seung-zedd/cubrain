@@ -18,6 +18,7 @@
     RefreshCw,
     Save,
     CircleAlert,
+    Library,
   } from "@lucide/svelte";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
@@ -317,14 +318,41 @@
       </p>
     </div>
 
-    <div
-      class={cn(
-        "flex items-center gap-3 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300",
-        badgeColor
-      )}
-    >
-      <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
-      <span>{dailyUploadCount} / {maxLimit} Daily Uploads</span>
+    <div class="flex flex-col items-end gap-3">
+      <div
+        class={cn(
+          "flex items-center gap-3 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300",
+          badgeColor
+        )}
+      >
+        <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
+        <span>{dailyUploadCount} / {maxLimit} Daily Uploads</span>
+      </div>
+
+      {#if isSaved}
+        <div
+          class="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-2 duration-500"
+        >
+          <p class="text-green-400 font-bold text-sm tracking-wide">
+            Deck Saved Successfully!
+          </p>
+          <div class="flex items-center gap-2">
+            <button
+              onclick={() => goto("/library")}
+              class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
+            >
+              <Library class="w-3.5 h-3.5" />
+              Go to Library
+            </button>
+            <button
+              onclick={resetView}
+              class="px-4 py-1.5 rounded-full bg-zinc-800 text-zinc-400 text-xs font-bold hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700"
+            >
+              Start Over
+            </button>
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 
@@ -377,30 +405,7 @@
             </div>
           </div>
           <div class="flex items-center gap-3">
-            {#if isSaved}
-              <div
-                class="flex items-center gap-4 animate-in fade-in slide-in-from-right-4"
-              >
-                <div class="flex flex-col items-end">
-                  <p class="text-green-400 font-bold text-sm">
-                    Deck Saved Successfully!
-                  </p>
-                  <button
-                    onclick={() => goto("/library")}
-                    class="text-zinc-400 hover:text-white text-xs underline underline-offset-4 transition-colors"
-                  >
-                    Go to Library
-                  </button>
-                </div>
-                <button
-                  onclick={resetView}
-                  class="flex items-center gap-2 px-6 py-2 bg-white hover:bg-zinc-200 text-black font-bold rounded-lg transition-all shadow-lg"
-                >
-                  <RefreshCw class="w-4 h-4" />
-                  Start Over
-                </button>
-              </div>
-            {:else}
+            {#if !isSaved}
               <button
                 onclick={resetView}
                 class="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-white font-medium transition-colors"
