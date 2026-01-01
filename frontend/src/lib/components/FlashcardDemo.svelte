@@ -187,7 +187,7 @@
       // Easter Egg check: Trigger if selection was within a meta area
       if (isMetaSelection) {
         mockFlashcard = {
-          question: "Why did you generate this text except for Demo phrase?",
+          question: "Why did you generate a flashcard from text outside the demo content?",
           answer:
             "Because I'm a very curious learner, so I wanna check this out.\nI knew you would drag this text. Don't you curious about real AI generation? Just click below button!👇",
         };
