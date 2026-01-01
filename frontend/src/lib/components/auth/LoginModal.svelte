@@ -87,7 +87,7 @@
 
       await fetchUser();
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        window.location.href = "/library";
       }, 800);
     } catch (err: any) {
       if (import.meta.env.DEV) {
@@ -157,7 +157,7 @@
             const { error } = await supabase.auth.signInWithOAuth({
               provider: "google",
               options: {
-                redirectTo: `${window.location.origin}/dashboard`,
+                redirectTo: `${window.location.origin}/library`,
               },
             });
             if (error && import.meta.env.DEV) {

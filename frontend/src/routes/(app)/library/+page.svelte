@@ -97,7 +97,7 @@
       </p>
     </div>
     <a
-      href="/dashboard?mode=upload"
+      href="/upload"
       class="flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
     >
       <Plus class="w-5 h-5" />
@@ -147,11 +147,8 @@
           : "You haven't created any decks yet. Start by uploading a PDF!"}
       </p>
       {#if !searchQuery}
-        <a
-          href="/dashboard?mode=upload"
-          class="mt-4 text-amber-500 font-bold hover:underline"
-        >
-          Go to Dashboard →
+        <a href="/upload" class="mt-4 text-amber-500 font-bold hover:underline">
+          Upload a PDF to get started →
         </a>
       {/if}
     </div>

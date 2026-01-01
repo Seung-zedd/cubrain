@@ -123,9 +123,9 @@ if (typeof window !== "undefined" && supabase) {
           window.location.pathname + window.location.search
         );
 
-        // If we just signed in via OAuth, ensure we are on the dashboard
+        // If we just signed in via OAuth, ensure we are on the library
         if (window.location.pathname === "/") {
-          window.location.href = "/dashboard";
+          window.location.href = "/library";
         }
       }
     } else if (event === "SIGNED_OUT") {

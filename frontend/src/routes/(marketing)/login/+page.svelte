@@ -6,7 +6,7 @@
 
   onMount(() => {
     if (user.current) {
-      goto("/dashboard");
+      goto("/library");
     }
   });
 </script>
