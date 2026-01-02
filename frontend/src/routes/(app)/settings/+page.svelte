@@ -141,8 +141,8 @@
           </button>
         {:else}
           <UpgradeButton
-            class="h-10 px-4 text-sm"
-            text="Upgrade to Pro"
+            class="h-12 px-6 text-lg font-bold text-black"
+            text="Upgrade to Pro ⚡"
             variantId="646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
           />
         {/if}

@@ -76,29 +76,29 @@
     <div class="hidden md:flex gap-8 items-center">
       <a
         href="#features"
-        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Features</a
       >
       <a
         href="#pricing"
-        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Pricing</a
       >
       <a
         href="/library"
-        class="text-sm font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Library</a
       >
       {#if user.current}
         <a
           href="/library"
-          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+          class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
           >Start Learning</a
         >
       {:else}
         <a
           href="/upload"
-          class="px-5 py-2.5 text-sm rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
+          class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
           >Get Started</a
         >
       {/if}
