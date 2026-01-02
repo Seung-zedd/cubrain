@@ -54,6 +54,8 @@ Make small, atomic commits with clear messages.
 
 **Rule**: After completing a significant task or a series of related changes, **ALWAYS** provide a **single-line** git commit message in the format above. Focus on the most significant change.
 
+⚠️ **AI Agent Rule**: AI agents (like Antigravity) are **FORBIDDEN** from performing `git add` or `git commit` operations. These must be performed manually by the developer to ensure full control over the commit history and to avoid overhead.
+
 **Example**: `✨ feat: implement basic login logic`
 
 ```bash
