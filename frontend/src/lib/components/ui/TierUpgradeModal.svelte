@@ -1,13 +1,11 @@
 <script lang="ts">
-  import {
-    X,
-    Zap,
-    CircleCheck,
-    Rocket,
-    Star,
-    Lock,
-    Sparkles,
-  } from "@lucide/svelte";
+  import X from "@lucide/svelte/icons/x";
+  import Zap from "@lucide/svelte/icons/zap";
+  import CircleCheck from "@lucide/svelte/icons/circle-check";
+  import Rocket from "@lucide/svelte/icons/rocket";
+  import Star from "@lucide/svelte/icons/star";
+  import Lock from "@lucide/svelte/icons/lock";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import { fade, scale, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";

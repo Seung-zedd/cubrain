@@ -4,14 +4,13 @@
   import { beforeNavigate } from "$app/navigation";
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
-  import {
-    ChevronLeft,
-    ChevronRight,
-    RotateCcw,
-    CheckCircle2,
-    BookOpen,
-  } from "@lucide/svelte";
-  import { cn, renderMarkdown } from "$lib/utils";
+  import ChevronLeft from "@lucide/svelte/icons/chevron-left";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
+  import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
+  import BookOpen from "@lucide/svelte/icons/book-open";
+  import { cn } from "$lib/utils";
+  import Markdown from "$lib/components/ui/Markdown.svelte";
 
   interface Flashcard {
     id: number;
@@ -46,7 +45,9 @@
         body: JSON.stringify({ progress: currentProgress }),
       });
     } catch (e) {
-      console.error("Failed to update progress", e);
+      if (import.meta.env.DEV) {
+        console.error("Failed to update progress", e);
+      }
     }
   }
 
@@ -213,7 +214,7 @@
           <p
             class="text-2xl md:text-3xl font-medium text-white leading-relaxed"
           >
-            {@html renderMarkdown(currentCard.question)}
+            <Markdown text={currentCard.question} />
           </p>
           <div
             class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -255,7 +256,7 @@
             >Answer</span
           >
           <p class="text-xl md:text-2xl text-zinc-100 leading-relaxed">
-            {@html renderMarkdown(currentCard.answer)}
+            <Markdown text={currentCard.answer} />
           </p>
           <div
             class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"

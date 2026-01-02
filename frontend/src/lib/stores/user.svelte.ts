@@ -106,7 +106,9 @@ if (typeof window !== "undefined" && supabase) {
         }),
       });
     } catch (e) {
-      console.error("Failed to sync session cookie", e);
+      if (import.meta.env.DEV) {
+        console.error("Failed to sync session cookie", e);
+      }
     }
 
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {

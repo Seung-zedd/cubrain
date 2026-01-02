@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
   import { API_BASE_URL } from "$lib/config/config";
+  import Markdown from "$lib/components/ui/Markdown.svelte";
 
   interface Flashcard {
     question: string;
@@ -339,7 +340,7 @@
             Question
           </span>
           <p class="text-white text-lg font-medium leading-relaxed">
-            {flashcard.question}
+            <Markdown text={flashcard.question} />
           </p>
         </div>
         <div class="flex flex-col gap-2">
@@ -351,7 +352,7 @@
           <p
             class="text-gray-300 text-base leading-relaxed whitespace-pre-wrap"
           >
-            {flashcard.answer}
+            <Markdown text={flashcard.answer} />
           </p>
         </div>
       </div>

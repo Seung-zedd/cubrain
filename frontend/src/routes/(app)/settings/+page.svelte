@@ -3,16 +3,14 @@
   import { user, logout } from "$lib/stores/user.svelte";
   import { supabase } from "$lib/supabaseClient";
   import { goto } from "$app/navigation";
-  import {
-    User,
-    CreditCard,
-    LogOut,
-    Trash2,
-    Copy,
-    Check,
-    ShieldAlert,
-    Sparkles,
-  } from "@lucide/svelte";
+  import User from "@lucide/svelte/icons/user";
+  import CreditCard from "@lucide/svelte/icons/credit-card";
+  import LogOut from "@lucide/svelte/icons/log-out";
+  import Trash2 from "@lucide/svelte/icons/trash-2";
+  import Copy from "@lucide/svelte/icons/copy";
+  import Check from "@lucide/svelte/icons/check";
+  import ShieldAlert from "@lucide/svelte/icons/shield-alert";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
 
   let supabaseUser: any = $state(null);
@@ -64,8 +62,8 @@
 
       <div class="space-y-6">
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-1"
-            >Email Address</label
+          <span class="block text-sm font-medium text-zinc-400 mb-1"
+            >Email Address</span
           >
           <p class="text-xl font-medium text-white">
             {user.current?.email || "Loading..."}
@@ -73,8 +71,8 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-400 mb-1"
-            >User UID</label
+          <span class="block text-sm font-medium text-zinc-400 mb-1"
+            >User UID</span
           >
           <div class="flex items-center gap-2 group">
             <code

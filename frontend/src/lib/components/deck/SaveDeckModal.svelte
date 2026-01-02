@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { X, Save, BookText, CircleAlert } from "@lucide/svelte";
+  import X from "@lucide/svelte/icons/x";
+  import Save from "@lucide/svelte/icons/save";
+  import BookText from "@lucide/svelte/icons/book-text";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import { fade, scale, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
 

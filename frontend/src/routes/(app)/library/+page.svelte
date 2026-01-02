@@ -2,7 +2,9 @@
   import { onMount } from "svelte";
   import { authFetch } from "$lib/api";
   import DeckList from "$lib/components/deck/DeckList.svelte";
-  import { Library as LibraryIcon, Plus, Search } from "@lucide/svelte";
+  import LibraryIcon from "@lucide/svelte/icons/library";
+  import Plus from "@lucide/svelte/icons/plus";
+  import Search from "@lucide/svelte/icons/search";
   import { fade } from "svelte/transition";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";

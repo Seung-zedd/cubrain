@@ -12,20 +12,19 @@
   import FileItemCard from "$lib/components/upload/FileItemCard.svelte";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import {
-    BookOpen,
-    CircleCheck,
-    RefreshCw,
-    Save,
-    CircleAlert,
-    Library,
-  } from "@lucide/svelte";
+  import BookOpen from "@lucide/svelte/icons/book-open";
+  import CircleCheck from "@lucide/svelte/icons/circle-check";
+  import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+  import Save from "@lucide/svelte/icons/save";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import Library from "@lucide/svelte/icons/library";
   import ProgressBar from "$lib/components/ui/ProgressBar.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import Toast from "$lib/components/ui/Toast.svelte";
   import TierUpgradeModal from "$lib/components/ui/TierUpgradeModal.svelte";
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
-  import { cn, renderMarkdown } from "$lib/utils";
+  import { cn } from "$lib/utils";
+  import Markdown from "$lib/components/ui/Markdown.svelte";
 
   interface Flashcard {
     question: string;
@@ -287,6 +286,7 @@
     try {
       const response = await authFetch("/api/v1/decks", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: customTitle,
           cards: generatedCards,
@@ -446,7 +446,7 @@
                     >Question</span
                   >
                   <p class="text-white text-lg font-medium leading-relaxed">
-                    {@html renderMarkdown(card.question)}
+                    <Markdown text={card.question} />
                   </p>
                 </div>
                 <div class="flex flex-col gap-2">
@@ -455,7 +455,7 @@
                     >Answer</span
                   >
                   <p class="text-gray-300 text-base leading-relaxed">
-                    {@html renderMarkdown(card.answer)}
+                    <Markdown text={card.answer} />
                   </p>
                 </div>
               </div>
@@ -546,7 +546,9 @@
                         onclick={() => {
                           selectedStruggle = option;
                           feedbackSubmitted = true;
-                          console.log("User struggle feedback:", option);
+                          if (import.meta.env.DEV) {
+                            console.log("User struggle feedback:", option);
+                          }
                         }}
                         class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-[#FFD700]/10 hover:text-[#FFD700] border border-white/5 hover:border-[#FFD700]/30 text-zinc-400 text-sm font-medium transition-all text-left"
                       >

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { TriangleAlert, X } from "@lucide/svelte";
+  import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
+  import X from "@lucide/svelte/icons/x";
   import { fade, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Zap } from "@lucide/svelte";
+  import Zap from "@lucide/svelte/icons/zap";
   import { user } from "$lib/stores/user.svelte";
   import { goto } from "$app/navigation";
   import { IS_LAUNCH_SALE } from "$lib/config/config";

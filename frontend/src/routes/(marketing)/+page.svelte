@@ -36,6 +36,12 @@
     if (window.createLemonSqueezy) {
       window.createLemonSqueezy();
     }
+
+    // Safely inject JSON-LD without using {@html} in the template
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
   });
 
   const jsonLd = {
@@ -49,7 +55,7 @@
 </script>
 
 <svelte:head>
-  {@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
+  <!-- JSON-LD is injected via onMount for security and compliance with Rule 19 -->
 </svelte:head>
 
 <div
