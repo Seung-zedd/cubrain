@@ -6,7 +6,7 @@
 
   let {
     class: className = "",
-    text = "Upgrade to Pro 🚀",
+    text = "Upgrade to Pro",
     variantId = "646b9e10-0039-4c37-bb30-2ffa5fa2b32f",
     onLoginRequired,
   } = $props<{
@@ -52,7 +52,7 @@
   class="group relative overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300 {className}"
 >
   <div
-    class="flex items-center justify-center gap-2 px-6 py-3 whitespace-nowrap"
+    class="flex items-center justify-center gap-3 px-6 py-3 whitespace-nowrap"
   >
     <span>{text}</span>
     <Zap class="w-5 h-5 fill-current shrink-0" />
