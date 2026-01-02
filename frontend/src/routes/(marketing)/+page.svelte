@@ -4,10 +4,13 @@
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
   import { user } from "$lib/stores/user.svelte";
+  import { IS_LAUNCH_SALE } from "$lib/config/config";
+  import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
   import Menu from "@lucide/svelte/icons/menu";
   import X from "@lucide/svelte/icons/x";
   import Zap from "@lucide/svelte/icons/zap";
+  import Star from "@lucide/svelte/icons/star";
   import Brain from "@lucide/svelte/icons/brain";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
@@ -19,8 +22,6 @@
   import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
-  import Star from "@lucide/svelte/icons/star";
-  import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
@@ -438,16 +439,26 @@
             <div class="mb-8">
               <h3 class="text-xl font-bold text-white mb-4">Monthly</h3>
               <div class="flex flex-col gap-1">
-                <span class="text-lg text-white/40 line-through font-medium"
-                  >$11.99</span
-                >
-                <div class="flex items-baseline gap-1">
-                  <span
-                    class="text-6xl font-extrabold text-white tracking-tighter"
-                    >$5<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                {#if IS_LAUNCH_SALE}
+                  <span class="text-lg text-white/40 line-through font-medium"
+                    >$11.99</span
                   >
-                  <span class="text-white/40 font-medium ml-2">/ month</span>
-                </div>
+                  <div class="flex items-baseline gap-1">
+                    <span
+                      class="text-6xl font-extrabold text-white tracking-tighter"
+                      >$5<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                    >
+                    <span class="text-white/40 font-medium ml-2">/ month</span>
+                  </div>
+                {:else}
+                  <div class="flex items-baseline gap-1">
+                    <span
+                      class="text-6xl font-extrabold text-white tracking-tighter"
+                      >$11<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                    >
+                    <span class="text-white/40 font-medium ml-2">/ month</span>
+                  </div>
+                {/if}
               </div>
             </div>
 
@@ -482,31 +493,44 @@
             />
           </div>
 
-          <!-- Annual Plan -->
           <div
-            class="flex flex-col p-8 rounded-3xl bg-zinc-900 border-2 border-[#FFD700] shadow-[0_0_40px_rgba(255,215,0,0.15)] relative overflow-hidden group"
+            class="flex flex-col p-8 rounded-3xl bg-zinc-900 border-2 {IS_LAUNCH_SALE
+              ? 'border-[#FFD700] shadow-[0_0_40px_rgba(255,215,0,0.15)]'
+              : 'border-white/10'} relative overflow-hidden group"
           >
-            <!-- Badge -->
-            <div
-              class="absolute top-0 right-0 bg-[#FFD700] text-black px-4 py-1.5 rounded-bl-xl text-xs font-black flex items-center gap-1.5 tracking-wider"
-            >
-              <Star class="w-3.5 h-3.5 fill-current" />
-              BEST VALUE
-            </div>
+            {#if IS_LAUNCH_SALE}
+              <!-- Badge -->
+              <div
+                class="absolute top-0 right-0 bg-[#FFD700] text-black px-4 py-1.5 rounded-bl-xl text-xs font-black flex items-center gap-1.5 tracking-wider"
+              >
+                <Star class="w-3.5 h-3.5 fill-current" />
+                BEST VALUE
+              </div>
+            {/if}
 
             <div class="mb-8">
               <h3 class="text-xl font-bold text-white mb-4">Annual</h3>
               <div class="flex flex-col gap-1">
-                <span class="text-lg text-white/40 line-through font-medium"
-                  >$99.00</span
-                >
-                <div class="flex items-baseline gap-1">
-                  <span
-                    class="text-6xl font-extrabold text-[#FFD700] tracking-tighter"
-                    >$39<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                {#if IS_LAUNCH_SALE}
+                  <span class="text-lg text-white/40 line-through font-medium"
+                    >$99.00</span
                   >
-                  <span class="text-white/40 font-medium ml-2">/ year</span>
-                </div>
+                  <div class="flex items-baseline gap-1">
+                    <span
+                      class="text-6xl font-extrabold text-[#FFD700] tracking-tighter"
+                      >$39<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                    >
+                    <span class="text-white/40 font-medium ml-2">/ year</span>
+                  </div>
+                {:else}
+                  <div class="flex items-baseline gap-1">
+                    <span
+                      class="text-6xl font-extrabold text-white tracking-tighter"
+                      >$99<sup class="text-3xl font-bold ml-0.5">.00</sup></span
+                    >
+                    <span class="text-white/40 font-medium ml-2">/ year</span>
+                  </div>
+                {/if}
               </div>
             </div>
 
@@ -515,10 +539,13 @@
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Everything in Monthly</span>
               </li>
-              <li class="flex items-center gap-3 text-white">
-                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span class="font-bold text-[#FFD700]">Save 45% annually</span>
-              </li>
+              {#if IS_LAUNCH_SALE}
+                <li class="flex items-center gap-3 text-white">
+                  <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                  <span class="font-bold text-[#FFD700]">Save 45% annually</span
+                  >
+                </li>
+              {/if}
               <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Unlimited daily uploads</span>
@@ -534,8 +561,12 @@
             </ul>
 
             <UpgradeButton
-              class="w-full h-14 bg-linear-to-r from-[#FFD700] to-[#FDB931]"
-              text="Upgrade to Yearly 👑"
+              class="w-full h-14 {IS_LAUNCH_SALE
+                ? 'bg-linear-to-r from-[#FFD700] to-[#FDB931]'
+                : ''}"
+              text={IS_LAUNCH_SALE
+                ? "Upgrade to Yearly 👑"
+                : "Upgrade to Yearly"}
               variantId="YOUR_ANNUAL_VARIANT_ID"
               onLoginRequired={() => (showLoginModal = true)}
             />

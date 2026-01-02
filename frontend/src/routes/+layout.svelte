@@ -7,6 +7,7 @@
   import { onMount } from "svelte";
   import { fetchUser } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
+  import { IS_LAUNCH_SALE } from "$lib/config/config";
 
   if (browser && !dev) {
     injectSpeedInsights();
@@ -46,5 +47,7 @@
   <meta property="twitter:image" content={imageUrl} />
 </svelte:head>
 
-<LaunchBanner />
+{#if IS_LAUNCH_SALE}
+  <LaunchBanner />
+{/if}
 {@render children()}

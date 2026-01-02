@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
-  import { API_BASE_URL } from "$lib/config";
+  import { API_BASE_URL } from "$lib/config/config";
 
   interface Flashcard {
     question: string;
@@ -187,7 +187,8 @@
       // Easter Egg check: Trigger if selection was within a meta area
       if (isMetaSelection) {
         mockFlashcard = {
-          question: "Why did you generate a flashcard from text outside the demo content?",
+          question:
+            "Why did you generate a flashcard from text outside the demo content?",
           answer:
             "Because I'm a very curious learner, so I wanted to check this out. \nI knew you would drag the text! Aren't you curious about real AI generation? Just click the button below! 👇",
         };

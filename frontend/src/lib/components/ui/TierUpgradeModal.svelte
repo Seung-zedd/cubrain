@@ -12,6 +12,7 @@
   import { useModal } from "$lib/modal.svelte";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import { goto } from "$app/navigation";
+  import { IS_LAUNCH_SALE } from "$lib/config/config";
 
   let {
     onclose,
@@ -55,7 +56,7 @@
               "Save decks to library",
               "Smart Synthesis (1-2 cards/page)",
               "Track progress",
-              "Anki Export Support",
+              "Anki Export Support (.csv)",
               "Access on any device",
             ]
           : [
@@ -120,7 +121,7 @@
           {activeContent.title}
         </h2>
 
-        {#if mode === "free"}
+        {#if mode === "free" && IS_LAUNCH_SALE}
           <div
             class="px-3 py-1 rounded-full bg-[#FFD700]/20 border border-[#FFD700]/30 text-[#FFD700] text-[10px] font-black uppercase tracking-wider flex items-center gap-1 mb-4"
           >
@@ -134,7 +135,7 @@
         </p>
       </div>
 
-      {#if mode === "free"}
+      {#if mode === "free" && IS_LAUNCH_SALE}
         <!-- Pricing Card Inside Modal -->
         <div
           class="relative p-6 rounded-2xl bg-linear-to-br from-zinc-900 to-black border-2 border-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.1)] overflow-hidden group mb-8"
@@ -167,7 +168,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-y-2 gap-x-4">
-              {#each ["Unlimited Uploads", "1,000 Page Limit", "Deep Synthesis", "Priority AI"] as feature}
+              {#each ["Unlimited Uploads", "1,000 Page Limit", "Deep Synthesis", "Priority AI", "Anki Export Support (.csv)"] as feature}
                 <div class="flex items-center gap-2 text-zinc-300 text-[11px]">
                   <CircleCheck class="w-3 h-3 text-[#FFD700]" />
                   <span>{feature}</span>
@@ -218,7 +219,7 @@
         {:else}
           <UpgradeButton
             class="w-full h-14"
-            text="Lock in $5.99 Forever"
+            text={IS_LAUNCH_SALE ? "Lock in $5.99 Forever" : "Upgrade to Pro"}
             onLoginRequired={onsignup}
           />
         {/if}

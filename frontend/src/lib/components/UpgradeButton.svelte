@@ -2,6 +2,7 @@
   import { Zap } from "@lucide/svelte";
   import { user } from "$lib/stores/user.svelte";
   import { goto } from "$app/navigation";
+  import { IS_LAUNCH_SALE } from "$lib/config/config";
 
   let {
     class: className = "",
@@ -29,9 +30,11 @@
 
     const checkoutUrl = `${BASE_CHECKOUT_URL}${variantId}`;
     const params = new URLSearchParams();
-    params.append("checkout[custom][user_id]", user.current.id);
+    params.append("checkout[custom][user_id]", String(user.current.id));
     params.append("checkout[email]", user.current.email);
-    params.append("checkout[discount_code]", "EARLYBIRD");
+    if (IS_LAUNCH_SALE) {
+      params.append("checkout[discount_code]", "EARLYBIRD");
+    }
 
     const finalUrl = `${checkoutUrl}?${params.toString()}`;
 

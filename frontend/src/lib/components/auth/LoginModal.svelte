@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { API_BASE_URL } from "$lib/config";
+  import { API_BASE_URL } from "$lib/config/config";
   import { fetchUser } from "$lib/stores/user.svelte";
   import { supabase } from "$lib/supabaseClient";
   import X from "@lucide/svelte/icons/x";
