@@ -21,7 +21,7 @@
 {#if isVisible}
   <div
     transition:slide={{ duration: 300 }}
-    class="sticky top-0 z-50 w-full bg-[#FFD700] text-black py-2.5 px-4 shadow-lg"
+    class="w-full bg-[#FFD700] text-black py-2.5 px-4 shadow-lg"
   >
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-3">
       <Sparkles class="w-4 h-4 animate-pulse" />
