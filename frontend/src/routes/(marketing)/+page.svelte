@@ -447,7 +447,7 @@
               <div class="flex flex-col gap-1">
                 {#if IS_LAUNCH_SALE}
                   <span class="text-lg text-white/40 line-through font-medium"
-                    >$11.99</span
+                    >$14.99</span
                   >
                   <div class="flex items-baseline gap-1">
                     <span
@@ -460,7 +460,7 @@
                   <div class="flex items-baseline gap-1">
                     <span
                       class="text-6xl font-extrabold text-white tracking-tighter"
-                      >$11<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                      >$14<sup class="text-3xl font-bold ml-0.5">.99</sup></span
                     >
                     <span class="text-white/40 font-medium ml-2">/ month</span>
                   </div>
@@ -469,6 +469,10 @@
             </div>
 
             <ul class="space-y-4 mb-10 flex-1">
+              <li class="flex items-center gap-3 text-[#FFD700] font-bold">
+                <Star class="w-5 h-5 fill-current" />
+                <span>60% OFF Launch Special</span>
+              </li>
               <li class="flex items-center gap-3 text-white/70">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Unlimited daily uploads</span>
@@ -519,7 +523,7 @@
               <div class="flex flex-col gap-1">
                 {#if IS_LAUNCH_SALE}
                   <span class="text-lg text-white/40 line-through font-medium"
-                    >$99.00</span
+                    >$179.88</span
                   >
                   <div class="flex items-baseline gap-1">
                     <span
@@ -532,7 +536,8 @@
                   <div class="flex items-baseline gap-1">
                     <span
                       class="text-6xl font-extrabold text-white tracking-tighter"
-                      >$99<sup class="text-3xl font-bold ml-0.5">.00</sup></span
+                      >$179<sup class="text-3xl font-bold ml-0.5">.88</sup
+                      ></span
                     >
                     <span class="text-white/40 font-medium ml-2">/ year</span>
                   </div>
@@ -548,7 +553,8 @@
               {#if IS_LAUNCH_SALE}
                 <li class="flex items-center gap-3 text-white">
                   <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                  <span class="font-bold text-[#FFD700]">Save 45% annually</span
+                  <span class="font-bold text-[#FFD700]"
+                    >Save 78% instantly</span
                   >
                 </li>
               {/if}

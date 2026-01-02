@@ -151,7 +151,7 @@
                     >$5<sup class="text-xl ml-0.5">.99</sup></span
                   >
                   <span class="text-zinc-500 text-sm line-through font-medium"
-                    >$11.99</span
+                    >$14.99</span
                   >
                 </div>
               </div>
