@@ -431,93 +431,44 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-          <!-- Free Plan -->
+          <!-- Monthly Plan -->
           <div
-            class="flex flex-col p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm relative overflow-hidden"
+            class="flex flex-col p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm relative overflow-hidden group hover:border-white/20 transition-all"
           >
             <div class="mb-8">
-              <h3 class="text-xl font-bold text-white mb-2">Free</h3>
-              <div class="flex items-baseline gap-1">
-                <span class="text-4xl font-bold text-white">$0</span>
-                <span class="text-white/40">/month</span>
+              <h3 class="text-xl font-bold text-white mb-4">Monthly</h3>
+              <div class="flex flex-col gap-1">
+                <span class="text-lg text-white/40 line-through font-medium"
+                  >$11.99</span
+                >
+                <div class="flex items-baseline gap-1">
+                  <span
+                    class="text-6xl font-extrabold text-white tracking-tighter"
+                    >$5<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                  >
+                  <span class="text-white/40 font-medium ml-2">/ month</span>
+                </div>
               </div>
             </div>
 
             <ul class="space-y-4 mb-10 flex-1">
               <li class="flex items-center gap-3 text-white/70">
-                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>3 PDFs / day</span>
-              </li>
-              <li class="flex items-center gap-3 text-white/70">
-                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>First 50 pages only</span>
-              </li>
-              <li class="flex items-center gap-3 text-white/70">
-                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>Anki Export Support</span>
-              </li>
-              <li class="flex items-center gap-3 text-white/70">
-                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
-                <span>Smart Synthesis (1-2 cards/page)</span>
-              </li>
-            </ul>
-
-            {#if user.current}
-              <a
-                href="/library"
-                class="w-full py-4 rounded-xl font-bold bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all text-center"
-              >
-                Start Learning
-              </a>
-            {:else}
-              <button
-                onclick={() => (showLoginModal = true)}
-                class="w-full py-4 rounded-xl font-bold bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all text-center"
-              >
-                Start for Free
-              </button>
-            {/if}
-          </div>
-
-          <!-- Pro Plan -->
-          <div
-            class="flex flex-col p-8 rounded-3xl bg-zinc-900 border-2 border-[#FFD700] shadow-[0_0_40px_rgba(255,215,0,0.15)] relative overflow-hidden"
-          >
-            <!-- Badge -->
-            <div
-              class="absolute top-0 right-0 bg-[#FFD700] text-black px-4 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1"
-            >
-              <Star class="w-3 h-3 fill-current" />
-              LAUNCH OFFER
-            </div>
-
-            <div class="mb-8">
-              <h3 class="text-xl font-bold text-white mb-2">Pro</h3>
-              <div class="flex items-baseline gap-2">
-                <span class="text-4xl font-bold text-white">$5.99</span>
-                <span class="text-white/40 line-through text-lg">$11.99</span>
-                <span class="text-white/40">/month</span>
-              </div>
-            </div>
-
-            <ul class="space-y-4 mb-10 flex-1">
-              <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Unlimited daily uploads</span>
               </li>
-              <li class="flex items-center gap-3 text-white">
+              <li class="flex items-center gap-3 text-white/70">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Full Book Support (1,000 pages)</span>
               </li>
-              <li class="flex items-center gap-3 text-white">
+              <li class="flex items-center gap-3 text-white/70">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Priority AI processing</span>
               </li>
-              <li class="flex items-center gap-3 text-white">
+              <li class="flex items-center gap-3 text-white/70">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Anki Export Support (.csv)</span>
               </li>
-              <li class="flex items-center gap-3 text-white">
+              <li class="flex items-center gap-3 text-white/70">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Deep Synthesis (Up to 5 cards/page)</span>
               </li>
@@ -525,7 +476,67 @@
 
             <UpgradeButton
               class="w-full h-14"
-              text="Upgrade to Cubrain Pro"
+              text="Upgrade to Monthly"
+              variantId="646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
+              onLoginRequired={() => (showLoginModal = true)}
+            />
+          </div>
+
+          <!-- Annual Plan -->
+          <div
+            class="flex flex-col p-8 rounded-3xl bg-zinc-900 border-2 border-[#FFD700] shadow-[0_0_40px_rgba(255,215,0,0.15)] relative overflow-hidden group"
+          >
+            <!-- Badge -->
+            <div
+              class="absolute top-0 right-0 bg-[#FFD700] text-black px-4 py-1.5 rounded-bl-xl text-xs font-black flex items-center gap-1.5 tracking-wider"
+            >
+              <Star class="w-3.5 h-3.5 fill-current" />
+              BEST VALUE
+            </div>
+
+            <div class="mb-8">
+              <h3 class="text-xl font-bold text-white mb-4">Annual</h3>
+              <div class="flex flex-col gap-1">
+                <span class="text-lg text-white/40 line-through font-medium"
+                  >$99.00</span
+                >
+                <div class="flex items-baseline gap-1">
+                  <span
+                    class="text-6xl font-extrabold text-[#FFD700] tracking-tighter"
+                    >$39<sup class="text-3xl font-bold ml-0.5">.99</sup></span
+                  >
+                  <span class="text-white/40 font-medium ml-2">/ year</span>
+                </div>
+              </div>
+            </div>
+
+            <ul class="space-y-4 mb-10 flex-1">
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Everything in Monthly</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span class="font-bold text-[#FFD700]">Save 45% annually</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Unlimited daily uploads</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Full Book Support</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Priority Support</span>
+              </li>
+            </ul>
+
+            <UpgradeButton
+              class="w-full h-14 bg-linear-to-r from-[#FFD700] to-[#FDB931]"
+              text="Upgrade to Yearly 👑"
+              variantId="YOUR_ANNUAL_VARIANT_ID"
               onLoginRequired={() => (showLoginModal = true)}
             />
           </div>

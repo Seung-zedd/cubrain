@@ -1,20 +1,21 @@
 <script lang="ts">
-  import { Zap, Rocket } from "@lucide/svelte";
+  import { Zap } from "@lucide/svelte";
   import { user } from "$lib/stores/user.svelte";
   import { goto } from "$app/navigation";
 
   let {
     class: className = "",
     text = "Upgrade to Pro 🚀",
+    variantId = "646b9e10-0039-4c37-bb30-2ffa5fa2b32f",
     onLoginRequired,
   } = $props<{
     class?: string;
     text?: string;
+    variantId?: string;
     onLoginRequired?: () => void;
   }>();
 
-  const CHECKOUT_URL =
-    "https://cubrain.lemonsqueezy.com/checkout/buy/646b9e10-0039-4c37-bb30-2ffa5fa2b32f";
+  const BASE_CHECKOUT_URL = "https://cubrain.lemonsqueezy.com/checkout/buy/";
 
   function handleUpgrade() {
     if (!user.current) {
@@ -26,7 +27,13 @@
       return;
     }
 
-    const finalUrl = `${CHECKOUT_URL}?checkout[custom][user_id]=${user.current.id}&checkout[email]=${encodeURIComponent(user.current.email)}`;
+    const checkoutUrl = `${BASE_CHECKOUT_URL}${variantId}`;
+    const params = new URLSearchParams();
+    params.append("checkout[custom][user_id]", user.current.id);
+    params.append("checkout[email]", user.current.email);
+    params.append("checkout[discount_code]", "EARLYBIRD");
+
+    const finalUrl = `${checkoutUrl}?${params.toString()}`;
 
     if (window.LemonSqueezy) {
       // @ts-ignore

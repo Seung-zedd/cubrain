@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { X, Zap, CircleCheck, Rocket } from "@lucide/svelte";
+  import {
+    X,
+    Zap,
+    CircleCheck,
+    Rocket,
+    Star,
+    Lock,
+    Sparkles,
+  } from "@lucide/svelte";
   import { fade, scale, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
@@ -112,21 +120,79 @@
           {activeContent.title}
         </h2>
 
+        {#if mode === "free"}
+          <div
+            class="px-3 py-1 rounded-full bg-[#FFD700]/20 border border-[#FFD700]/30 text-[#FFD700] text-[10px] font-black uppercase tracking-wider flex items-center gap-1 mb-4"
+          >
+            <Sparkles class="w-2.5 h-2.5 fill-current" />
+            Launch Special
+          </div>
+        {/if}
+
         <p class="text-zinc-400 text-lg leading-relaxed max-w-md">
           {activeContent.description}
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-        {#each activeContent.features as feature}
-          <div
-            class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800"
-          >
-            <CircleCheck class="w-5 h-5 text-amber-500 shrink-0" />
-            <span class="text-zinc-300 text-sm font-medium">{feature}</span>
+      {#if mode === "free"}
+        <!-- Pricing Card Inside Modal -->
+        <div
+          class="relative p-6 rounded-2xl bg-linear-to-br from-zinc-900 to-black border-2 border-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.1)] overflow-hidden group mb-8"
+        >
+          <div class="relative z-10">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <p
+                  class="text-[10px] font-black text-[#FFD700] tracking-widest uppercase mb-1"
+                >
+                  Monthly Plan
+                </p>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-black text-white tracking-tighter"
+                    >$5<sup class="text-xl ml-0.5">.99</sup></span
+                  >
+                  <span class="text-zinc-500 text-sm line-through font-medium"
+                    >$11.99</span
+                  >
+                </div>
+              </div>
+              <div class="text-right">
+                <div
+                  class="flex items-center gap-1 text-[#FFD700] text-[10px] font-bold"
+                >
+                  <Lock class="w-3 h-3" />
+                  LOCKED FOREVER
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-y-2 gap-x-4">
+              {#each ["Unlimited Uploads", "1,000 Page Limit", "Deep Synthesis", "Priority AI"] as feature}
+                <div class="flex items-center gap-2 text-zinc-300 text-[11px]">
+                  <CircleCheck class="w-3 h-3 text-[#FFD700]" />
+                  <span>{feature}</span>
+                </div>
+              {/each}
+            </div>
           </div>
-        {/each}
-      </div>
+
+          <!-- Background Glow -->
+          <div
+            class="absolute -right-4 -bottom-4 w-24 h-24 bg-[#FFD700]/10 blur-2xl rounded-full"
+          ></div>
+        </div>
+      {:else}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+          {#each activeContent.features as feature}
+            <div
+              class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800"
+            >
+              <CircleCheck class="w-5 h-5 text-amber-500 shrink-0" />
+              <span class="text-zinc-300 text-sm font-medium">{feature}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
 
       <div class="space-y-4">
         {#if mode === "guest"}
@@ -139,7 +205,7 @@
                 goto("/login");
               }
             }}
-            class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all duration-300"
+            class="group relative w-full h-14 overflow-hidden rounded-xl bg-amber-500 font-bold text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:bg-amber-400 hover:shadow-[0_0_40_rgba(255,215,0,0.5)] transition-all duration-300"
           >
             <div class="flex items-center justify-center gap-2">
               <span>Sign up for Free</span>
@@ -152,7 +218,7 @@
         {:else}
           <UpgradeButton
             class="w-full h-14"
-            text="Upgrade to Cubrain Pro"
+            text="Lock in $5.99 Forever"
             onLoginRequired={onsignup}
           />
         {/if}

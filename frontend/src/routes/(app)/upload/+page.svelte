@@ -52,6 +52,8 @@
   let isSaved = $state(false);
   let currentFileIndex = $state(0);
   let totalFiles = $state(0);
+  let feedbackSubmitted = $state(false);
+  let selectedStruggle = $state<string | null>(null);
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -148,6 +150,8 @@
     errorMessage = null;
     totalFiles = files.length;
     currentFileIndex = 0;
+    feedbackSubmitted = false;
+    selectedStruggle = null;
 
     const filesToProcess = [...files]; // Copy the files array to process
 
@@ -527,6 +531,47 @@
               <p class="text-zinc-400 mt-4">
                 Analyzing {files[currentFileIndex]?.name || "document"}...
               </p>
+
+              <!-- Mini Insights Survey -->
+              <div
+                class="mt-12 w-full max-w-md p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500"
+              >
+                {#if !feedbackSubmitted}
+                  <h3 class="text-white font-bold mb-4 text-center">
+                    What's your biggest struggle with studying?
+                  </h3>
+                  <div class="grid gap-2">
+                    {#each ["📚 Too much to read", "⏰ No time", "💡 Hate making flashcards"] as option}
+                      <button
+                        onclick={() => {
+                          selectedStruggle = option;
+                          feedbackSubmitted = true;
+                          console.log("User struggle feedback:", option);
+                        }}
+                        class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-[#FFD700]/10 hover:text-[#FFD700] border border-white/5 hover:border-[#FFD700]/30 text-zinc-400 text-sm font-medium transition-all text-left"
+                      >
+                        {option}
+                      </button>
+                    {/each}
+                  </div>
+                {:else}
+                  <div
+                    class="py-8 flex flex-col items-center justify-center text-center space-y-3 animate-in zoom-in duration-300"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center"
+                    >
+                      <CircleCheck class="w-6 h-6 text-green-500" />
+                    </div>
+                    <p class="text-white font-bold">
+                      Thanks! AI is getting smarter.
+                    </p>
+                    <p class="text-zinc-500 text-xs">
+                      Your feedback helps us build a better Cubrain.
+                    </p>
+                  </div>
+                {/if}
+              </div>
             </div>
           {:else}
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
