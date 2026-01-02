@@ -56,7 +56,7 @@
   class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
 >
   <nav
-    class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-6xl px-6 md:px-8 py-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl"
+    class="relative w-full px-6 md:px-12 py-6 flex justify-between items-center z-40 bg-black border-b border-white/5"
   >
     <a href="/" class="z-50">
       <img
