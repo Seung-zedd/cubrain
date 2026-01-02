@@ -3,9 +3,10 @@
   import { browser, dev } from "$app/environment";
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
+  import { page } from "$app/stores";
 
   import { onMount } from "svelte";
-  import { fetchUser } from "$lib/stores/user.svelte";
+  import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
 
@@ -26,6 +27,9 @@
     "Stop drowning in PDFs. Turn your study materials into AI-generated quizzes and flashcards instantly.";
   const url = "https://cubrain.app";
   const imageUrl = "https://cubrain.app/og-image.png";
+
+  let isStudyMode = $derived($page.url.pathname.startsWith("/study"));
+  let isPro = $derived(user.current?.tier === "PRO_USER");
 </script>
 
 <svelte:head>
@@ -47,7 +51,7 @@
   <meta property="twitter:image" content={imageUrl} />
 </svelte:head>
 
-{#if IS_LAUNCH_SALE}
+{#if IS_LAUNCH_SALE && !isStudyMode && !isPro}
   <LaunchBanner />
 {/if}
 {@render children()}
