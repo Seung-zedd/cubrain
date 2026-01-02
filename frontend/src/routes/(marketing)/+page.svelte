@@ -456,6 +456,10 @@
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Anki Export Support</span>
               </li>
+              <li class="flex items-center gap-3 text-white/70">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Smart Synthesis (1-2 cards/page)</span>
+              </li>
             </ul>
 
             {#if user.current}
@@ -512,6 +516,10 @@
               <li class="flex items-center gap-3 text-white">
                 <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                 <span>Anki Export Support (.csv)</span>
+              </li>
+              <li class="flex items-center gap-3 text-white">
+                <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
+                <span>Deep Synthesis (Up to 5 cards/page)</span>
               </li>
             </ul>
 
