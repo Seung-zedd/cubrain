@@ -1,12 +1,16 @@
 <script lang="ts">
+  import ThePacer from "../ThePacer.svelte";
   let { progress = 0, status = "PROCESSING" } = $props();
 </script>
 
-<div class="w-full bg-zinc-800 rounded-full h-4 mb-4 overflow-hidden">
-  <div
-    class="bg-[#FFD700] h-4 rounded-full transition-all duration-500 ease-out"
-    style="width: {progress}%"
-  ></div>
+<div class="relative pt-8">
+  <ThePacer {progress} {status} />
+  <div class="w-full bg-zinc-800 rounded-full h-4 mb-4">
+    <div
+      class="bg-[#FFD700] h-4 rounded-full transition-all duration-500 ease-out"
+      style="width: {progress}%"
+    ></div>
+  </div>
 </div>
 
 <div class="flex justify-between text-sm text-zinc-400">
