@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FlashcardGeneratorImpl implements FlashcardGenerator {
 
-    private static final int BATCH_SIZE = 5;
-
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper;
     private final PdfAnnotationService pdfAnnotationService;
