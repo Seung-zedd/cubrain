@@ -25,7 +25,7 @@
   import Toast from "$lib/components/ui/Toast.svelte";
   import TierUpgradeModal from "$lib/components/ui/TierUpgradeModal.svelte";
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
-  import { cn } from "$lib/utils";
+  import { cn, renderMarkdown } from "$lib/utils";
 
   interface Flashcard {
     question: string;
@@ -247,18 +247,6 @@
         showResults = true;
       }
     }
-  }
-
-  function renderMarkdown(text: string) {
-    if (!text) return "";
-    // 1. Handle Anki-style cloze deletions: {{c1::text}} -> ______
-    let processed = text.replace(/\{\{c\d+::(.*?)\}\}/g, "______");
-    // 2. Handle Markdown Bold: **text** -> <strong>text</strong>
-    processed = processed.replace(
-      /\*\*(.*?)\*\*/g,
-      '<strong class="text-amber-400 font-bold">$1</strong>'
-    );
-    return processed;
   }
 
   async function dismissAllJobs() {

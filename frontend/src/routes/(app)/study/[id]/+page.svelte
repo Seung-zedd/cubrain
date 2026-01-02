@@ -11,7 +11,7 @@
     CheckCircle2,
     BookOpen,
   } from "@lucide/svelte";
-  import { cn } from "$lib/utils";
+  import { cn, renderMarkdown } from "$lib/utils";
 
   interface Flashcard {
     id: number;
@@ -213,7 +213,7 @@
           <p
             class="text-2xl md:text-3xl font-medium text-white leading-relaxed"
           >
-            {currentCard.question}
+            {@html renderMarkdown(currentCard.question)}
           </p>
           <div
             class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -255,7 +255,7 @@
             >Answer</span
           >
           <p class="text-xl md:text-2xl text-zinc-100 leading-relaxed">
-            {currentCard.answer}
+            {@html renderMarkdown(currentCard.answer)}
           </p>
           <div
             class="absolute bottom-16 flex items-center gap-4 text-xs text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
