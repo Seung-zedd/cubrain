@@ -249,8 +249,16 @@
     }
   }
 
-  function formatQuestion(text: string) {
-    return text.replace(/\{\{c\d+::.*?\}\}/g, "______");
+  function renderMarkdown(text: string) {
+    if (!text) return "";
+    // 1. Handle Anki-style cloze deletions: {{c1::text}} -> ______
+    let processed = text.replace(/\{\{c\d+::(.*?)\}\}/g, "______");
+    // 2. Handle Markdown Bold: **text** -> <strong>text</strong>
+    processed = processed.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong class="text-amber-400 font-bold">$1</strong>'
+    );
+    return processed;
   }
 
   async function dismissAllJobs() {
@@ -446,7 +454,7 @@
                     >Question</span
                   >
                   <p class="text-white text-lg font-medium leading-relaxed">
-                    {formatQuestion(card.question)}
+                    {@html renderMarkdown(card.question)}
                   </p>
                 </div>
                 <div class="flex flex-col gap-2">
@@ -455,7 +463,7 @@
                     >Answer</span
                   >
                   <p class="text-gray-300 text-base leading-relaxed">
-                    {card.answer}
+                    {@html renderMarkdown(card.answer)}
                   </p>
                 </div>
               </div>
