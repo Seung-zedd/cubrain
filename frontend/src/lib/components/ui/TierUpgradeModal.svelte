@@ -45,13 +45,14 @@
         mode === "guest"
           ? [
               "Save decks to library",
+              "Smart Synthesis (1-2 cards/page)",
               "Track progress",
-              "Study mode with decks",
               "Anki Export Support",
               "Access on any device",
             ]
           : [
               "Unlimited uploads",
+              "Deep Synthesis (Up to 5 cards/page)",
               "Cover your entire Textbook",
               "Priority AI processing",
             ],
