@@ -21,6 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -143,24 +146,37 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             }
 
             List<FlashcardResponseDto> allFlashcards = new ArrayList<>();
-            int total = annotations.size();
 
-            for (int i = 0; i < total; i += BATCH_SIZE) {
-                int end = Math.min(i + BATCH_SIZE, total);
-                List<AnnotationResultDto> batch = annotations.subList(i, end);
+            // 1. Group annotations by pageIndex to process them contextually
+            Map<Integer, List<AnnotationResultDto>> groupedByPage = annotations.stream()
+                    .collect(Collectors.groupingBy(AnnotationResultDto::pageIndex, TreeMap::new, Collectors.toList()));
 
-                log.info("Processing batch {} to {} of {}", i + 1, end, total);
-                List<FlashcardResponseDto> batchCards = generateCardBatch(batch, targetLanguage);
-                allFlashcards.addAll(batchCards);
+            List<Integer> pageIndices = new ArrayList<>(groupedByPage.keySet());
+            int totalPagesWithAnnotations = pageIndices.size();
+
+            log.info("📚 Grouped {} annotations into {} pages for processing", annotations.size(),
+                    totalPagesWithAnnotations);
+
+            for (int i = 0; i < totalPagesWithAnnotations; i++) {
+                int pageIndex = pageIndices.get(i);
+                List<AnnotationResultDto> pageAnnotations = groupedByPage.get(pageIndex);
+
+                log.info("📄 Processing Page {} ({} annotations) - {}/{}",
+                        pageIndex, pageAnnotations.size(), i + 1, totalPagesWithAnnotations);
+
+                List<FlashcardResponseDto> pageCards = generateCardsForPage(pageIndex, pageAnnotations, targetLanguage,
+                        userTier);
+                allFlashcards.addAll(pageCards);
 
                 if (jobId != null) {
-                    int progress = (int) (((double) end / total) * 100);
+                    int progress = (int) (((double) (i + 1) / totalPagesWithAnnotations) * 100);
                     jobManager.updateProgress(jobId, progress);
                 }
 
-                if (end < total) {
+                // Rate limiting / Token defense delay
+                if (i < totalPagesWithAnnotations - 1) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(800);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
@@ -181,46 +197,65 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
         }
     }
 
-    private List<FlashcardResponseDto> generateCardBatch(List<AnnotationResultDto> batch, String targetLanguage) {
+    private List<FlashcardResponseDto> generateCardsForPage(int pageIndex, List<AnnotationResultDto> annotations,
+            String targetLanguage, UserTier userTier) {
         try {
-            String batchJson = objectMapper.writeValueAsString(batch);
+            // Simplify annotations to save tokens
+            List<Map<String, String>> simplifiedAnnotations = annotations.stream()
+                    .map(a -> Map.of(
+                            "type", a.type(),
+                            "text", a.text(),
+                            "context", a.context()))
+                    .toList();
+
+            String annotationsJson = objectMapper.writeValueAsString(simplifiedAnnotations);
 
             SystemMessage systemMessage = SystemMessage
-                    .from("You are an expert tutor. Create Anki flashcards from the provided list of annotations.");
+                    .from("You are an expert tutor. Create high-quality Anki flashcards by synthesizing the provided annotations from a single PDF page.");
+
+            String tierInstruction = switch (userTier) {
+                case PRO_USER ->
+                    "Generate detailed flashcards for each significant annotation. You can create up to 5 cards if the content is rich.";
+                default ->
+                    "Synthesize these annotations into 1-2 high-quality flashcards that capture the most critical concepts. Quality over quantity.";
+            };
 
             UserMessage userMessage = UserMessage
                     .from("""
-                            **Task:**
-                            Generate %d flashcards based on the following list of annotations.
+                            **Page Context (Page %d):**
+                            The user has marked several parts of this page for study.
+
+                            **Annotations (JSON):**
+                            %s
 
                             **Target Language:** %s
 
-                            **Input Data (JSON):**
-                            %s
-
                             **Instructions:**
-                            1. Iterate through each item in the input list.
-                            2. Apply the logic based on 'type' (Highlight -> Conceptual, Underline -> Factual).
-                            3. Return a **JSON ARRAY** of objects.
+                            1. Analyze the annotations within their provided contexts.
+                            2. %s
+                            3. Logic:
+                               - 'Highlight' -> Conceptual questions (Why, How, Significance).
+                               - 'Underline' -> Factual questions (What, Who, When, Definitions).
+                            4. If multiple annotations relate to the same concept, merge them into one comprehensive card.
+                            5. Return a **JSON ARRAY** of objects.
 
                             **Output Format:**
                             Strictly return ONLY the JSON Array:
                             [
-                              { "question": "...", "answer": "..." },
                               { "question": "...", "answer": "..." }
                             ]
                             """
-                            .formatted(batch.size(), targetLanguage, batchJson));
+                            .formatted(pageIndex, annotationsJson, targetLanguage, tierInstruction));
 
             Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
             String responseText = response.content().text();
-            log.info("🤖 Raw AI Batch Response: " + responseText);
+            log.info("🤖 AI Page Response (Page {}): {}", pageIndex, responseText);
 
             String cleanJson = responseText.replace("```json", "").replace("```", "").trim();
             return objectMapper.readValue(cleanJson, new TypeReference<List<FlashcardResponseDto>>() {
             });
         } catch (Exception e) {
-            log.error("Failed to process batch or parse AI response", e);
+            log.error("Failed to process page {} or parse AI response", pageIndex, e);
             return new ArrayList<>();
         }
     }
