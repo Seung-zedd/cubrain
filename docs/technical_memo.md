@@ -12,6 +12,8 @@
 - **AI & PDF**: LangChain4j, Apache PDFBox, Naver CLOVA Studio.
 - **Auth & API**: JWT, OAuth 2.0, Apidog (OpenAPI).
 
+repo address: https://github.com/Seung-zedd/cubrain.git
+
 ---
 
 ## Technical Problem Solving
