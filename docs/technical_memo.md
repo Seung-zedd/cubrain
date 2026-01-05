@@ -5,11 +5,12 @@
 "Turn Your PDFs into Flashcards in Seconds."
 
 **Period**: 2025.12.01 ~ 2026.01.01
+
 **Tech Stack**:
 
 - **Frontend**: Svelte 5, Vite, Tailwind CSS 4, Lucide Svelte, Supabase JS.
 - **Backend**: Java 21, Spring Boot 3.5, PostgreSQL, Spring Data JPA, QueryDSL, Flyway.
-- **AI & PDF**: LangChain4j, Apache PDFBox, Naver CLOVA Studio.
+- **AI & PDF**: LangChain4j, Apache PDFBox, Google Gemini.
 - **Auth & API**: JWT, OAuth 2.0, Apidog (OpenAPI).
 
 ---
@@ -58,7 +59,7 @@ I implemented a **Synthesis-Based Batch Processing** strategy. Instead of indivi
 
 #### Why: What was the challenge?
 
-External AI APIs (like Naver CLOVA or Gemini) often impose strict rate limits or experience transient network timeouts. Without a robust handling mechanism, a single failed request would crash the entire PDF processing job, forcing the user to restart and waste time/tokens.
+External AI APIs (like Google Gemini) often impose strict rate limits or experience transient network timeouts. Without a robust handling mechanism, a single failed request would crash the entire PDF processing job, forcing the user to restart and waste time/tokens.
 
 #### What: What was the solution?
 
@@ -70,3 +71,43 @@ I built a **Self-Healing Request Mechanism** using the **Exponential Backoff** s
 2. **Error Classification**: Implemented logic to distinguish between "retryable" errors (429, 503, timeouts) and "terminal" errors (401 Unauthorized, 400 Bad Request).
 3. **Exponential Backoff**: Used a loop with `Thread.sleep(delayMs)` where `delayMs` doubles after each failed attempt (3000ms -> 6000ms -> 12000ms).
 4. **Graceful Degradation**: If all retries fail, the system logs the error for the specific page but continues processing the rest of the document, ensuring the user still gets as many cards as possible.
+
+---
+
+### Problem 4: Hybrid JWT Decoding for Multi-Provider Auth
+
+#### Why: What was the challenge?
+
+Cubrain supports multiple authentication methods: Social Login (Google via Supabase) and traditional Email/Password login. These methods use fundamentally different signing algorithms—Social logins typically use asymmetric encryption (RS256/ES256) via OIDC Discovery, while Email logins use symmetric encryption (HS256) with a shared secret. Standard Spring Security configurations usually expect a single `JwtDecoder`, making it difficult to support both simultaneously without complex workarounds.
+
+#### What: What was the solution?
+
+I implemented a **Hybrid JwtDecoder** that dynamically routes incoming tokens to the appropriate decoding logic based on their header information. This allows the application to seamlessly validate tokens from different providers and algorithms within a single security filter chain.
+
+#### How: How was it implemented?
+
+1. **Dual Decoder Initialization**: Created two distinct `NimbusJwtDecoder` instances: one for asymmetric (OIDC) and one for symmetric (HS256) validation.
+2. **Header Inspection**: Implemented a custom `JwtDecoder` lambda that first decodes the JWT header (Base64) to inspect the `alg` (algorithm) claim.
+3. **Dynamic Routing**:
+   - If the header contains `HS256`, the token is routed to the symmetric decoder.
+   - Otherwise, it defaults to the asymmetric decoder (which handles ES256/RS256 via issuer discovery).
+4. **Unified Validation**: Both decoders share a common set of validators (Audience, Issuer, Expiration) to ensure consistent security policies across all login types.
+
+---
+
+### Problem 5: Guest Usage Tracking & Rate Limiting
+
+#### Why: What was the challenge?
+
+To provide a low-friction "Try Before You Buy" experience, Cubrain allows guest users to generate flashcards without an account. However, this opens the door to abuse and high API costs if a single user uploads massive amounts of data. Since guests don't have a persistent `userId`, traditional database-level usage tracking isn't directly applicable.
+
+#### What: What was the solution?
+
+I developed a **Client IP-Based Usage Tracking System**. This system treats the user's IP address as a temporary identifier, allowing the application to enforce daily limits on guest uploads while maintaining a frictionless user experience.
+
+#### How: How was it implemented?
+
+1. **IP Extraction**: Implemented logic in `AuthController.java` to extract the client's IP address, prioritizing the `X-Forwarded-For` header (to handle proxy/load balancer scenarios) and falling back to `request.getRemoteAddr()`.
+2. **Unified Service Layer**: Integrated the IP-based logic into the existing `UsageLimitService`. The service maintains a separate tracking bucket for guests, keyed by their IP.
+3. **Frictionless Fallback**: The `getUsage` endpoint first checks for a valid JWT. If absent, it automatically falls back to IP-based tracking, ensuring the frontend always has accurate usage data to display to the user.
+4. **Resilient Identification**: By using the IP address, we strike a balance between preventing mass abuse and allowing legitimate users to explore the product without immediate registration.
