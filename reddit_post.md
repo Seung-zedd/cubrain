@@ -22,7 +22,7 @@ Hey everyone! I’ve been building **Cubrain**, an AI-powered study tool that tu
 
 - **Frontend**: Svelte 5 (Runes are a game changer!), Tailwind CSS 4.
 - **Backend**: Spring Boot 3.5, Java 21.
-- **AI**: LangChain4j + Naver CLOVA Studio.
+- **AI**: LangChain4j + Google Gemini.
 
 **The Technical Choice**: Instead of simple text dumping, I implemented a **precise extraction strategy**. By mapping the exact coordinates of user highlights, I can feed the AI the specific context it needs without the "noise" of the rest of the page. This virtually eliminated hallucinations in the generated cards.
 
@@ -47,13 +47,13 @@ I built **Cubrain** to fix this. It’s a simple web app where you:
 
 1. Upload your PDF.
 2. It automatically finds all your **Highlights** and **Underlines**.
-3. It generates high-quality Q&A flashcards based on _exactly_ what you marked.
+3. AI generates high-quality flashcards using Tier Synthesis (Smart Synthesis for free users, Deep Synthesis for Pro).
 
 **Why it’s different**:
 
 - **Precision Extraction**: It doesn't just "guess" what's important. It looks exactly at what you highlighted so the questions are actually relevant to your exam.
-- **Gamified Learning**: It has "Elemental Effects" (Fire, Water, etc.) when you get answers right to keep you motivated.
 - **Export to Anki**: You can download everything as a CSV and import it straight into Anki.
+- **Gamified Learning(This feature would be added if the early adopters are more than 100 users)**: It has "Elemental Effects" (Fire, Water, Spark, and Wind) when you get answers right to keep you motivated.
 
 It's currently in MVP/Demo mode and I'd love for some students to try it out and tell me what you think!
 
@@ -75,9 +75,9 @@ I built **Cubrain** to automate the "Extraction -> Card Creation" pipeline while
 **Key Features for Anki Users**:
 
 - **Precision Extraction**: It identifies the exact areas you marked in your PDF. No more copy-pasting or cleaning up messy text dumps.
-- **Intent-Based Prompting**:
-  - `Highlight` -> Conceptual questions (Why/How).
-  - `Underline` -> Factual/Cloze-style questions.
+- **Tier Synthesis**:
+  - **Free (Smart Synthesis)**: Groups highlights by page to create concise, high-impact cards.
+  - **Pro (Deep Synthesis)**: Performs a deeper analysis for comprehensive, detailed card generation.
 - **Atomic Cards**: The AI is specifically tuned to follow the Minimum Information Principle—one fact per card.
 - **CSV Export**: One-click export formatted perfectly for Anki import.
 
@@ -100,10 +100,10 @@ I’m sharing **Cubrain**, a tool I built to bridge the gap between "reading a P
 
 **The Flow**:
 
-1. Upload PDF.
-2. AI extracts your highlights with high precision.
-3. Review generated cards with "Elemental Effects" animations.
-4. Export to Anki.
+1. **Upload PDF**: The system maps the exact visual coordinates of your highlights and underlines.
+2. **Precision Extraction**: It captures the specific text and surrounding context to ensure the AI understands your intent, eliminating hallucinations.
+3. **Tier Synthesis**: AI intelligently batches your notes (Free: Smart Synthesis / Pro: Deep Synthesis) to generate high-quality, non-redundant cards.
+4. **Export to Anki**: Download your cards as a perfectly formatted CSV.
 
 Built with **Svelte 5** and **Spring Boot**. I focused heavily on making the extraction precise so the AI doesn't hallucinate.
 
