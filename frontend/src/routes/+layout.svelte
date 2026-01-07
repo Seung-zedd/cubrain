@@ -33,7 +33,8 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={url} />
