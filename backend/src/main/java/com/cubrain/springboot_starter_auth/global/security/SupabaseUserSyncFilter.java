@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,10 +20,14 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class SupabaseUserSyncFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
+
+    public SupabaseUserSyncFilter(@Lazy AuthService authService) {
+        this.authService = authService;
+    }
+
     private final java.util.Map<String, Long> lastSyncTime = new java.util.concurrent.ConcurrentHashMap<>();
     private static final long SYNC_INTERVAL_MS = 60000; // 1 minute
 

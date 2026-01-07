@@ -2,13 +2,11 @@ package com.cubrain.springboot_starter_auth.domain.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 
 import static com.cubrain.springboot_starter_auth.domain.member.QMember.member;
 
-@Repository
 @RequiredArgsConstructor
 public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 

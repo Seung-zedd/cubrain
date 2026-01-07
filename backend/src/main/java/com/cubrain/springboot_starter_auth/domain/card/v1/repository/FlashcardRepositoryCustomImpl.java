@@ -3,13 +3,11 @@ package com.cubrain.springboot_starter_auth.domain.card.v1.repository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 import static com.cubrain.springboot_starter_auth.domain.card.QFlashcard.flashcard;
 
-@Repository
 @RequiredArgsConstructor
 public class FlashcardRepositoryCustomImpl implements FlashcardRepositoryCustom {
 
