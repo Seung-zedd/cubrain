@@ -45,7 +45,7 @@
       description:
         mode === "guest"
           ? "Sign up for free to get more daily uploads and save your decks."
-          : "Get unlimited uploads for just $5.99/mo. (Limited Time Launch Offer)",
+          : "Get unlimited uploads for just $5.59/mo. (Limited Time Launch Offer)",
       highlight:
         mode === "guest" ? "Guest Limit Reached" : "Daily limit reached (3/3)",
       features:
@@ -148,10 +148,10 @@
                 </p>
                 <div class="flex items-baseline gap-2">
                   <span class="text-4xl font-black text-white tracking-tighter"
-                    >$5<sup class="text-xl ml-0.5">.99</sup></span
+                    >$5<sup class="text-xl ml-0.5">.59</sup></span
                   >
                   <span class="text-zinc-500 text-sm line-through font-medium"
-                    >$14.99</span
+                    >$19.99</span
                   >
                 </div>
               </div>
@@ -217,7 +217,7 @@
         {:else}
           <UpgradeButton
             class="w-full h-14"
-            text={IS_LAUNCH_SALE ? "Lock in $5.99 Forever" : "Upgrade to Pro"}
+            text={IS_LAUNCH_SALE ? "Lock in $5.59 Forever" : "Upgrade to Pro"}
             onLoginRequired={onsignup}
           />
         {/if}
