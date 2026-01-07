@@ -34,7 +34,7 @@
         </div>
         <p class="text-sm sm:text-base font-bold tracking-tight">
           Early Bird Offer: Get <span class="underline decoration-2"
-            >60% OFF</span
+            >72% OFF</span
           >
           Lifetime Pro with code
           <span
