@@ -523,7 +523,7 @@
               <div class="flex flex-col gap-1">
                 {#if IS_LAUNCH_SALE}
                   <span class="text-lg text-white/40 line-through font-medium"
-                    >$179.88</span
+                    >$143.90</span
                   >
                   <div class="flex items-baseline gap-1">
                     <span
@@ -554,7 +554,7 @@
                 <li class="flex items-center gap-3 text-white">
                   <CheckCircle2 class="w-5 h-5 text-[#FFD700]" />
                   <span class="font-bold text-[#FFD700]"
-                    >Save 78% instantly</span
+                    >Save 72% instantly</span
                   >
                 </li>
               {/if}
