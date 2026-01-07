@@ -25,7 +25,7 @@ spring:
   flyway:
     # enabled: false # Removed to prevent overriding prod settings
     baseline-on-migrate: true # Create baseline when first migration runs
-    baseline-version: 1 # Starting version
+    baseline-version: 0 # Starting version (0 ensures V1 runs)
 
   # Security: Supabase OAuth2 Resource Server
   security:
@@ -43,4 +43,4 @@ lemonsqueezy:
   webhook:
     # Key point: Put an 'environment variable holder' here, not a specific value.
     # This means that the value will be injected under the name 'LEMONSQUEEZY_WEBHOOK_SECRET' from the OS or distribution environment (Railway).
-    secret: ${LEMONSQUEEZY_WEBHOOK_SECRET} 
+    secret: ${LEMONSQUEEZY_WEBHOOK_SECRET}

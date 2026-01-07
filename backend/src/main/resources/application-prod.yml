@@ -30,6 +30,7 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    ignore-migration-patterns: "*:ignored"
 
 # 운영 환경에서는 일반적으로 불필요한 SQL 로그를 남기지 않도록 설정합니다.
 # common.yml의 설정을 덮어쓰고 싶다면 아래와 같이 명시적으로 레벨을 지정할 수 있습니다.
