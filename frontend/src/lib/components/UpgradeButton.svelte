@@ -50,6 +50,17 @@
       (plan === "yearly" ? config.yearlyVariantId : config.monthlyVariantId);
 
     const checkoutUrl = `${baseCheckoutUrl}${selectedVariantId}`;
+
+    // Validate checkoutUrl
+    if (!checkoutUrl.startsWith("http")) {
+      console.error(
+        "❌ [UpgradeButton] Invalid checkout URL constructed:",
+        checkoutUrl
+      );
+      alert("Invalid payment configuration. Please contact support.");
+      return;
+    }
+
     const params = new URLSearchParams();
     params.append("checkout[custom][user_id]", String(user.current.id));
     params.append("checkout[email]", user.current.email);
@@ -59,10 +70,20 @@
 
     const finalUrl = `${checkoutUrl}?${params.toString()}`;
 
-    if (window.LemonSqueezy) {
-      // @ts-ignore
-      window.LemonSqueezy.Url.Open(finalUrl);
-    } else {
+    if (import.meta.env.DEV) {
+      console.log("💳 [UpgradeButton] Opening checkout:", finalUrl);
+    }
+
+    try {
+      if (window.LemonSqueezy) {
+        // @ts-ignore
+        window.LemonSqueezy.Url.Open(finalUrl);
+      } else {
+        window.open(finalUrl, "_blank");
+      }
+    } catch (err) {
+      console.error("❌ [UpgradeButton] Error opening checkout:", err);
+      // Fallback to direct window.open if LemonSqueezy.js fails
       window.open(finalUrl, "_blank");
     }
   }

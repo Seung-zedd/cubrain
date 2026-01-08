@@ -5,7 +5,9 @@ const envUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const API_BASE_URL = envUrl
   ? envUrl
-  : import.meta.env.DEV
+  : (typeof window !== "undefined" &&
+      window.location.hostname.includes("dev")) ||
+    import.meta.env.DEV
   ? "https://api-dev.cubrain.app"
   : "https://api.cubrain.app";
 
