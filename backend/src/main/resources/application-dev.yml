@@ -64,6 +64,6 @@ lemonsqueezy:
   variants:
     monthly: ${DEV_LEMONSQUEEZY_VARIANT_ID_MONTHLY}
     yearly: ${DEV_LEMONSQUEEZY_VARIANT_ID_YEARLY}
-  checkout-url: https://cubrain.lemonsqueezy.com/checkout/buy/
+  checkout-url: https://cubrain.lemonsqueezy.com/checkout/buy/ # don't change this since the checkout request id is dynamic
   webhook:
     secret: ${DEV_LEMONSQUEEZY_WEBHOOK_SECRET}
