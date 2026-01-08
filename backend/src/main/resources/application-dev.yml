@@ -60,10 +60,10 @@ langchain4j:
 
 # Lemon Squeezy Settings (Dev)
 lemonsqueezy:
-  product-id: "646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
+  product-id: ${DEV_LEMONSQUEEZY_PRODUCT_ID}
   variants:
-    monthly: "646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
-    yearly: "YOUR_ANNUAL_VARIANT_ID"
+    monthly: ${DEV_LEMONSQUEEZY_VARIANT_ID_MONTHLY}
+    yearly: ${DEV_LEMONSQUEEZY_VARIANT_ID_YEARLY}
   checkout-url: "https://cubrain.lemonsqueezy.com/checkout/buy/"
   webhook:
-    secret: "DEV_WEBHOOK_SECRET"
+    secret: ${DEV_LEMONSQUEEZY_WEBHOOK_SECRET}
