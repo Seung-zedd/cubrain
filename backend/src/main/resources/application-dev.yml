@@ -57,3 +57,13 @@ langchain4j:
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
+
+# Lemon Squeezy Settings (Dev)
+lemonsqueezy:
+  product-id: ${DEV_LEMONSQUEEZY_PRODUCT_ID}
+  variants:
+    monthly: ${DEV_LEMONSQUEEZY_VARIANT_ID_MONTHLY}
+    yearly: ${DEV_LEMONSQUEEZY_VARIANT_ID_YEARLY}
+  checkout-url: https://cubrain.lemonsqueezy.com/checkout/buy/ # don't change this since the checkout request id is dynamic
+  webhook:
+    secret: ${DEV_LEMONSQUEEZY_WEBHOOK_SECRET}

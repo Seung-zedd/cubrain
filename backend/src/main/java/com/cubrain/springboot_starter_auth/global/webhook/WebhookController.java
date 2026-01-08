@@ -1,10 +1,10 @@
 package com.cubrain.springboot_starter_auth.global.webhook;
 
+import com.cubrain.springboot_starter_auth.global.config.lemonsqueezy.LemonSqueezyProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,9 +29,7 @@ import java.util.HexFormat;
 public class WebhookController {
 
     private final WebhookService webhookService;
-
-    @Value("${lemonsqueezy.webhook.secret}")
-    private String webhookSecret;
+    private final LemonSqueezyProperties lemonSqueezyProperties;
 
     @PostMapping("/lemonsqueezy")
     @Operation(summary = "Handle Lemon Squeezy Webhook", description = "Receives and verifies webhooks from Lemon Squeezy.")
@@ -59,7 +57,8 @@ public class WebhookController {
     private boolean verifySignature(String payload, String signature) {
         try {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(webhookSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(
+                    lemonSqueezyProperties.webhook().secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             sha256Hmac.init(secretKey);
 
             byte[] hashBytes = sha256Hmac.doFinal(payload.getBytes(StandardCharsets.UTF_8));

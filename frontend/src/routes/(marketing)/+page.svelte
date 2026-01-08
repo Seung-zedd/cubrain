@@ -498,7 +498,7 @@
             <UpgradeButton
               class="w-full h-14"
               text="Upgrade to Monthly"
-              variantId="646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
+              plan="monthly"
               onLoginRequired={() => (showLoginModal = true)}
             />
           </div>
@@ -579,7 +579,7 @@
               text={IS_LAUNCH_SALE
                 ? "Upgrade to Yearly 👑"
                 : "Upgrade to Yearly"}
-              variantId="YOUR_ANNUAL_VARIANT_ID"
+              plan="yearly"
               onLoginRequired={() => (showLoginModal = true)}
             />
           </div>
