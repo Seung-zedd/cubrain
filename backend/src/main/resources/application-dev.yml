@@ -57,3 +57,13 @@ langchain4j:
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
+
+# Lemon Squeezy Settings (Dev)
+lemonsqueezy:
+  product-id: "646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
+  variants:
+    monthly: "646b9e10-0039-4c37-bb30-2ffa5fa2b32f"
+    yearly: "YOUR_ANNUAL_VARIANT_ID"
+  checkout-url: "https://cubrain.lemonsqueezy.com/checkout/buy/"
+  webhook:
+    secret: "DEV_WEBHOOK_SECRET"

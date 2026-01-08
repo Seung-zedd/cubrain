@@ -1,24 +1,33 @@
 <script lang="ts">
   import Zap from "@lucide/svelte/icons/zap";
   import { user } from "$lib/stores/user.svelte";
+  import { paymentStore } from "$lib/stores/payment.svelte";
   import { goto } from "$app/navigation";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
+  import { onMount } from "svelte";
 
   let {
     class: className = "",
     text = "Upgrade to Pro",
-    variantId = "646b9e10-0039-4c37-bb30-2ffa5fa2b32f",
+    variantId = "", // If empty, will use plan-based variant from config
+    plan = "monthly",
     onLoginRequired,
   } = $props<{
     class?: string;
     text?: string;
     variantId?: string;
+    plan?: "monthly" | "yearly";
     onLoginRequired?: () => void;
   }>();
 
-  const BASE_CHECKOUT_URL = "https://cubrain.lemonsqueezy.com/checkout/buy/";
+  onMount(() => {
+    // Pre-fetch config when button is rendered
+    if (user.current) {
+      paymentStore.fetchConfig();
+    }
+  });
 
-  function handleUpgrade() {
+  async function handleUpgrade() {
     if (!user.current) {
       if (onLoginRequired) {
         onLoginRequired();
@@ -28,7 +37,19 @@
       return;
     }
 
-    const checkoutUrl = `${BASE_CHECKOUT_URL}${variantId}`;
+    // Ensure config is loaded
+    const config = await paymentStore.fetchConfig();
+    if (!config) {
+      alert("Failed to load payment configuration. Please try again later.");
+      return;
+    }
+
+    const baseCheckoutUrl = config.checkoutUrl;
+    const selectedVariantId =
+      variantId ||
+      (plan === "yearly" ? config.yearlyVariantId : config.monthlyVariantId);
+
+    const checkoutUrl = `${baseCheckoutUrl}${selectedVariantId}`;
     const params = new URLSearchParams();
     params.append("checkout[custom][user_id]", String(user.current.id));
     params.append("checkout[email]", user.current.email);
