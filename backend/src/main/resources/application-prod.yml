@@ -21,9 +21,9 @@ spring:
   # 데이터베이스 설정 (운영 환경)
   datasource:
     # Use individual connection parameters instead of DATABASE_URL
-    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # Flyway 활성화 (운영 환경 스키마 관리)
