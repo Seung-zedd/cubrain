@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import com.cubrain.springboot_starter_auth.global.config.audit.BaseEntity;
 
 @Entity
@@ -55,12 +56,30 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private LocalDate lastUploadDate = LocalDate.now();
 
+    @Column
+    private OffsetDateTime endsAt;
+
+    @Column
+    private String customerPortalUrl;
+
+    public boolean isProAccess() {
+        return tier == UserTier.PRO_USER && (endsAt == null || endsAt.isAfter(OffsetDateTime.now()));
+    }
+
     public void updateSupabaseId(String supabaseId) {
         this.supabaseId = supabaseId;
     }
 
     public void updateTier(UserTier tier) {
         this.tier = tier;
+    }
+
+    public void updateEndsAt(OffsetDateTime endsAt) {
+        this.endsAt = endsAt;
+    }
+
+    public void updateCustomerPortalUrl(String customerPortalUrl) {
+        this.customerPortalUrl = customerPortalUrl;
     }
 
     public void incrementUploadCount() {

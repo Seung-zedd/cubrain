@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,8 +32,11 @@ public class WebhookServiceImpl implements WebhookService {
 
             String email = attributes.path("user_email").asText();
             String status = attributes.path("status").asText();
+            String endsAtStr = attributes.path("ends_at").asText(null);
+            String customerPortalUrl = attributes.path("urls").path("customer_portal").asText(null);
 
-            log.info("[Webhook] Processing event: {} for email: {} (status: {})", eventName, email, status);
+            log.info("[Webhook] Processing event: {} for email: {} (status: {}, endsAt: {})",
+                    eventName, email, status, endsAtStr);
 
             if (email.isEmpty()) {
                 log.warn("[Webhook] No email found in payload. Skipping processing.");
@@ -39,7 +44,7 @@ public class WebhookServiceImpl implements WebhookService {
             }
 
             memberRepository.findByEmail(email).ifPresentOrElse(
-                    member -> updateMemberTier(member, eventName, status),
+                    member -> updateMemberSubscription(member, status, endsAtStr, customerPortalUrl),
                     () -> log.warn("[Webhook] Member not found for email: {}", email));
 
         } catch (Exception e) {
@@ -48,26 +53,31 @@ public class WebhookServiceImpl implements WebhookService {
         }
     }
 
-    private void updateMemberTier(Member member, String eventName, String status) {
+    private void updateMemberSubscription(Member member, String status, String endsAtStr, String customerPortalUrl) {
         UserTier oldTier = member.getTier();
-        UserTier newTier = oldTier;
+        OffsetDateTime oldEndsAt = member.getEndsAt();
 
-        // Logic based on Lemon Squeezy event names and subscription status
-        if (eventName.startsWith("subscription_")) {
-            if ("active".equalsIgnoreCase(status)) {
-                newTier = UserTier.PRO_USER;
-            } else if ("expired".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status)
-                    || "unpaid".equalsIgnoreCase(status)) {
-                newTier = UserTier.FREE_USER;
+        // Update Customer Portal URL if provided
+        if (customerPortalUrl != null && !customerPortalUrl.isEmpty()) {
+            member.updateCustomerPortalUrl(customerPortalUrl);
+        }
+
+        if ("active".equalsIgnoreCase(status)) {
+            member.updateTier(UserTier.PRO_USER);
+            member.updateEndsAt(null); // Active Pro = null endsAt
+        } else if ("cancelled".equalsIgnoreCase(status)) {
+            member.updateTier(UserTier.PRO_USER); // Keep as PRO during grace period
+            if (endsAtStr != null && !endsAtStr.equals("null")) {
+                member.updateEndsAt(OffsetDateTime.parse(endsAtStr));
             }
+        } else if ("expired".equalsIgnoreCase(status) || "unpaid".equalsIgnoreCase(status)
+                || "past_due".equalsIgnoreCase(status)) {
+            member.updateTier(UserTier.FREE_USER);
+            // Optionally clear endsAt or keep it
         }
 
-        if (oldTier != newTier) {
-            member.updateTier(newTier);
-            memberRepository.save(member);
-            log.info("[Webhook] Updated member {} tier: {} -> {}", member.getEmail(), oldTier, newTier);
-        } else {
-            log.info("[Webhook] No tier change required for member {}. Current tier: {}", member.getEmail(), oldTier);
-        }
+        memberRepository.save(member);
+        log.info("[Webhook] Updated member {}: Tier {} -> {}, EndsAt {} -> {}",
+                member.getEmail(), oldTier, member.getTier(), oldEndsAt, member.getEndsAt());
     }
 }

@@ -7,6 +7,8 @@ export interface User {
   role: string;
   tier: string;
   dailyUploadCount: number;
+  endsAt: string | null;
+  customerPortalUrl: string | null;
 }
 
 // Svelte 5 Rune-based store
@@ -60,6 +62,8 @@ export async function fetchUser() {
         role: "USER",
         tier: "FREE_USER",
         dailyUploadCount: 0,
+        endsAt: null,
+        customerPortalUrl: null,
       };
     }
   } catch (err) {
@@ -78,6 +82,8 @@ export async function fetchUser() {
           role: "USER",
           tier: "FREE_USER",
           dailyUploadCount: 0,
+          endsAt: null,
+          customerPortalUrl: null,
         };
       } else {
         user.current = null;

@@ -45,6 +45,25 @@
   }
 
   let isPro = $derived(user.current?.tier === "PRO_USER");
+  let isGracePeriod = $derived(isPro && user.current?.endsAt !== null);
+  let isActivePro = $derived(isPro && user.current?.endsAt === null);
+
+  function formatDate(dateStr: string | null) {
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  function handleManageSubscription() {
+    if (user.current?.customerPortalUrl) {
+      window.open(user.current.customerPortalUrl, "_blank");
+    } else {
+      alert("Billing portal is not available. Please contact support.");
+    }
+  }
 </script>
 
 <div class="max-w-2xl mx-auto py-12 px-6">
@@ -125,20 +144,38 @@
             {/if}
           </div>
           <p class="text-sm text-zinc-500">
-            {#if isPro}
+            {#if isActivePro}
               Thank you for supporting Cubrain!
+            {:else if isGracePeriod}
+              Your Pro access expires on <span class="text-red-500 font-bold"
+                >{formatDate(user.current?.endsAt)}</span
+              >. Renew now to keep your lifetime 72% discount!
             {:else}
               Upgrade to unlock unlimited uploads and advanced features.
             {/if}
           </p>
         </div>
 
-        {#if isPro}
+        {#if isActivePro}
           <button
+            onclick={handleManageSubscription}
             class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
           >
             Manage Subscription
           </button>
+        {:else if isGracePeriod}
+          <div class="flex flex-col gap-2 items-end">
+            <UpgradeButton
+              class="h-10 text-sm font-bold text-black"
+              text="Renew Subscription ⚡"
+            />
+            <button
+              onclick={handleManageSubscription}
+              class="text-xs text-zinc-500 hover:text-zinc-300 underline transition-colors"
+            >
+              Billing Portal
+            </button>
+          </div>
         {:else}
           <UpgradeButton
             class="h-12 text-lg font-bold text-black"
