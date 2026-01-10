@@ -23,12 +23,7 @@
   ];
 </script>
 
-<aside
-  class={cn(
-    "flex h-screen w-64 flex-col border-r border-zinc-800 bg-zinc-900",
-    className
-  )}
->
+<aside class={cn("flex h-full w-full flex-col bg-zinc-900", className)}>
   <!-- Brand Logo -->
   <div class="flex h-16 items-center px-6 border-b border-zinc-800/50">
     <a href="/" class="flex items-center gap-2" onclick={onNavItemClick}>

@@ -1,68 +1,92 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
   import Menu from "@lucide/svelte/icons/menu";
+  import PanelLeft from "@lucide/svelte/icons/panel-left";
   import { fade, fly } from "svelte/transition";
+  import { cn } from "$lib/utils";
 
   let { children } = $props();
-  let isMobileMenuOpen = $state(false);
+  let isSidebarOpen = $state(false); // Default closed to avoid flash on mobile
 
-  function toggleMobileMenu() {
-    isMobileMenuOpen = !isMobileMenuOpen;
+  onMount(() => {
+    // Default open on desktop
+    if (window.innerWidth >= 768) {
+      isSidebarOpen = true;
+    }
+  });
+
+  function toggleSidebar() {
+    isSidebarOpen = !isSidebarOpen;
   }
 </script>
 
 <svelte:window
   onkeydown={(e) => {
     if (e.key === "Escape") {
-      isMobileMenuOpen = false;
+      isSidebarOpen = false;
     }
   }}
 />
 
 <div
-  class="flex h-screen w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500/30"
+  class="flex h-screen w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500/30 overflow-hidden"
 >
-  <!-- Desktop Sidebar -->
-  <div class="hidden md:block">
-    <AppSidebar />
-  </div>
+  <!-- Mobile Sidebar Overlay -->
+  {#if isSidebarOpen}
+    <div
+      class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+      onclick={toggleSidebar}
+      onkeydown={(e) => e.key === "Enter" && toggleSidebar()}
+      role="button"
+      tabindex="0"
+      aria-label="Close Menu"
+      transition:fade={{ duration: 200 }}
+    ></div>
+  {/if}
 
-  <div class="flex flex-1 flex-col overflow-hidden">
-    <!-- Mobile Header -->
-    <header
-      class="flex h-16 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 md:hidden"
-    >
-      <a href="/" class="flex items-center gap-2">
-        <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
-      </a>
+  <!-- Sidebar Container -->
+  <aside
+    class={cn(
+      "fixed md:relative z-50 h-full bg-zinc-900 border-r border-zinc-800 transition-all duration-300 ease-in-out shrink-0",
+      isSidebarOpen
+        ? "translate-x-0 w-64"
+        : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden md:border-none"
+    )}
+  >
+    <div class="w-64 h-full">
+      <AppSidebar
+        onNavItemClick={() => {
+          if (window.innerWidth < 768) isSidebarOpen = false;
+        }}
+      />
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
+    <!-- Header with Toggle Button -->
+    <header class="flex h-16 items-center px-4 shrink-0 z-30">
       <button
-        class="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
-        onclick={toggleMobileMenu}
-        aria-label="Toggle Menu"
+        onclick={toggleSidebar}
+        class="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+        aria-label="Toggle Sidebar"
       >
-        <Menu class="h-6 w-6" />
+        <div class="md:hidden">
+          <Menu class="h-6 w-6" />
+        </div>
+        <div class="hidden md:block">
+          <PanelLeft class="h-5 w-5" />
+        </div>
       </button>
+
+      <!-- Mobile Logo (Visible when sidebar is closed) -->
+      {#if !isSidebarOpen}
+        <a href="/" class="ml-2 md:hidden">
+          <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
+        </a>
+      {/if}
     </header>
-
-    <!-- Mobile Sidebar Overlay -->
-    {#if isMobileMenuOpen}
-      <div
-        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
-        onclick={toggleMobileMenu}
-        onkeydown={(e) => e.key === "Enter" && toggleMobileMenu()}
-        role="button"
-        tabindex="0"
-        aria-label="Close Menu"
-        transition:fade={{ duration: 200 }}
-      ></div>
-
-      <div
-        class="fixed inset-y-0 left-0 z-50 w-64 md:hidden"
-        transition:fly={{ x: -256, duration: 300, opacity: 1 }}
-      >
-        <AppSidebar onNavItemClick={() => (isMobileMenuOpen = false)} />
-      </div>
-    {/if}
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto bg-zinc-950 p-4 md:p-8">

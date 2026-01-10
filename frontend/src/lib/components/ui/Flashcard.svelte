@@ -34,7 +34,7 @@
     {#if showPageInfo && card.page}
       {#if viewMode === "grid"}
         <span
-          class="absolute top-4 right-4 text-amber-500 text-[10px] font-black tracking-widest"
+          class="absolute top-4 right-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-bold px-2 py-0.5 rounded-md transition-all"
         >
           P.{card.page}
         </span>
