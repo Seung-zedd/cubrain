@@ -21,19 +21,30 @@
   function toggleSidebar() {
     isSidebarOpen = !isSidebarOpen;
   }
-</script>
 
-<svelte:window
-  onkeydown={(e) => {
+  function handleKeydown(e: KeyboardEvent) {
+    // Handle Escape
     if (e.key === "Escape") {
       if (showLoginModal) {
         showLoginModal = false;
       } else if (isSidebarOpen && window.innerWidth < 768) {
         isSidebarOpen = false;
       }
+      return;
     }
-  }}
-/>
+
+    // Handle Sidebar Toggle (Ctrl + . or Cmd + .)
+    const isTyping = ["INPUT", "TEXTAREA"].includes(
+      (e.target as HTMLElement)?.tagName
+    );
+    if ((e.ctrlKey || e.metaKey) && e.key === "." && !isTyping) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  }
+</script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div
   class="flex h-screen w-full bg-zinc-950 text-zinc-100 font-sans selection:bg-amber-500/30 overflow-hidden"
@@ -74,18 +85,32 @@
   <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
     <!-- Header with Toggle Button -->
     <header class="flex h-16 items-center px-4 shrink-0 z-30">
-      <button
-        onclick={toggleSidebar}
-        class="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
-        aria-label="Toggle Sidebar"
-      >
-        <div class="md:hidden">
-          <Menu class="h-6 w-6" />
+      <div class="relative group/toggle">
+        <button
+          onclick={toggleSidebar}
+          class="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+          aria-label="Toggle Sidebar"
+        >
+          <div class="md:hidden">
+            <Menu class="h-6 w-6" />
+          </div>
+          <div class="hidden md:block">
+            <PanelLeft class="h-5 w-5" />
+          </div>
+        </button>
+
+        <!-- Tooltip -->
+        <div
+          class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-lg text-xs font-medium text-zinc-200 whitespace-nowrap opacity-0 group-hover/toggle:opacity-100 pointer-events-none transition-all duration-200 translate-x-[-4px] group-hover/toggle:translate-x-0 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center gap-3"
+        >
+          <span>{isSidebarOpen ? "Close sidebar" : "Open sidebar"}</span>
+          <kbd
+            class="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 font-mono text-[10px] font-bold tracking-tight"
+          >
+            Ctrl + .
+          </kbd>
         </div>
-        <div class="hidden md:block">
-          <PanelLeft class="h-5 w-5" />
-        </div>
-      </button>
+      </div>
 
       <!-- Mobile Logo (Visible when sidebar is closed) -->
       {#if !isSidebarOpen}
