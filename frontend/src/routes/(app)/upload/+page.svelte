@@ -25,10 +25,14 @@
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
   import { cn } from "$lib/utils";
   import Markdown from "$lib/components/ui/Markdown.svelte";
+  import LayoutGrid from "@lucide/svelte/icons/layout-grid";
+  import List from "@lucide/svelte/icons/list";
+  import Flashcard from "$lib/components/ui/Flashcard.svelte";
 
   interface Flashcard {
     question: string;
     answer: string;
+    page?: number;
   }
 
   let files = $state<File[]>([]);
@@ -53,6 +57,7 @@
   let totalFiles = $state(0);
   let feedbackSubmitted = $state(false);
   let selectedStruggle = $state<string | null>(null);
+  let viewMode = $state<"grid" | "list">("grid");
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -367,9 +372,41 @@
                   </div>
                 </div>
               </div>
-              <p class="text-zinc-400 text-sm">
-                Created {generatedCards.length} flashcards
-              </p>
+              <div class="flex items-center gap-4 mt-2">
+                <p class="text-zinc-400 text-sm">
+                  Created {generatedCards.length} flashcards
+                </p>
+
+                <!-- View Toggle -->
+                <div
+                  class="flex items-center p-1 bg-zinc-900 border border-zinc-800 rounded-lg"
+                >
+                  <button
+                    onclick={() => (viewMode = "grid")}
+                    class={cn(
+                      "p-1.5 rounded-md transition-all duration-200",
+                      viewMode === "grid"
+                        ? "bg-zinc-800 text-amber-500 shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    )}
+                    title="Grid View"
+                  >
+                    <LayoutGrid class="w-4 h-4" />
+                  </button>
+                  <button
+                    onclick={() => (viewMode = "list")}
+                    class={cn(
+                      "p-1.5 rounded-md transition-all duration-200",
+                      viewMode === "list"
+                        ? "bg-zinc-800 text-amber-500 shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    )}
+                    title="List View"
+                  >
+                    <List class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="flex items-center gap-4">
@@ -431,34 +468,16 @@
           </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          class={cn(
+            viewMode === "grid"
+              ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+              : "flex flex-col gap-4 max-w-3xl mx-auto w-full"
+          )}
+        >
           {#each generatedCards as card, i}
-            <div
-              class="rounded-xl p-px bg-linear-to-br from-[#fbbf24]/50 to-[#FFD700]/50 hover:from-[#fbbf24] hover:to-[#FFD700] transition-all duration-300"
-              in:fly={{ y: 20, duration: 300, delay: i * 50 }}
-            >
-              <div
-                class="rounded-xl bg-[#1a1a1a] p-6 flex flex-col gap-6 h-full"
-              >
-                <div class="flex flex-col gap-2">
-                  <span
-                    class="text-amber-500 text-xs font-bold uppercase tracking-wider"
-                    >Question</span
-                  >
-                  <p class="text-white text-lg font-medium leading-relaxed">
-                    <Markdown text={card.question} />
-                  </p>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <span
-                    class="text-gray-500 text-xs font-bold uppercase tracking-wider"
-                    >Answer</span
-                  >
-                  <p class="text-gray-300 text-base leading-relaxed">
-                    <Markdown text={card.answer} />
-                  </p>
-                </div>
-              </div>
+            <div in:fly={{ y: 20, duration: 300, delay: i * 50 }}>
+              <Flashcard {card} {viewMode} />
             </div>
           {/each}
         </div>

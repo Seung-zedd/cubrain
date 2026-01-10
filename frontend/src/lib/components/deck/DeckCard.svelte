@@ -16,12 +16,21 @@
     lastStudiedAt?: string;
     studyProgress?: number;
     createdAt: string;
+    page?: number;
   }
 
-  let { deck, onDelete, onEditCards } = $props<{
+  let {
+    deck,
+    onDelete,
+    onEditCards,
+    viewMode = "grid",
+    showPageInfo = true,
+  } = $props<{
     deck: Deck;
     onDelete?: (id: number) => void;
     onEditCards?: (deck: Deck) => void;
+    viewMode?: "grid" | "list";
+    showPageInfo?: boolean;
   }>();
 
   let showMenu = $state(false);
@@ -131,6 +140,22 @@
           >
             {deck.title}
           </h3>
+
+          {#if showPageInfo && deck.page}
+            {#if viewMode === "grid"}
+              <span
+                class="absolute top-0 right-0 text-amber-500 text-[10px] font-black tracking-widest"
+              >
+                P.{deck.page}
+              </span>
+            {:else}
+              <div
+                class="absolute top-0 right-0 px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-amber-500 text-[10px] font-black tracking-widest"
+              >
+                P.{deck.page}
+              </div>
+            {/if}
+          {/if}
 
           <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500">
             <Clock class="w-3 h-3" />

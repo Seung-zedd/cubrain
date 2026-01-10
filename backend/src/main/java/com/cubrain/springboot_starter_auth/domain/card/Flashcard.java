@@ -27,8 +27,12 @@ public class Flashcard extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String answer;
 
-    public void updateContent(String question, String answer) {
+    @Column
+    private Integer page;
+
+    public void updateContent(String question, String answer, Integer page) {
         this.question = question;
         this.answer = answer;
+        this.page = page;
     }
 }

@@ -12,6 +12,7 @@
     id?: number;
     question: string;
     answer: string;
+    page?: number;
   }
 
   interface Deck {
@@ -144,9 +145,13 @@
               <div class="space-y-2">
                 <label
                   for="q-{i}"
-                  class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"
-                  >Question</label
+                  class="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center justify-between"
                 >
+                  <span>Question</span>
+                  {#if card.page}
+                    <span class="text-amber-500/50">P.{card.page}</span>
+                  {/if}
+                </label>
                 <textarea
                   id="q-{i}"
                   bind:value={card.question}

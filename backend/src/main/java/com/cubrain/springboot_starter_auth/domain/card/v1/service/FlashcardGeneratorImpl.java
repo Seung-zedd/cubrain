@@ -251,8 +251,14 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             log.info("🤖 AI Page Response (Page {}): {}", pageIndex, responseText);
 
             String cleanJson = responseText.replace("```json", "").replace("```", "").trim();
-            return objectMapper.readValue(cleanJson, new TypeReference<List<FlashcardResponseDto>>() {
-            });
+            List<FlashcardResponseDto> cards = objectMapper.readValue(cleanJson,
+                    new TypeReference<List<FlashcardResponseDto>>() {
+                    });
+
+            // Set the page index for each generated card
+            return cards.stream()
+                    .map(card -> FlashcardResponseDto.of(card.question(), card.answer(), pageIndex))
+                    .toList();
         } catch (Exception e) {
             log.error("Failed to process page {} or parse AI response", pageIndex, e);
             return new ArrayList<>();

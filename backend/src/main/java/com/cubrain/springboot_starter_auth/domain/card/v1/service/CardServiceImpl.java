@@ -124,6 +124,7 @@ public class CardServiceImpl implements CardService {
                         .deck(deck)
                         .question(dto.question())
                         .answer(dto.answer())
+                        .page(dto.page())
                         .build())
                 .toList();
 
@@ -170,13 +171,14 @@ public class CardServiceImpl implements CardService {
                 deck.getCards().stream()
                         .filter(card -> card.getId().equals(dto.id()))
                         .findFirst()
-                        .ifPresent(card -> card.updateContent(dto.question(), dto.answer()));
+                        .ifPresent(card -> card.updateContent(dto.question(), dto.answer(), dto.page()));
                 updatedCount++;
             } else {
                 deck.getCards().add(Flashcard.builder()
                         .deck(deck)
                         .question(dto.question())
                         .answer(dto.answer())
+                        .page(dto.page())
                         .build());
                 addedCount++;
             }

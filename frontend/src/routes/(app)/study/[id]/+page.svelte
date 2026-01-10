@@ -16,6 +16,7 @@
     id: number;
     question: string;
     answer: string;
+    page?: number;
   }
 
   let deckId = $derived(page.params.id);

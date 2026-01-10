@@ -9,12 +9,14 @@ import lombok.Builder;
 public record FlashcardDto(
         @Schema(description = "Flashcard ID", example = "1") Long id,
         @Schema(description = "Question", example = "What is TCP?") String question,
-        @Schema(description = "Answer", example = "TCP is a connection-oriented protocol.") String answer) {
+        @Schema(description = "Answer", example = "TCP is a connection-oriented protocol.") String answer,
+        @Schema(description = "Page number from source PDF", example = "1") Integer page) {
     public static FlashcardDto from(Flashcard flashcard) {
         return FlashcardDto.builder()
                 .id(flashcard.getId())
                 .question(flashcard.getQuestion())
                 .answer(flashcard.getAnswer())
+                .page(flashcard.getPage())
                 .build();
     }
 }

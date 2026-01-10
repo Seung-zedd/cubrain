@@ -8,12 +8,16 @@
   import { fade } from "svelte/transition";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
+  import LayoutGrid from "@lucide/svelte/icons/layout-grid";
+  import List from "@lucide/svelte/icons/list";
+  import { cn } from "$lib/utils";
 
   let decks = $state<any[]>([]);
   let isLoading = $state(true);
   let searchQuery = $state("");
   let selectedDeck = $state<any | null>(null);
   let showEditModal = $state(false);
+  let viewMode = $state<"grid" | "list">("grid");
 
   // Deletion state
   let deckToDelete = $state<number | null>(null);
@@ -98,13 +102,46 @@
         Manage and study your flashcard collections.
       </p>
     </div>
-    <a
-      href="/upload"
-      class="flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
-    >
-      <Plus class="w-5 h-5" />
-      Create New Deck
-    </a>
+
+    <div class="flex items-center gap-3">
+      <!-- View Toggle -->
+      <div
+        class="flex items-center p-1 bg-zinc-900 border border-zinc-800 rounded-lg"
+      >
+        <button
+          onclick={() => (viewMode = "grid")}
+          class={cn(
+            "p-1.5 rounded-md transition-all duration-200",
+            viewMode === "grid"
+              ? "bg-zinc-800 text-amber-500 shadow-sm"
+              : "text-zinc-500 hover:text-zinc-300"
+          )}
+          title="Grid View"
+        >
+          <LayoutGrid class="w-4 h-4" />
+        </button>
+        <button
+          onclick={() => (viewMode = "list")}
+          class={cn(
+            "p-1.5 rounded-md transition-all duration-200",
+            viewMode === "list"
+              ? "bg-zinc-800 text-amber-500 shadow-sm"
+              : "text-zinc-500 hover:text-zinc-300"
+          )}
+          title="List View"
+        >
+          <List class="w-4 h-4" />
+        </button>
+      </div>
+
+      <a
+        href="/upload"
+        class="flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+      >
+        <Plus class="w-5 h-5" />
+        Create New Deck
+      </a>
+    </div>
   </div>
 
   <div class="relative">
@@ -120,7 +157,13 @@
   </div>
 
   {#if isLoading}
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div
+      class={cn(
+        viewMode === "grid"
+          ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          : "flex flex-col gap-4 max-w-3xl mx-auto w-full"
+      )}
+    >
       {#each Array(6) as _}
         <div
           class="h-40 bg-zinc-900/50 rounded-xl animate-pulse border border-zinc-800"
@@ -132,6 +175,7 @@
       decks={filteredDecks}
       onDelete={(id) => (deckToDelete = id)}
       onEditCards={handleEditCards}
+      {viewMode}
     />
   {:else}
     <div
