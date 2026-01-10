@@ -39,34 +39,26 @@
           P.{card.page}
         </span>
       {:else}
-        <div
-          class="shrink-0 px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-amber-500 text-[10px] font-black tracking-widest"
-        >
-          P.{card.page}
+        <div class="shrink-0 pt-1 w-16">
+          <span
+            class="px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-amber-500 text-[10px] font-black tracking-widest"
+          >
+            P.{card.page}
+          </span>
         </div>
       {/if}
     {/if}
 
-    <div class={cn("flex flex-col gap-2", viewMode === "list" ? "flex-1" : "")}>
-      <span
-        class={cn(
-          "text-xs font-bold uppercase tracking-wider",
-          viewMode === "grid" ? "text-amber-500" : "text-amber-500/80"
-        )}
-      >
-        Question
-      </span>
-      <p
-        class={cn(
-          "text-white font-medium leading-relaxed",
-          viewMode === "grid" ? "text-lg" : "text-base"
-        )}
-      >
-        <Markdown text={card.question} />
-      </p>
-    </div>
-
     {#if viewMode === "grid"}
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-500">
+          Question
+        </span>
+        <p class="text-white font-medium leading-relaxed text-lg">
+          <Markdown text={card.question} />
+        </p>
+      </div>
+
       <div class="flex flex-col gap-2">
         <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">
           Answer
@@ -76,13 +68,32 @@
         </p>
       </div>
     {:else}
-      <div class="flex flex-col gap-2 flex-1 border-l border-zinc-800 pl-4">
-        <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">
-          Answer
-        </span>
-        <p class="text-gray-300 text-base leading-relaxed">
-          <Markdown text={card.answer} />
-        </p>
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-10 gap-6 w-full">
+        <!-- Question Box (40%) -->
+        <div class="flex flex-col gap-2 md:col-span-4">
+          <span
+            class="text-xs font-bold uppercase tracking-wider text-amber-500/80"
+          >
+            Question
+          </span>
+          <p class="text-white font-medium leading-relaxed text-base">
+            <Markdown text={card.question} />
+          </p>
+        </div>
+
+        <!-- Answer Box (60%) -->
+        <div
+          class="flex flex-col gap-2 md:col-span-6 md:border-l md:border-zinc-800 md:pl-6"
+        >
+          <span
+            class="text-gray-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Answer
+          </span>
+          <p class="text-gray-300 text-base leading-relaxed">
+            <Markdown text={card.answer} />
+          </p>
+        </div>
       </div>
     {/if}
   </div>

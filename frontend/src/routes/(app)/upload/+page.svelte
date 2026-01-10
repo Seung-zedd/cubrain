@@ -57,7 +57,7 @@
   let totalFiles = $state(0);
   let feedbackSubmitted = $state(false);
   let selectedStruggle = $state<string | null>(null);
-  let viewMode = $state<"grid" | "list">("grid");
+  let viewMode = $state<"grid" | "list">("list");
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -382,18 +382,6 @@
                   class="flex items-center p-1 bg-zinc-900 border border-zinc-800 rounded-lg"
                 >
                   <button
-                    onclick={() => (viewMode = "grid")}
-                    class={cn(
-                      "p-1.5 rounded-md transition-all duration-200",
-                      viewMode === "grid"
-                        ? "bg-zinc-800 text-amber-500 shadow-sm"
-                        : "text-zinc-500 hover:text-zinc-300"
-                    )}
-                    title="Grid View"
-                  >
-                    <LayoutGrid class="w-4 h-4" />
-                  </button>
-                  <button
                     onclick={() => (viewMode = "list")}
                     class={cn(
                       "p-1.5 rounded-md transition-all duration-200",
@@ -404,6 +392,18 @@
                     title="List View"
                   >
                     <List class="w-4 h-4" />
+                  </button>
+                  <button
+                    onclick={() => (viewMode = "grid")}
+                    class={cn(
+                      "p-1.5 rounded-md transition-all duration-200",
+                      viewMode === "grid"
+                        ? "bg-zinc-800 text-amber-500 shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    )}
+                    title="Grid View"
+                  >
+                    <LayoutGrid class="w-4 h-4" />
                   </button>
                 </div>
               </div>
