@@ -26,8 +26,11 @@
 <svelte:window
   onkeydown={(e) => {
     if (e.key === "Escape") {
-      isSidebarOpen = false;
-      showLoginModal = false;
+      if (showLoginModal) {
+        showLoginModal = false;
+      } else if (isSidebarOpen && window.innerWidth < 768) {
+        isSidebarOpen = false;
+      }
     }
   }}
 />
