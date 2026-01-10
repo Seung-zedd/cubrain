@@ -5,9 +5,11 @@
   import PanelLeft from "@lucide/svelte/icons/panel-left";
   import { fade, fly } from "svelte/transition";
   import { cn } from "$lib/utils";
+  import LoginModal from "$lib/components/auth/LoginModal.svelte";
 
   let { children } = $props();
   let isSidebarOpen = $state(false); // Default closed to avoid flash on mobile
+  let showLoginModal = $state(false);
 
   onMount(() => {
     // Default open on desktop
@@ -25,6 +27,7 @@
   onkeydown={(e) => {
     if (e.key === "Escape") {
       isSidebarOpen = false;
+      showLoginModal = false;
     }
   }}
 />
@@ -59,6 +62,7 @@
         onNavItemClick={() => {
           if (window.innerWidth < 768) isSidebarOpen = false;
         }}
+        onLoginClick={() => (showLoginModal = true)}
       />
     </div>
   </aside>
@@ -96,3 +100,7 @@
     </main>
   </div>
 </div>
+
+{#if showLoginModal}
+  <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}

@@ -1,20 +1,20 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import CloudUpload from "@lucide/svelte/icons/cloud-upload";
   import Library from "@lucide/svelte/icons/library";
   import Settings from "@lucide/svelte/icons/settings";
   import LogOut from "@lucide/svelte/icons/log-out";
   import { cn } from "$lib/utils";
   import { user, logout } from "$lib/stores/user.svelte";
-  import LoginModal from "$lib/components/auth/LoginModal.svelte";
-
-  let { class: className, onNavItemClick } = $props<{
+  let {
+    class: className,
+    onNavItemClick,
+    onLoginClick,
+  } = $props<{
     class?: string;
     onNavItemClick?: () => void;
+    onLoginClick?: () => void;
   }>();
-
-  let showLoginModal = $state(false);
 
   const navItems = [
     { href: "/upload", label: "Upload PDF", icon: CloudUpload },
@@ -58,12 +58,11 @@
   <!-- User Profile -->
   <div class="border-t border-zinc-800 p-4">
     <div
-      onclick={() => !user.current && (showLoginModal = true)}
+      onclick={() => !user.current && onLoginClick?.()}
       class="flex items-center gap-3 rounded-lg bg-zinc-950/50 p-3 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer group"
       role="button"
       tabindex="0"
-      onkeydown={(e) =>
-        e.key === "Enter" && !user.current && (showLoginModal = true)}
+      onkeydown={(e) => e.key === "Enter" && !user.current && onLoginClick?.()}
     >
       <div
         class={cn(
@@ -104,7 +103,3 @@
     </div>
   </div>
 </aside>
-
-{#if showLoginModal}
-  <LoginModal onclose={() => (showLoginModal = false)} />
-{/if}
