@@ -101,11 +101,11 @@
 
         <!-- Tooltip -->
         <div
-          class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-lg text-xs font-medium text-zinc-200 whitespace-nowrap opacity-0 group-hover/toggle:opacity-100 pointer-events-none transition-all duration-200 translate-x-[-4px] group-hover/toggle:translate-x-0 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center gap-3"
+          class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3.5 py-2 bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-lg text-sm font-medium text-zinc-200 whitespace-nowrap opacity-0 group-hover/toggle:opacity-100 pointer-events-none transition-all duration-200 translate-x-[-4px] group-hover/toggle:translate-x-0 z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center gap-4"
         >
           <span>{isSidebarOpen ? "Close sidebar" : "Open sidebar"}</span>
           <kbd
-            class="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 font-mono text-[10px] font-bold tracking-tight"
+            class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 font-mono text-xs font-bold tracking-tight"
           >
             Ctrl + .
           </kbd>
