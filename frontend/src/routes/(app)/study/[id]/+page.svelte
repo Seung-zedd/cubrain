@@ -155,7 +155,7 @@
         <p class="text-zinc-500">This deck seems to be empty.</p>
         <button
           onclick={handleExit}
-          class="text-amber-500 font-bold hover:underline"
+          class="text-amber-500 font-bold hover:underline outline-none ring-0"
           >Return to Library</button
         >
       </div>
@@ -175,34 +175,23 @@
         <div class="flex items-center justify-center gap-4">
           <button
             onclick={restart}
-            class="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl transition-all"
+            class="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl transition-all outline-none ring-0"
           >
             <RotateCcw class="w-5 h-5" />
             Study Again
           </button>
           <button
             onclick={handleExit}
-            class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all"
+            class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all outline-none ring-0"
           >
             Finish Session
           </button>
         </div>
       </div>
-    {:else}
-      <!-- Progress Bar -->
-      <div
-        class="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"
-      >
-        <div
-          class="h-full bg-amber-500 transition-all duration-500 ease-out"
-          style="width: {progress}%"
-        ></div>
-      </div>
-
       <!-- Flashcard -->
       <button
         type="button"
-        class="relative h-[400px] w-full perspective-1000 cursor-pointer group block text-left"
+        class="relative h-[400px] w-full perspective-1000 cursor-pointer group block text-left outline-none ring-0"
         onclick={toggleFlip}
       >
         <div
@@ -302,14 +291,14 @@
         <button
           onclick={prevCard}
           disabled={currentIndex === 0}
-          class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl border border-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all outline-none ring-0"
         >
           <ChevronLeft class="w-6 h-6" />
           Previous
         </button>
         <button
           onclick={nextCard}
-          class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all"
+          class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all outline-none ring-0"
         >
           {currentIndex === cards.length - 1 ? "Finish" : "Next"}
           <ChevronRight class="w-6 h-6" />
@@ -331,5 +320,9 @@
   }
   .rotate-y-180 {
     transform: rotateY(180deg);
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
   }
 </style>

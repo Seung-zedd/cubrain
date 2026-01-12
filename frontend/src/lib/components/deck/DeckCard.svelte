@@ -108,7 +108,7 @@
 <div class="relative group">
   <a
     href="/study/{deck.id}"
-    class="relative block cursor-pointer hover:-translate-y-1 transition-transform duration-300"
+    class="relative block cursor-pointer hover:-translate-y-1 transition-transform duration-300 outline-none ring-0"
   >
     <!-- Stack Effect Layers -->
     <div
@@ -190,7 +190,7 @@
     <div class="absolute top-6 right-6 z-20" bind:this={menuRef}>
       <button
         onclick={toggleMenu}
-        class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors"
+        class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors outline-none ring-0"
       >
         <EllipsisVertical class="w-5 h-5" />
       </button>
@@ -206,7 +206,7 @@
                 showMenu = false;
                 onEditCards(deck);
               }}
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors outline-none ring-0"
             >
               <Pencil class="w-4 h-4" />
               Edit Cards
@@ -215,7 +215,7 @@
 
           <button
             onclick={handleExport}
-            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors outline-none ring-0"
           >
             <FileDown class="w-4 h-4" />
             Export to Anki (.csv)
@@ -228,7 +228,7 @@
                 showMenu = false;
                 onDelete(deck.id);
               }}
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors outline-none ring-0"
             >
               <Trash2 class="w-4 h-4" />
               Delete Deck
@@ -239,3 +239,10 @@
     </div>
   {/if}
 </div>
+
+<style>
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>

@@ -61,7 +61,7 @@
 
           <button
             onclick={() => handleStartStudy(deck.id)}
-            class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all shadow-lg hover:shadow-amber-500/20 active:scale-[0.98]"
+            class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] outline-none ring-0"
           >
             <Play class="w-5 h-5 fill-current" />
             Start Study
@@ -105,5 +105,9 @@
   .library-container::-webkit-scrollbar-thumb {
     background-color: rgba(251, 191, 36, 0.2);
     border-radius: 20px;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
   }
 </style>

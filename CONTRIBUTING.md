@@ -86,21 +86,34 @@ Once the PR is approved and CI passes:
    git branch -d feature/your-feature-name
    ```
 
-### 5. Release (Main Branch)
+### 5. Release (Main Branch) & Versioning
 
-Deployment to production (`main`) is handled during release cycles.
+Deployment to production (`main`) is handled during release cycles. We follow **Semantic Versioning (SemVer)** with the following rules:
 
-```bash
-# Merge dev to main
-git checkout main
-git pull origin main
-git merge dev
-git push origin main
+#### 🏷️ Versioning Rules
 
-# Tagging (Triggers Deployment)
-git tag -a v1.0.0 -m "Release version 1.0.0"
-git push origin v1.0.0
-```
+When tagging a release (`vX.Y.Z`), determine the version number as follows:
+
+1.  **Major (`X.0.0`)**: If implementing a **Major Feature** or a new version milestone defined in `docs/Cubrain_strategic_building_roadmap.md` (e.g., moving from V1 to V2).
+2.  **Minor (`1.Y.0`)**: If adding **Minor Features** or significant enhancements that don't reach a major milestone.
+3.  **Patch (`1.0.Z`)**: If performing **Bug Fixes**, small tweaks, or maintenance.
+
+#### 🚀 Release Process
+
+1.  **Update "What's New"**: For every release (except minor patches), create a new directory and `+page.md` in `frontend/src/routes/(marketing)/whats-new/vX-Y-Z/` following the existing format.
+2.  **Merge dev to main**:
+    ```bash
+    git checkout main
+    git pull origin main
+    git merge dev
+    git push origin main
+    ```
+3.  **Tagging**:
+    ```bash
+    # Example: git tag -a v1.1.0 -m "Release version 1.1.0"
+    git tag -a v[VERSION] -m "Release version [VERSION]"
+    git push origin v[VERSION]
+    ```
 
 ---
 

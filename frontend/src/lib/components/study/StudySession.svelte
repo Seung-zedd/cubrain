@@ -27,7 +27,7 @@
   <!-- Exit Button -->
   <button
     onclick={onExit}
-    class="fixed top-8 right-8 p-3 text-zinc-600 hover:text-white transition-all duration-300 z-50 hover:rotate-90 active:scale-90"
+    class="fixed top-8 right-8 p-3 text-zinc-600 hover:text-white transition-all duration-300 z-50 hover:rotate-90 active:scale-90 outline-none ring-0"
     aria-label="Exit Study Mode"
   >
     <X class="w-8 h-8" />
@@ -43,5 +43,9 @@
   .spotlight {
     /* Radial gradient for the spotlight effect */
     background: radial-gradient(circle at center, transparent 30%, black 100%);
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
   }
 </style>

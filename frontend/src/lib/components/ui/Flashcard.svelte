@@ -98,3 +98,9 @@
     {/if}
   </div>
 </div>
+
+<style>
+  div {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>
