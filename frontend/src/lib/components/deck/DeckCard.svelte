@@ -137,7 +137,7 @@
       class={cn(
         "relative border rounded-xl p-4 flex gap-4 shadow-xl z-10 h-full transition-all duration-300",
         isCinematic
-          ? "bg-zinc-900/80 backdrop-blur-md border-white/10 hover:border-amber-500/50 hover:bg-zinc-900/90"
+          ? "bg-black/40 backdrop-blur-md border-white/10 hover:bg-black/50 hover:border-white/20"
           : "bg-[#1a1a1a] border-zinc-700 hover:border-[#FFD700]"
       )}
     >
@@ -249,7 +249,12 @@
 
       {#if showMenu}
         <div
-          class="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95 duration-200"
+          class={cn(
+            "absolute right-0 mt-2 w-56 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95 duration-200",
+            isCinematic
+              ? "bg-black/80 backdrop-blur-xl border border-white/10"
+              : "bg-zinc-900 border border-zinc-800"
+          )}
         >
           {#if onEditCards}
             <button
@@ -258,7 +263,12 @@
                 showMenu = false;
                 onEditCards(deck);
               }}
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors outline-none ring-0"
+              class={cn(
+                "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
+                isCinematic
+                  ? "text-zinc-300 hover:bg-white/10 hover:text-white"
+                  : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              )}
             >
               <Pencil class="w-4 h-4" />
               Edit Cards
@@ -267,7 +277,12 @@
 
           <button
             onclick={handleExport}
-            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors outline-none ring-0"
+            class={cn(
+              "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
+              isCinematic
+                ? "text-zinc-300 hover:bg-white/10 hover:text-white"
+                : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            )}
           >
             <FileDown class="w-4 h-4" />
             Export to Anki (.csv)
@@ -280,7 +295,12 @@
                 showMenu = false;
                 onDelete(deck.id);
               }}
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors outline-none ring-0"
+              class={cn(
+                "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
+                isCinematic
+                  ? "text-red-400 hover:bg-red-500/20 hover:text-red-300"
+                  : "text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              )}
             >
               <Trash2 class="w-4 h-4" />
               Delete Deck
