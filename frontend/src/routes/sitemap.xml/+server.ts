@@ -2,7 +2,14 @@ export const prerender = true;
 
 export async function GET() {
   const site = "https://cubrain.app";
-  const pages = ["", "/about", "/pricing"];
+  const pages = [
+    "",
+    "/pricing",
+    "/whats-new",
+    "/whats-new/strict-mom-update",
+    "/privacy",
+    "/terms",
+  ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -22,6 +22,7 @@
   import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
@@ -84,6 +85,19 @@
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
         >Pricing</a
       >
+      <a
+        href="/whats-new/strict-mom-update"
+        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
+      >
+        What's New
+        <span class="relative flex h-2 w-2">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+          ></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+          ></span>
+        </span>
+      </a>
       <a
         href="/library"
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
@@ -199,6 +213,30 @@
                   />
                 </div>
                 <span class="font-medium">Pricing</span>
+              </a>
+              <a
+                href="/whats-new/strict-mom-update"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <Sparkles
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <div class="flex-1 flex items-center justify-between">
+                  <span class="font-medium">What's New</span>
+                  <span class="relative flex h-2 w-2">
+                    <span
+                      class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+                    ></span>
+                    <span
+                      class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+                    ></span>
+                  </span>
+                </div>
               </a>
               <a
                 href="/library"

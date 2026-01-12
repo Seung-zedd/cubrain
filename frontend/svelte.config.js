@@ -1,11 +1,24 @@
 import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import { mdsvex } from "mdsvex";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  extensions: [".svelte"],
+  extensions: [".svelte", ".md"],
 
-  preprocess: [vitePreprocess()],
+  preprocess: [
+    vitePreprocess(),
+    mdsvex({
+      extensions: [".md"],
+      layout: {
+        changelog: join(__dirname, "./src/lib/layouts/ChangelogLayout.svelte"),
+      },
+    }),
+  ],
 
   kit: {
     // adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.

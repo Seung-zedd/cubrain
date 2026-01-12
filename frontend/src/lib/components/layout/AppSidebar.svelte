@@ -4,6 +4,7 @@
   import Library from "@lucide/svelte/icons/library";
   import Settings from "@lucide/svelte/icons/settings";
   import LogOut from "@lucide/svelte/icons/log-out";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import { cn } from "$lib/utils";
   import { user, logout } from "$lib/stores/user.svelte";
   let {
@@ -19,6 +20,12 @@
   const navItems = [
     { href: "/upload", label: "Upload PDF", icon: CloudUpload },
     { href: "/library", label: "My Library", icon: Library },
+    {
+      href: "/whats-new/strict-mom-update",
+      label: "What's New",
+      icon: Sparkles,
+      badge: true,
+    },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 </script>
@@ -50,7 +57,16 @@
         <item.icon
           class={cn("h-5 w-5", isActive ? "text-amber-500" : "text-zinc-500")}
         />
-        {item.label}
+        <span class="flex-1">{item.label}</span>
+        {#if item.badge}
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+            ></span>
+          </span>
+        {/if}
       </a>
     {/each}
   </nav>

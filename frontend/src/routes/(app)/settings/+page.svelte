@@ -48,7 +48,7 @@
   let isGracePeriod = $derived(isPro && user.current?.endsAt !== null);
   let isActivePro = $derived(isPro && user.current?.endsAt === null);
 
-  function formatDate(dateStr: string | null) {
+  function formatDate(dateStr: string | null | undefined) {
     if (!dateStr) return "";
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
