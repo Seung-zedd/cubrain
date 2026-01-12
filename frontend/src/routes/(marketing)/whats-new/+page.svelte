@@ -8,9 +8,13 @@
   let { data } = $props();
   const posts = data.posts;
 
-  const fromApp = $derived(page.url.searchParams.get("from") === "app");
+  let fromApp = $state(false);
   const backHref = $derived(fromApp ? "/library" : "/");
   const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
+
+  $effect(() => {
+    fromApp = page.url.searchParams.get("from") === "app";
+  });
 </script>
 
 <svelte:head>

@@ -19,7 +19,11 @@
   }>();
 
   const imageUrl = "https://cubrain.app/og-image.png";
-  const fromApp = $derived(page.url.searchParams.get("from") === "app");
+  let fromApp = $state(false);
+
+  $effect(() => {
+    fromApp = page.url.searchParams.get("from") === "app";
+  });
 </script>
 
 <svelte:head>
