@@ -29,10 +29,17 @@ export async function load() {
 
   const allPosts = await Promise.all(postPromises);
 
-  // Sort by date descending
-  allPosts.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  // Sort by date descending, then by version descending
+  allPosts.sort((a, b) => {
+    const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+
+    // Tie-breaker: Version descending (e.g., v1.2.0 > v1.1.0)
+    return b.version.localeCompare(a.version, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+  });
 
   return {
     posts: allPosts,
