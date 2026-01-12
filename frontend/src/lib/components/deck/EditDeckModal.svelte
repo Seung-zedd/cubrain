@@ -8,6 +8,8 @@
   import { useModal } from "$lib/modal.svelte";
   import { authFetch } from "$lib/api";
   import Markdown from "$lib/components/ui/Markdown.svelte";
+  import { cn } from "$lib/utils";
+  import AlertCircle from "@lucide/svelte/icons/alert-circle";
 
   interface Flashcard {
     id?: number;
@@ -31,6 +33,11 @@
   let isLoading = $state(true);
   let isSaving = $state(false);
   let title = $state(deck.title);
+  let showValidation = $state(false);
+
+  const hasErrors = $derived(
+    cards.some((c) => !c.question.trim() || !c.answer.trim())
+  );
 
   async function fetchCards() {
     try {
@@ -56,6 +63,9 @@
   }
 
   async function handleSave() {
+    showValidation = true;
+    if (hasErrors) return;
+
     isSaving = true;
     try {
       const response = await authFetch(`/api/v1/decks/${deck.id}`, {
@@ -153,12 +163,29 @@
                     <span class="text-amber-500/50">P.{card.page}</span>
                   {/if}
                 </label>
-                <textarea
-                  id="q-{i}"
-                  bind:value={card.question}
-                  class="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none min-h-[100px]"
-                  placeholder="Enter question..."
-                ></textarea>
+                <div class="relative">
+                  <textarea
+                    id="q-{i}"
+                    bind:value={card.question}
+                    class={cn(
+                      "w-full bg-zinc-800/50 border rounded-lg p-3 text-white focus:ring-1 transition-all resize-none min-h-[100px]",
+                      showValidation && !card.question.trim()
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500"
+                    )}
+                    placeholder="Enter question..."
+                  ></textarea>
+                  {#if showValidation && !card.question.trim()}
+                    <div
+                      class="absolute right-3 top-3 text-red-500 flex items-center gap-1 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 animate-in fade-in zoom-in duration-200"
+                    >
+                      <AlertCircle class="w-3.5 h-3.5" />
+                      <span class="text-[10px] font-bold uppercase"
+                        >Required</span
+                      >
+                    </div>
+                  {/if}
+                </div>
                 <div
                   class="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 min-h-[40px]"
                 >
@@ -176,12 +203,29 @@
                   class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"
                   >Answer</label
                 >
-                <textarea
-                  id="a-{i}"
-                  bind:value={card.answer}
-                  class="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none min-h-[100px]"
-                  placeholder="Enter answer..."
-                ></textarea>
+                <div class="relative">
+                  <textarea
+                    id="a-{i}"
+                    bind:value={card.answer}
+                    class={cn(
+                      "w-full bg-zinc-800/50 border rounded-lg p-3 text-white focus:ring-1 transition-all resize-none min-h-[100px]",
+                      showValidation && !card.answer.trim()
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500"
+                    )}
+                    placeholder="Enter answer..."
+                  ></textarea>
+                  {#if showValidation && !card.answer.trim()}
+                    <div
+                      class="absolute right-3 top-3 text-red-500 flex items-center gap-1 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 animate-in fade-in zoom-in duration-200"
+                    >
+                      <AlertCircle class="w-3.5 h-3.5" />
+                      <span class="text-[10px] font-bold uppercase"
+                        >Required</span
+                      >
+                    </div>
+                  {/if}
+                </div>
                 <div
                   class="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 min-h-[40px]"
                 >
