@@ -91,7 +91,12 @@
     ></div>
   </div>
 {:else}
-  <LibraryDashboard {decks} onStartStudy={handleStartStudy} />
+  <LibraryDashboard
+    {decks}
+    onStartStudy={handleStartStudy}
+    onDelete={(id) => (deckToDelete = id)}
+    onEditCards={handleEditCards}
+  />
 {/if}
 
 {#if showEditModal && selectedDeck}

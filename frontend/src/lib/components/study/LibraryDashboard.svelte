@@ -1,9 +1,9 @@
 <script lang="ts">
   import { uiState } from "$lib/stores/ui.svelte";
-  import Play from "@lucide/svelte/icons/play";
+  import DeckCard from "../deck/DeckCard.svelte";
   import { fade } from "svelte/transition";
 
-  let { decks, onStartStudy } = $props();
+  let { decks, onStartStudy, onDelete, onEditCards } = $props();
 
   async function handleStartStudy(deckId: number) {
     // Play sound
@@ -43,29 +43,14 @@
 
     <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
       {#each decks as deck, i}
-        <div
-          class="deck-card group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-6 hover:border-amber-500/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(251,191,36,0.1)]"
-          in:fade={{ delay: 300 + i * 100 }}
-        >
-          <div class="mb-6">
-            <h2
-              class="text-2xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors"
-            >
-              {deck.title}
-            </h2>
-            <p class="text-zinc-400 flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500/50"></span>
-              {deck.cardCount} Cards
-            </p>
-          </div>
-
-          <button
-            onclick={() => handleStartStudy(deck.id)}
-            class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] outline-none ring-0"
-          >
-            <Play class="w-5 h-5 fill-current" />
-            Start Study
-          </button>
+        <div in:fade={{ delay: 300 + i * 100 }}>
+          <DeckCard
+            {deck}
+            {onDelete}
+            {onEditCards}
+            onStartStudy={handleStartStudy}
+            isCinematic={true}
+          />
         </div>
       {/each}
     </div>

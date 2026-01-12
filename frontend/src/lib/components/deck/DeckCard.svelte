@@ -23,14 +23,18 @@
     deck,
     onDelete,
     onEditCards,
+    onStartStudy,
     viewMode = "grid",
     showPageInfo = true,
+    isCinematic = false,
   } = $props<{
     deck: Deck;
     onDelete?: (id: number) => void;
     onEditCards?: (deck: Deck) => void;
+    onStartStudy?: (id: number) => void;
     viewMode?: "grid" | "list";
     showPageInfo?: boolean;
+    isCinematic?: boolean;
   }>();
 
   let showMenu = $state(false);
@@ -40,6 +44,13 @@
     e.preventDefault();
     e.stopPropagation();
     showMenu = !showMenu;
+  }
+
+  function handleCardClick(e: MouseEvent) {
+    if (onStartStudy) {
+      e.preventDefault();
+      onStartStudy(deck.id);
+    }
   }
 
   function handleClickOutside(e: MouseEvent) {
@@ -108,26 +119,44 @@
 <div class="relative group">
   <a
     href="/study/{deck.id}"
+    onclick={handleCardClick}
     class="relative block cursor-pointer hover:-translate-y-1 transition-transform duration-300 outline-none ring-0"
   >
-    <!-- Stack Effect Layers -->
-    <div
-      class="absolute inset-0 bg-zinc-800 rounded-xl translate-x-2 translate-y-2 opacity-40 transition-transform group-hover:translate-x-3 group-hover:translate-y-3"
-    ></div>
-    <div
-      class="absolute inset-0 bg-zinc-700 rounded-xl translate-x-1 translate-y-1 opacity-70 transition-transform group-hover:translate-x-1.5 group-hover:translate-y-1.5"
-    ></div>
+    <!-- Stack Effect Layers (Hidden in Cinematic Mode for cleaner look) -->
+    {#if !isCinematic}
+      <div
+        class="absolute inset-0 bg-zinc-800 rounded-xl translate-x-2 translate-y-2 opacity-40 transition-transform group-hover:translate-x-3 group-hover:translate-y-3"
+      ></div>
+      <div
+        class="absolute inset-0 bg-zinc-700 rounded-xl translate-x-1 translate-y-1 opacity-70 transition-transform group-hover:translate-x-1.5 group-hover:translate-y-1.5"
+      ></div>
+    {/if}
 
     <!-- Main Card -->
     <div
-      class="relative bg-[#1a1a1a] border border-zinc-700 hover:border-[#FFD700] rounded-xl p-4 flex gap-4 shadow-xl z-10 h-full transition-colors"
+      class={cn(
+        "relative border rounded-xl p-4 flex gap-4 shadow-xl z-10 h-full transition-all duration-300",
+        isCinematic
+          ? "bg-zinc-900/80 backdrop-blur-md border-white/10 hover:border-amber-500/50 hover:bg-zinc-900/90"
+          : "bg-[#1a1a1a] border-zinc-700 hover:border-[#FFD700]"
+      )}
     >
       <!-- Thumbnail -->
       <div
-        class="shrink-0 w-20 bg-linear-to-br from-zinc-800 to-zinc-700 rounded-lg flex items-center justify-center border border-zinc-700/50"
+        class={cn(
+          "shrink-0 w-20 rounded-lg flex items-center justify-center border transition-colors",
+          isCinematic
+            ? "bg-zinc-800/50 border-white/5 group-hover:border-amber-500/30"
+            : "bg-linear-to-br from-zinc-800 to-zinc-700 border-zinc-700/50"
+        )}
       >
         <Book
-          class="w-8 h-8 text-zinc-500 group-hover:text-[#FFD700] transition-colors"
+          class={cn(
+            "w-8 h-8 transition-colors",
+            isCinematic
+              ? "text-zinc-600 group-hover:text-amber-500"
+              : "text-zinc-500 group-hover:text-[#FFD700]"
+          )}
         />
       </div>
 
@@ -135,7 +164,12 @@
       <div class="flex flex-col justify-between grow min-w-0 py-1">
         <div class="relative">
           <h3
-            class="w-full text-left text-lg font-bold text-zinc-100 group-hover:text-[#FFD700] transition-colors truncate pr-8 block"
+            class={cn(
+              "w-full text-left text-lg font-bold transition-colors truncate pr-8 block",
+              isCinematic
+                ? "text-white group-hover:text-amber-400"
+                : "text-zinc-100 group-hover:text-[#FFD700]"
+            )}
             title={deck.title}
           >
             {deck.title}
@@ -160,9 +194,17 @@
 
         <div class="space-y-2 mt-3">
           <!-- Progress Bar -->
-          <div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+          <div
+            class={cn(
+              "h-1.5 w-full rounded-full overflow-hidden",
+              isCinematic ? "bg-white/5" : "bg-zinc-800"
+            )}
+          >
             <div
-              class="h-full bg-[#FFD700] rounded-full"
+              class={cn(
+                "h-full rounded-full transition-all duration-500",
+                isCinematic ? "bg-amber-500" : "bg-[#FFD700]"
+              )}
               style="width: {deck.studyProgress || 0}%"
             ></div>
           </div>
@@ -172,9 +214,19 @@
               Created {new Date(deck.createdAt).toLocaleDateString()}
             </span>
             <div
-              class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700"
+              class={cn(
+                "flex items-center gap-1.5 px-2 py-0.5 rounded-full border",
+                isCinematic
+                  ? "bg-white/5 border-white/10"
+                  : "bg-zinc-800 border-zinc-700"
+              )}
             >
-              <Zap class="w-3 h-3 text-[#FFD700]" />
+              <Zap
+                class={cn(
+                  "w-3 h-3",
+                  isCinematic ? "text-amber-500" : "text-[#FFD700]"
+                )}
+              />
               <span class="text-xs font-bold text-zinc-300"
                 >{deck.cardCount}</span
               >
