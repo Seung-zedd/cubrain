@@ -27,7 +27,7 @@ Unlike other AI tools that just "read" the whole PDF, Cubrain respects your stud
 
 We want Cubrain to fit into your existing ecosystem, not replace it.
 
-- **Export to Anki (.apkg / CSV)**: One-click export formatted perfectly for Anki.
+- **Export to Anki (.csv)**: One-click export formatted perfectly for Anki.
 - **Tier Synthesis**:
   - **Free (Smart Synthesis)**: High-impact cards grouped by page.
   - **Pro (Deep Synthesis)**: Comprehensive analysis for detailed, atomic cards.
