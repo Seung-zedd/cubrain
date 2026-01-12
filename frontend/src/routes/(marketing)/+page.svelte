@@ -32,11 +32,17 @@
     isMobileMenuOpen = !isMobileMenuOpen;
   };
 
+  const CURRENT_VERSION = "1.1.0";
+  let hasNewUpdate = $state(false);
+
   onMount(() => {
     // Initialize Lemon Squeezy if available
     if (window.createLemonSqueezy) {
       window.createLemonSqueezy();
     }
+
+    const seenVersion = localStorage.getItem("cubrain_whats_new_seen");
+    hasNewUpdate = seenVersion !== CURRENT_VERSION;
 
     // Safely inject JSON-LD without using {@html} in the template
     const script = document.createElement("script");
@@ -44,6 +50,11 @@
     script.text = JSON.stringify(jsonLd);
     document.head.appendChild(script);
   });
+
+  function markAsSeen() {
+    localStorage.setItem("cubrain_whats_new_seen", CURRENT_VERSION);
+    hasNewUpdate = false;
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -87,16 +98,19 @@
       >
       <a
         href="/whats-new/strict-mom-update"
+        onclick={markAsSeen}
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
       >
         What's New
-        <span class="relative flex h-2 w-2">
-          <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-          ></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-          ></span>
-        </span>
+        {#if hasNewUpdate}
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+            ></span>
+          </span>
+        {/if}
       </a>
       <a
         href="/library"
@@ -216,7 +230,10 @@
               </a>
               <a
                 href="/whats-new/strict-mom-update"
-                onclick={toggleMobileMenu}
+                onclick={() => {
+                  markAsSeen();
+                  toggleMobileMenu();
+                }}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               >
                 <div
@@ -228,14 +245,16 @@
                 </div>
                 <div class="flex-1 flex items-center justify-between">
                   <span class="font-medium">What's New</span>
-                  <span class="relative flex h-2 w-2">
-                    <span
-                      class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-                    ></span>
-                    <span
-                      class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-                    ></span>
-                  </span>
+                  {#if hasNewUpdate}
+                    <span class="relative flex h-2 w-2">
+                      <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+                      ></span>
+                      <span
+                        class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+                      ></span>
+                    </span>
+                  {/if}
                 </div>
               </a>
               <a
