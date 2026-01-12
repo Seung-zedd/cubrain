@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
+  import { page } from "$app/state";
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
 
@@ -18,6 +19,7 @@
   }>();
 
   const imageUrl = "https://cubrain.app/og-image.png";
+  const fromApp = $derived(page.url.searchParams.get("from") === "app");
 </script>
 
 <svelte:head>
@@ -31,7 +33,7 @@
 
 <div class="max-w-[800px] mx-auto px-6 pt-12">
   <a
-    href="/whats-new"
+    href="/whats-new{fromApp ? '?from=app' : ''}"
     class="group inline-flex items-center gap-2 text-zinc-400 hover:text-[#fbbf24] transition-colors font-medium text-sm"
   >
     <svg

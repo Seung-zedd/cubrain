@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import { fade, fly } from "svelte/transition";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
@@ -6,6 +7,10 @@
 
   let { data } = $props();
   const posts = data.posts;
+
+  const fromApp = $derived(page.url.searchParams.get("from") === "app");
+  const backHref = $derived(fromApp ? "/library" : "/");
+  const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
 </script>
 
 <svelte:head>
@@ -47,7 +52,7 @@
       {#each posts as post, i}
         <div in:fly={{ y: 30, duration: 800, delay: 300 + i * 100 }}>
           <a
-            href="/whats-new/{post.slug}"
+            href="/whats-new/{post.slug}{fromApp ? '?from=app' : ''}"
             class="group block relative p-8 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-amber-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]"
           >
             <div
@@ -93,14 +98,14 @@
       {/each}
     </div>
 
-    <!-- Back to Home -->
+    <!-- Back Button -->
     <div class="mt-20 text-center" in:fade={{ delay: 800 }}>
       <a
-        href="/"
+        href={backHref}
         class="inline-flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors text-sm font-medium"
       >
         <ArrowLeft class="w-4 h-4" />
-        Go Back
+        {backLabel}
       </a>
     </div>
   </div>

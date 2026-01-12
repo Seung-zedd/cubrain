@@ -118,7 +118,7 @@
         </a>
 
         <a
-          href="/whats-new/strict-mom-update"
+          href="/whats-new/strict-mom-update?from=app"
           onclick={markAsSeen}
           class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
         >
