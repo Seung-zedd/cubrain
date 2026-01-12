@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto py-20 px-6 text-white/80 leading-relaxed">
   <h1 class="text-4xl font-bold text-white mb-8">Terms of Service</h1>
-  <p class="mb-8 text-zinc-400">Last updated: January 2, 2026</p>
+  <p class="mb-8 text-zinc-400">Last updated: January 12, 2026</p>
 
   <section class="mb-12">
     <h2 class="text-2xl font-semibold text-[#FFD700] mb-4">
@@ -70,7 +70,9 @@
       will remain the exclusive property of Cubrain. Your uploaded PDFs remain
       your property; however, by using the Service, you grant us a license to
       process these documents solely for the purpose of generating your study
-      materials.
+      materials. You represent and warrant that you own or have the necessary
+      rights to the content you upload. Cubrain is not liable for any copyright
+      infringement resulting from your uploaded documents.
     </p>
   </section>
 

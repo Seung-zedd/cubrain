@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto py-20 px-6 text-white/80 leading-relaxed">
   <h1 class="text-4xl font-bold text-white mb-8">Privacy Policy</h1>
-  <p class="mb-8 text-zinc-400">Last updated: January 2, 2026</p>
+  <p class="mb-8 text-zinc-400">Last updated: January 12, 2026</p>
 
   <section class="mb-12">
     <h2 class="text-2xl font-semibold text-[#FFD700] mb-4">1. Introduction</h2>
@@ -47,7 +47,11 @@
       <li>
         To communicate with you about account updates or support requests.
       </li>
-      <li>To improve and optimize our AI models and user interface.</li>
+      <li>
+        To improve our Service reliability. <strong
+          >We do not use your uploaded content to train our public AI models.</strong
+        >
+      </li>
     </ul>
   </section>
 
@@ -75,6 +79,10 @@
       <li>
         <strong>Lemon Squeezy:</strong> For secure payment processing and subscription
         management.
+      </li>
+      <li>
+        <strong>Google Gemini:</strong> For AI-powered text processing and flashcard
+        generation.
       </li>
       <li><strong>Vercel:</strong> For hosting and analytics.</li>
     </ul>
