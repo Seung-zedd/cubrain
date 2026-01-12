@@ -6,7 +6,8 @@ export async function GET() {
     "",
     "/pricing",
     "/whats-new",
-    "/whats-new/strict-mom-update",
+    "/whats-new/v1-mvp-launch",
+    "/whats-new/v1-1-stability-update",
     "/privacy",
     "/terms",
   ];

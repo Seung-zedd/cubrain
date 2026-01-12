@@ -97,7 +97,7 @@
         >Pricing</a
       >
       <a
-        href="/whats-new/strict-mom-update"
+        href="/whats-new/v1-1-stability-update"
         onclick={markAsSeen}
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
       >
@@ -229,7 +229,7 @@
                 <span class="font-medium">Pricing</span>
               </a>
               <a
-                href="/whats-new/strict-mom-update"
+                href="/whats-new/v1-1-stability-update"
                 onclick={() => {
                   markAsSeen();
                   toggleMobileMenu();
