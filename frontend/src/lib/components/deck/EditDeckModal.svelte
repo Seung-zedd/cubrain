@@ -7,6 +7,7 @@
   import { fade, scale, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
   import { authFetch } from "$lib/api";
+  import Markdown from "$lib/components/ui/Markdown.svelte";
 
   interface Flashcard {
     id?: number;
@@ -158,6 +159,16 @@
                   class="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none min-h-[100px]"
                   placeholder="Enter question..."
                 ></textarea>
+                <div
+                  class="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 min-h-[40px]"
+                >
+                  <p class="text-[10px] text-zinc-600 uppercase mb-1 font-bold">
+                    Preview
+                  </p>
+                  <div class="text-sm text-zinc-300">
+                    <Markdown text={card.question} />
+                  </div>
+                </div>
               </div>
               <div class="space-y-2">
                 <label
@@ -171,6 +182,16 @@
                   class="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none min-h-[100px]"
                   placeholder="Enter answer..."
                 ></textarea>
+                <div
+                  class="p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 min-h-[40px]"
+                >
+                  <p class="text-[10px] text-zinc-600 uppercase mb-1 font-bold">
+                    Preview
+                  </p>
+                  <div class="text-sm text-zinc-300">
+                    <Markdown text={card.answer} />
+                  </div>
+                </div>
               </div>
             </div>
             <button

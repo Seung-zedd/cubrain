@@ -188,6 +188,17 @@
           </button>
         </div>
       </div>
+    {:else}
+      <!-- Progress Bar -->
+      <div
+        class="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"
+      >
+        <div
+          class="h-full bg-amber-500 transition-all duration-500 ease-out"
+          style="width: {progress}%"
+        ></div>
+      </div>
+
       <!-- Flashcard -->
       <button
         type="button"
