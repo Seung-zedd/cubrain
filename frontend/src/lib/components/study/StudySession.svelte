@@ -41,8 +41,12 @@
 
 <style>
   .spotlight {
-    /* Radial gradient for the spotlight effect */
-    background: radial-gradient(circle at center, transparent 30%, black 100%);
+    /* Radial gradient for the spotlight effect (Desk Lamp Vibe) */
+    background: radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 190, 100, 0.15) 0%,
+      rgba(0, 0, 0, 1) 70%
+    );
   }
 
   button {

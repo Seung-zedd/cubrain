@@ -213,7 +213,7 @@
         >
           <!-- Front (Question) -->
           <div
-            class="absolute inset-0 w-full h-full backface-hidden bg-zinc-900 border-2 border-zinc-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-2xl group-hover:border-amber-500/30 transition-colors"
+            class="absolute inset-0 w-full h-full backface-hidden bg-zinc-900 border-2 border-zinc-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] group-hover:border-amber-500/30 transition-colors"
           >
             <span
               class="absolute top-6 left-6 text-xs font-bold uppercase tracking-widest text-amber-500/50"
@@ -257,7 +257,7 @@
 
           <!-- Back (Answer) -->
           <div
-            class="absolute inset-0 w-full h-full backface-hidden bg-zinc-800 border-2 border-amber-500/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-2xl rotate-y-180"
+            class="absolute inset-0 w-full h-full backface-hidden bg-zinc-800 border-2 border-amber-500/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] rotate-y-180"
           >
             <span
               class="absolute top-6 left-6 text-xs font-bold uppercase tracking-widest text-amber-500"
