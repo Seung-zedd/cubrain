@@ -255,7 +255,7 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
   }
   ```
 
-## 18. 📦 Import Verification Rule
+## 22. 📦 Import Verification Rule
 
 - **Rule: Verify Imports After Every Edit.**
 - Whenever you add a new class reference, service, or library to a file (Frontend or Backend), you **MUST** immediately verify and add the corresponding import statement.
@@ -263,9 +263,21 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 - **Frontend (Svelte/TS):** Ensure all components, icons, and utilities are correctly imported and unused imports are removed.
 - **Verification:** Before finishing a task, run a build or check (e.g., `pnpm run check` or `./gradlew compileJava`) to ensure no "cannot find symbol" or "missing import" errors exist.
 
-## 19. 🛡️ XSS Prevention Rule
+## 23. 🛡️ XSS Prevention Rule
 
 - **Rule: Avoid `{@html}` with User-Controlled Input.**
 - To prevent Cross-Site Scripting (XSS) attacks, **NEVER** use Svelte's `{@html}` tag to render strings that contain or are derived from user input (e.g., selected text, form inputs, URL parameters).
 - **Safe Alternative for Line Breaks:** Use standard Svelte interpolation `{}` combined with the CSS property `white-space: pre-wrap;` and newline characters (`\n`) in your strings. This allows Svelte to automatically escape dangerous HTML while still rendering line breaks correctly.
 - **Exception:** Only use `{@html}` for trusted, hardcoded content or content that has been explicitly sanitized using a robust library like DOMPurify.
+
+## 24. 🎨 Cubrain Aesthetic & UI Adaptation (Uiverse, etc.)
+
+When adapting external UI code (e.g., from Uiverse) into Cubrain:
+
+1.  **Color Mapping:** Strictly map primary colors to Cubrain Gold (`#fbbf24` / `text-amber-400`).
+2.  **Dark Mode First:** Optimize all backgrounds and contrasts for a dark theme (Black/Zinc-900).
+3.  **Tailwind Conversion:** Prefer Tailwind CSS classes over raw `<style>` tags. Use arbitrary values (e.g., `hover:shadow-[0_0_20px_#fbbf24]`) for complex effects.
+4.  **Consistency:** Match existing design tokens:
+    - **Border Radius:** Use `rounded-lg` as the default.
+    - **Typography:** Match the project's font settings.
+    - **Transitions:** Use smooth, consistent transitions.

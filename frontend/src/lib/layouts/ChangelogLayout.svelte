@@ -29,6 +29,28 @@
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
+<div class="max-w-[800px] mx-auto px-6 pt-12">
+  <a
+    href="/whats-new"
+    class="group inline-flex items-center gap-2 text-zinc-400 hover:text-[#fbbf24] transition-colors font-medium text-sm"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="transition-transform group-hover:-translate-x-1"
+      ><path d="m15 18-6-6 6-6" /></svg
+    >
+    Back to Updates
+  </a>
+</div>
+
 <article class="changelog-post">
   <header>
     <div class="meta-info">
@@ -48,7 +70,7 @@
   .changelog-post {
     max-width: 800px;
     margin: 0 auto;
-    padding: 4rem 1.5rem;
+    padding: 2rem 1.5rem 4rem;
   }
 
   header {
