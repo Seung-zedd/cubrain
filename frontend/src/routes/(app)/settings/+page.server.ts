@@ -6,7 +6,9 @@ import { API_BASE_URL } from "$lib/config/config";
 import { env } from "$env/dynamic/private";
 
 const SUPABASE_URL =
-  env.SUPABASE_URL || "https://nsnbzlzttvvxdlhsuskt.supabase.co";
+  env.SUPABASE_URL ||
+  env.VITE_PUBLIC_SUPABASE_URL ||
+  "https://nsnbzlzttvvxdlhsuskt.supabase.co";
 const SUPABASE_SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const actions: Actions = {
