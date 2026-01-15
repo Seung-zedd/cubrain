@@ -13,9 +13,11 @@
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import Zap from "@lucide/svelte/icons/zap";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
+  import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
 
   let supabaseUser: any = $state(null);
   let copied = $state(false);
+  let showDeleteConfirm = $state(false);
 
   onMount(async () => {
     if (supabase) {
@@ -35,14 +37,13 @@
   }
 
   function handleDeleteAccount() {
-    if (
-      confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      window.location.href =
-        "mailto:support@cubrain.app?subject=Account Deletion Request";
-    }
+    showDeleteConfirm = true;
+  }
+
+  function confirmDeleteAccount() {
+    showDeleteConfirm = false;
+    window.location.href =
+      "mailto:support@cubrain.app?subject=Account Deletion Request";
   }
 
   let isPro = $derived(user.current?.tier === "PRO_USER");
@@ -244,6 +245,16 @@
     </section>
   </div>
 </div>
+
+{#if showDeleteConfirm}
+  <ConfirmModal
+    title="Delete Account"
+    message="Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
+    confirmText="Request Deletion"
+    onconfirm={confirmDeleteAccount}
+    oncancel={() => (showDeleteConfirm = false)}
+  />
+{/if}
 
 <style>
   @keyframes shimmer {
