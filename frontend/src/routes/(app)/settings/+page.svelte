@@ -11,6 +11,7 @@
   import Check from "@lucide/svelte/icons/check";
   import ShieldAlert from "@lucide/svelte/icons/shield-alert";
   import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Zap from "@lucide/svelte/icons/zap";
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
 
   let supabaseUser: any = $state(null);
@@ -165,10 +166,17 @@
           </button>
         {:else if isGracePeriod}
           <div class="flex flex-col gap-2 items-end">
-            <UpgradeButton
-              class="h-10 text-sm font-bold text-black"
-              text="Renew Subscription ⚡"
-            />
+            <button
+              onclick={handleManageSubscription}
+              class="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-linear-to-br from-amber-400 to-orange-500 px-6 py-2.5 font-bold text-white shadow-lg shadow-amber-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-amber-500/40 active:scale-95"
+            >
+              <div
+                class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 group-hover:animate-shimmer"
+              ></div>
+
+              <Zap class="w-4 h-4 fill-current" />
+              <span>Renew Subscription</span>
+            </button>
             <button
               onclick={handleManageSubscription}
               class="text-xs text-zinc-500 hover:text-zinc-300 underline transition-colors"
@@ -236,3 +244,15 @@
     </section>
   </div>
 </div>
+
+<style>
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .group-hover\:animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+</style>
