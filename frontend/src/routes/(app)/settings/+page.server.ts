@@ -73,19 +73,40 @@ export const actions: Actions = {
         return fail(401, { error: "Could not identify user" });
       }
 
-      // 4. Delete User from Supabase Auth
+      // 4. Delete User from Backend DB via API
+      const backendDeleteResponse = await fetch(
+        `${API_BASE_URL}/api/v1/auth/me`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!backendDeleteResponse.ok) {
+        console.error(
+          "Backend deletion failed:",
+          await backendDeleteResponse.text()
+        );
+        return fail(backendDeleteResponse.status, {
+          error: "Failed to delete user data from database",
+        });
+      }
+
+      // 5. Delete User from Supabase Auth
       const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
         user.id
       );
 
       if (deleteError) {
-        console.error("Deletion error:", deleteError);
+        console.error("Supabase deletion error:", deleteError);
         return fail(500, {
-          error: deleteError.message || "Failed to delete account",
+          error: deleteError.message || "Failed to delete auth account",
         });
       }
 
-      // 5. Post-Deletion: Clear cookies and redirect
+      // 6. Post-Deletion: Clear cookies and redirect
       const cookieOptions = { path: "/", httpOnly: true, secure: true };
       cookies.delete("sb-access-token", cookieOptions);
       cookies.delete("sb-refresh-token", cookieOptions);

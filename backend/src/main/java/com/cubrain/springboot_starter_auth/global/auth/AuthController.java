@@ -65,4 +65,18 @@ public class AuthController {
         int count = usageLimitService.getGuestUsageCount(clientIp);
         return ResponseEntity.ok(Map.of("dailyUploadCount", count));
     }
+
+    @Operation(summary = "Delete current user account", description = "Permanently deletes the user's record from the database.")
+    @org.springframework.web.bind.annotation.DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String supabaseId = jwt.getSubject();
+        log.info("[Auth] deleteMe called for sub: {}", supabaseId);
+
+        authService.deleteMember(supabaseId);
+        return ResponseEntity.noContent().build();
+    }
 }

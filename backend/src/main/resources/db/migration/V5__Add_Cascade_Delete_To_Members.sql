@@ -1,13 +1,9 @@
 -- V5__Add_Cascade_Delete_To_Members.sql
--- Ensure that deleting a user from auth.users also deletes their record in the members table
+-- Note: This migration was intended to add a foreign key to auth.users (Supabase Auth).
+-- However, since the database is hosted on Railway and does not contain the 'auth' schema,
+-- a physical foreign key constraint cannot be established.
+-- Deletion of member data is instead handled via application logic in the SvelteKit server action
+-- and a corresponding backend delete endpoint.
 
-ALTER TABLE members
-DROP CONSTRAINT IF EXISTS members_supabase_id_fkey;
-
--- Note: We assume supabase_id is compatible with auth.users.id (UUID)
--- If it's VARCHAR, we might need to cast it, but we follow the requested logic.
-ALTER TABLE members
-ADD CONSTRAINT members_supabase_id_fkey
-FOREIGN KEY (supabase_id)
-REFERENCES auth.users (id)
-ON DELETE CASCADE;
+-- We keep this file to satisfy Flyway, but it performs no actions that would fail.
+SELECT 1;

@@ -59,4 +59,15 @@ public class AuthServiceImpl implements AuthService {
 
         return UserResponseDto.from(memberRepository.save(newMember));
     }
+
+    @Override
+    @Transactional
+    public void deleteMember(String supabaseId) {
+        log.info("[Auth] Deleting member with supabaseId: {}", supabaseId);
+        memberRepository.findBySupabaseId(supabaseId)
+                .ifPresent(member -> {
+                    memberRepository.delete(member);
+                    log.info("[Auth] Member deleted: {}", member.getEmail());
+                });
+    }
 }
