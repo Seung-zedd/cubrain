@@ -94,7 +94,7 @@
   <LibraryDashboard
     {decks}
     onStartStudy={handleStartStudy}
-    onDelete={(id) => (deckToDelete = id)}
+    onDelete={(id: number) => (deckToDelete = id)}
     onEditCards={handleEditCards}
   />
 {/if}
