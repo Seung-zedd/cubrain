@@ -2,6 +2,7 @@ package com.cubrain.springboot_starter_auth.global.webhook;
 
 import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
+import com.cubrain.springboot_starter_auth.domain.member.SubscriptionStatus;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +61,15 @@ public class WebhookServiceImpl implements WebhookService {
         // Update Customer Portal URL if provided
         if (customerPortalUrl != null && !customerPortalUrl.isEmpty()) {
             member.updateCustomerPortalUrl(customerPortalUrl);
+        }
+
+        // Sync Subscription Status
+        if (status != null && !status.isEmpty()) {
+            try {
+                member.updateSubscriptionStatus(SubscriptionStatus.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                log.warn("[Webhook] Unknown subscription status: {}", status);
+            }
         }
 
         if ("active".equalsIgnoreCase(status)) {

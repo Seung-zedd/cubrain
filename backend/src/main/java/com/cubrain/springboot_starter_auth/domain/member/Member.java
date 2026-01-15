@@ -62,6 +62,10 @@ public class Member extends BaseEntity {
     @Column
     private String customerPortalUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private SubscriptionStatus subscriptionStatus;
+
     public boolean isProAccess() {
         return tier == UserTier.PRO_USER && (endsAt == null || endsAt.isAfter(OffsetDateTime.now()));
     }
@@ -80,6 +84,10 @@ public class Member extends BaseEntity {
 
     public void updateCustomerPortalUrl(String customerPortalUrl) {
         this.customerPortalUrl = customerPortalUrl;
+    }
+
+    public void updateSubscriptionStatus(SubscriptionStatus subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
     }
 
     public void incrementUploadCount() {

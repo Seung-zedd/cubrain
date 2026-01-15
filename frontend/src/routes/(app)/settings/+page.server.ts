@@ -39,7 +39,12 @@ export const actions: Actions = {
       const userData = await response.json();
 
       // Block deletion if Active Pro User
-      if (userData.tier === "PRO_USER") {
+      // BLOCK if status is ACTIVE, ON_TRIAL, or PAST_DUE
+      const blockedStatuses = ["ACTIVE", "ON_TRIAL", "PAST_DUE"];
+      if (
+        userData.tier === "PRO_USER" &&
+        blockedStatuses.includes(userData.subscriptionStatus)
+      ) {
         return fail(400, {
           error:
             "You have an active subscription. Please cancel your subscription via 'Manage Subscription' before deleting your account to avoid unwanted charges.",

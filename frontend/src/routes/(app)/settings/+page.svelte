@@ -21,6 +21,7 @@
   let copied = $state(false);
   let showDeleteConfirm = $state(false);
   let deleteForm = $state<HTMLFormElement | null>(null);
+  let deleteModalMessage = $state("");
 
   onMount(async () => {
     if (supabase) {
@@ -40,6 +41,30 @@
   }
 
   // Deletion logic moved to form action
+  function handleDeleteClick() {
+    const status = user.current?.subscriptionStatus;
+    const tier = user.current?.tier;
+
+    // 1. Active User (Block at Frontend)
+    if (status === "ACTIVE" || status === "ON_TRIAL" || status === "PAST_DUE") {
+      alert(
+        "You have an active subscription. Please cancel your subscription via 'Manage Subscription' first."
+      );
+      return;
+    }
+
+    // 2. Grace Period User
+    if (status === "CANCELLED" && tier === "PRO_USER") {
+      deleteModalMessage =
+        "⚠️ WAIT! You still have active subscription time remaining.\n\nDeleting your account NOW will immediately forfeit your remaining access days, and this cannot be undone.\n\nAre you sure you want to proceed?";
+    } else {
+      // 3. Standard User (Free/Expired)
+      deleteModalMessage =
+        "Are you sure you want to delete your account? This action is permanent and cannot be undone.";
+    }
+
+    showDeleteConfirm = true;
+  }
 
   let isPro = $derived(user.current?.tier === "PRO_USER");
   let isGracePeriod = $derived(isPro && user.current?.endsAt !== null);
@@ -237,7 +262,7 @@
         >
           <button
             type="button"
-            onclick={() => (showDeleteConfirm = true)}
+            onclick={handleDeleteClick}
             class="px-4 py-2 rounded-lg border border-red-500/30 hover:bg-red-500/10 text-red-500 text-sm font-medium transition-colors flex items-center gap-2"
           >
             <Trash2 class="w-4 h-4" />
@@ -260,7 +285,7 @@
 {#if showDeleteConfirm}
   <ConfirmModal
     title="Delete Account"
-    message="Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
+    message={deleteModalMessage}
     confirmText="Delete My Account"
     onconfirm={() => {
       showDeleteConfirm = false;

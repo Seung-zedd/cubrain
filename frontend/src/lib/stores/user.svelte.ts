@@ -9,6 +9,7 @@ export interface User {
   dailyUploadCount: number;
   endsAt: string | null;
   customerPortalUrl: string | null;
+  subscriptionStatus: string | null;
 }
 
 // Svelte 5 Rune-based store
@@ -64,6 +65,7 @@ export async function fetchUser() {
         dailyUploadCount: 0,
         endsAt: null,
         customerPortalUrl: null,
+        subscriptionStatus: null,
       };
     }
   } catch (err) {
@@ -84,6 +86,7 @@ export async function fetchUser() {
           dailyUploadCount: 0,
           endsAt: null,
           customerPortalUrl: null,
+          subscriptionStatus: null,
         };
       } else {
         user.current = null;
