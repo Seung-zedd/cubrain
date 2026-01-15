@@ -19,6 +19,8 @@
   let { form } = $props();
   let supabaseUser: any = $state(null);
   let copied = $state(false);
+  let showDeleteConfirm = $state(false);
+  let deleteForm = $state<HTMLFormElement | null>(null);
 
   onMount(async () => {
     if (supabase) {
@@ -231,18 +233,11 @@
           method="POST"
           action="?/deleteAccount"
           use:enhance
-          onsubmit={(e) => {
-            if (
-              !confirm(
-                "Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
-              )
-            ) {
-              e.preventDefault();
-            }
-          }}
+          bind:this={deleteForm}
         >
           <button
-            type="submit"
+            type="button"
+            onclick={() => (showDeleteConfirm = true)}
             class="px-4 py-2 rounded-lg border border-red-500/30 hover:bg-red-500/10 text-red-500 text-sm font-medium transition-colors flex items-center gap-2"
           >
             <Trash2 class="w-4 h-4" />
@@ -261,6 +256,19 @@
     </section>
   </div>
 </div>
+
+{#if showDeleteConfirm}
+  <ConfirmModal
+    title="Delete Account"
+    message="Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
+    confirmText="Delete My Account"
+    onconfirm={() => {
+      showDeleteConfirm = false;
+      deleteForm?.requestSubmit();
+    }}
+    oncancel={() => (showDeleteConfirm = false)}
+  />
+{/if}
 
 <style>
   @keyframes shimmer {
