@@ -3,6 +3,7 @@
   import { user, logout } from "$lib/stores/user.svelte";
   import { supabase } from "$lib/supabaseClient";
   import { goto } from "$app/navigation";
+  import { enhance } from "$app/forms";
   import User from "@lucide/svelte/icons/user";
   import CreditCard from "@lucide/svelte/icons/credit-card";
   import LogOut from "@lucide/svelte/icons/log-out";
@@ -15,9 +16,9 @@
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
 
+  let { form } = $props();
   let supabaseUser: any = $state(null);
   let copied = $state(false);
-  let showDeleteConfirm = $state(false);
 
   onMount(async () => {
     if (supabase) {
@@ -36,15 +37,7 @@
     }, 2000);
   }
 
-  function handleDeleteAccount() {
-    showDeleteConfirm = true;
-  }
-
-  function confirmDeleteAccount() {
-    showDeleteConfirm = false;
-    window.location.href =
-      "mailto:support@cubrain.app?subject=Account Deletion Request";
-  }
+  // Deletion logic moved to form action
 
   let isPro = $derived(user.current?.tier === "PRO_USER");
   let isGracePeriod = $derived(isPro && user.current?.endsAt !== null);
@@ -234,27 +227,40 @@
             Permanently delete your account and all data.
           </p>
         </div>
-        <button
-          onclick={handleDeleteAccount}
-          class="px-4 py-2 rounded-lg border border-red-500/30 hover:bg-red-500/10 text-red-500 text-sm font-medium transition-colors flex items-center gap-2"
+        <form
+          method="POST"
+          action="?/deleteAccount"
+          use:enhance
+          onsubmit={(e) => {
+            if (
+              !confirm(
+                "Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
+              )
+            ) {
+              e.preventDefault();
+            }
+          }}
         >
-          <Trash2 class="w-4 h-4" />
-          Delete Account
-        </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg border border-red-500/30 hover:bg-red-500/10 text-red-500 text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <Trash2 class="w-4 h-4" />
+            Delete Account
+          </button>
+        </form>
       </div>
+
+      {#if form?.error}
+        <div
+          class="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+          {form.error}
+        </div>
+      {/if}
     </section>
   </div>
 </div>
-
-{#if showDeleteConfirm}
-  <ConfirmModal
-    title="Delete Account"
-    message="Are you sure you want to delete your account? This will permanently remove all your data and access. This action cannot be undone."
-    confirmText="Request Deletion"
-    onconfirm={confirmDeleteAccount}
-    oncancel={() => (showDeleteConfirm = false)}
-  />
-{/if}
 
 <style>
   @keyframes shimmer {
