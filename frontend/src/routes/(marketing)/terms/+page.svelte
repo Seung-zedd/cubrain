@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto py-20 px-6 text-white/80 leading-relaxed">
   <h1 class="text-4xl font-bold text-white mb-8">Terms of Service</h1>
-  <p class="mb-8 text-zinc-400">Last updated: January 12, 2026</p>
+  <p class="mb-8 text-zinc-400">Last updated: January 16, 2026</p>
 
   <section class="mb-12">
     <h2 class="text-2xl font-semibold text-[#FFD700] mb-4">
@@ -45,18 +45,25 @@
       subscribing, you agree to the pricing, payment, and billing policies of
       both Cubrain and Lemon Squeezy.
     </p>
-    <ul class="list-disc ml-6 mt-4 space-y-2">
+    <ul class="list-disc ml-6 mt-4 space-y-4">
       <li>
         <strong>Billing:</strong> Subscriptions are billed in advance on a recurring
         basis (monthly or annually).
       </li>
       <li>
-        <strong>Cancellations:</strong> You may cancel your subscription at any time
-        through your account settings or Lemon Squeezy's customer portal.
+        <strong>Cancellations:</strong> You may cancel your subscription renewal
+        at any time through your account settings or Lemon Squeezy's customer portal.
+        Upon cancellation, you will continue to have access to the Pro Plan features
+        until the end of your current billing cycle ("Grace Period").
       </li>
       <li>
-        <strong>Refunds:</strong> Refunds are handled on a case-by-case basis in
-        accordance with our refund policy and Lemon Squeezy's terms.
+        <strong>Refunds & Account Deletion:</strong> Refunds are handled on a case-by-case
+        basis in accordance with our refund policy and Lemon Squeezy's terms. However,
+        if you voluntarily choose to delete your account permanently while you have
+        an active subscription or remaining time in your Grace Period, you acknowledge
+        and agree that you immediately forfeit any remaining subscription time. No
+        refunds, credits, or pro-rated adjustments will be provided for the unused
+        portion of the subscription term forfeited due to account deletion.
       </li>
     </ul>
   </section>
