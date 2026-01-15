@@ -80,16 +80,23 @@ export const actions: Actions = {
 
       if (deleteError) {
         console.error("Deletion error:", deleteError);
-        return fail(500, { error: "Failed to delete account" });
+        return fail(500, {
+          error: deleteError.message || "Failed to delete account",
+        });
       }
 
       // 5. Post-Deletion: Clear cookies and redirect
-      cookies.delete("sb-access-token", { path: "/" });
+      const cookieOptions = { path: "/", httpOnly: true, secure: true };
+      cookies.delete("sb-access-token", cookieOptions);
+      cookies.delete("sb-refresh-token", cookieOptions);
+
+      throw redirect(303, "/?deleted=true");
     } catch (err) {
+      if (err instanceof Response && err.status >= 300 && err.status < 400) {
+        throw err; // Handle redirects
+      }
       console.error("Delete account error:", err);
       return fail(500, { error: "An unexpected error occurred" });
     }
-
-    throw redirect(303, "/?deleted=true");
   },
 };
