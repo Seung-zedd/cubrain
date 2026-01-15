@@ -68,7 +68,15 @@
         console.error("Supabase OTP error:", err);
       }
       status = "error";
-      message = err.message || "Failed to send verification code.";
+
+      // Customize error message for non-existent accounts
+      if (err.message === "Signups not allowed for otp") {
+        message = "The user account doesn't exist.";
+        emailError = true;
+        setTimeout(() => (emailError = false), 3000);
+      } else {
+        message = err.message || "Failed to send verification code.";
+      }
     }
   }
 
