@@ -19,9 +19,16 @@
   let { form } = $props();
   let supabaseUser: any = $state(null);
   let copied = $state(false);
-  let showDeleteConfirm = $state(false);
+  let showConfirmModal = $state(false);
   let deleteForm = $state<HTMLFormElement | null>(null);
-  let deleteModalMessage = $state("");
+  let modalConfig = $state({
+    title: "",
+    message: "",
+    confirmText: "",
+    cancelText: "Cancel",
+    type: "danger" as "danger" | "warning" | "info",
+    onConfirm: () => {},
+  });
 
   onMount(async () => {
     if (supabase) {
@@ -47,23 +54,53 @@
 
     // 1. Active User (Block at Frontend)
     if (status === "ACTIVE" || status === "ON_TRIAL" || status === "PAST_DUE") {
-      alert(
-        "You have an active subscription. Please cancel your subscription via 'Manage Subscription' first."
-      );
+      modalConfig = {
+        title: "Subscription Active",
+        message:
+          "You have an active subscription. Please cancel your subscription via 'Manage Subscription' before deleting your account to avoid unwanted charges.",
+        confirmText: "Manage Subscription",
+        cancelText: "Close",
+        type: "warning",
+        onConfirm: () => {
+          showConfirmModal = false;
+          handleManageSubscription();
+        },
+      };
+      showConfirmModal = true;
       return;
     }
 
     // 2. Grace Period User (Pro user who cancelled but still has time)
     if (status === "CANCELLED" && tier === "PRO_USER") {
-      deleteModalMessage =
-        "⚠️ WAIT! You still have active subscription time remaining.\n\nDeleting your account NOW will immediately forfeit your remaining access days, and this cannot be undone.\n\nAre you sure you want to proceed?";
+      modalConfig = {
+        title: "Forfeit Remaining Days?",
+        message:
+          "⚠️ WAIT! You still have active subscription time remaining.\n\nDeleting your account NOW will immediately forfeit your remaining access days, and this cannot be undone.\n\nAre you sure you want to proceed?",
+        confirmText: "Delete My Account",
+        cancelText: "Cancel",
+        type: "danger",
+        onConfirm: () => {
+          showConfirmModal = false;
+          deleteForm?.requestSubmit();
+        },
+      };
     } else {
       // 3. Standard User (Free/Expired)
-      deleteModalMessage =
-        "Are you sure you want to delete your account? This action is permanent and cannot be undone.";
+      modalConfig = {
+        title: "Delete Account",
+        message:
+          "Are you sure you want to delete your account? This action is permanent and cannot be undone.",
+        confirmText: "Delete My Account",
+        cancelText: "Cancel",
+        type: "danger",
+        onConfirm: () => {
+          showConfirmModal = false;
+          deleteForm?.requestSubmit();
+        },
+      };
     }
 
-    showDeleteConfirm = true;
+    showConfirmModal = true;
   }
 
   let isPro = $derived(user.current?.tier === "PRO_USER");
@@ -293,16 +330,15 @@
   </div>
 </div>
 
-{#if showDeleteConfirm}
+{#if showConfirmModal}
   <ConfirmModal
-    title="Delete Account"
-    message={deleteModalMessage}
-    confirmText="Delete My Account"
-    onconfirm={() => {
-      showDeleteConfirm = false;
-      deleteForm?.requestSubmit();
-    }}
-    oncancel={() => (showDeleteConfirm = false)}
+    title={modalConfig.title}
+    message={modalConfig.message}
+    confirmText={modalConfig.confirmText}
+    cancelText={modalConfig.cancelText}
+    type={modalConfig.type}
+    onconfirm={modalConfig.onConfirm}
+    oncancel={() => (showConfirmModal = false)}
   />
 {/if}
 
