@@ -1,4 +1,4 @@
-import { fail, redirect } from "@sveltejs/kit";
+import { fail, redirect, isRedirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import { createClient } from "@supabase/supabase-js";
 import { API_BASE_URL } from "$lib/config/config";
@@ -12,7 +12,7 @@ const SUPABASE_URL =
 const SUPABASE_SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const actions: Actions = {
-  deleteAccount: async ({ cookies, fetch }) => {
+  deleteAccount: async ({ cookies, fetch, request }) => {
     const token = cookies.get("sb-access-token");
 
     if (!SUPABASE_SERVICE_ROLE_KEY) {
@@ -107,14 +107,23 @@ export const actions: Actions = {
       }
 
       // 6. Post-Deletion: Clear cookies and redirect
-      const cookieOptions = { path: "/", httpOnly: true, secure: true };
+      const host = request.headers.get("host") || "";
+      const domain = host.includes("cubrain.app") ? ".cubrain.app" : undefined;
+
+      const cookieOptions = {
+        path: "/",
+        httpOnly: true,
+        secure: !host.includes("localhost"),
+        domain: domain,
+      };
+
       cookies.delete("sb-access-token", cookieOptions);
       cookies.delete("sb-refresh-token", cookieOptions);
 
       throw redirect(303, "/?deleted=true");
     } catch (err) {
-      if (err instanceof Response && err.status >= 300 && err.status < 400) {
-        throw err; // Handle redirects
+      if (isRedirect(err)) {
+        throw err;
       }
       console.error("Delete account error:", err);
       return fail(500, { error: "An unexpected error occurred" });

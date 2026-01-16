@@ -257,7 +257,18 @@
         <form
           method="POST"
           action="?/deleteAccount"
-          use:enhance
+          use:enhance={() => {
+            return async ({ result }) => {
+              if (result.type === "redirect") {
+                // Force a full page reload and clear storage
+                localStorage.clear();
+                window.location.href = result.location;
+              } else if (result.type === "error" || result.type === "failure") {
+                // Let SvelteKit handle errors/failures normally (to show the error message)
+                return;
+              }
+            };
+          }}
           bind:this={deleteForm}
         >
           <button
