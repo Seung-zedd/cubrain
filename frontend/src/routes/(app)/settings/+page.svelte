@@ -53,7 +53,7 @@
       return;
     }
 
-    // 2. Grace Period User
+    // 2. Grace Period User (Pro user who cancelled but still has time)
     if (status === "CANCELLED" && tier === "PRO_USER") {
       deleteModalMessage =
         "⚠️ WAIT! You still have active subscription time remaining.\n\nDeleting your account NOW will immediately forfeit your remaining access days, and this cannot be undone.\n\nAre you sure you want to proceed?";
