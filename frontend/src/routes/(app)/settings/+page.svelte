@@ -57,8 +57,8 @@
       modalConfig = {
         title: "Subscription Active",
         message:
-          "You have an active subscription. Please cancel your subscription via 'Manage Subscription' before deleting your account to avoid unwanted charges.",
-        confirmText: "Manage Subscription",
+          "You have an active subscription. To avoid unwanted charges, please cancel your plan through our secure billing partner, Lemon Squeezy, before deleting your account.",
+        confirmText: "Go to Billing Portal",
         cancelText: "Close",
         type: "warning",
         onConfirm: () => {
