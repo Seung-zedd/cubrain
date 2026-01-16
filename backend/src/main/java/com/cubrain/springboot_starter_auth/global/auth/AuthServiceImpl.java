@@ -4,8 +4,6 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.domain.member.Role;
 import com.cubrain.springboot_starter_auth.domain.user.UserTier;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,9 +18,6 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     private final MemberRepository memberRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     @Transactional

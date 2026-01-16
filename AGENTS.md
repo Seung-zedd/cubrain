@@ -60,7 +60,7 @@ We follow a convention combining Gitmoji and Conventional Commits.
 
 ## 4. Testing Strategy (TestSprite Priority)
 
-i won't use testsprite for a while since it's not working well.(i'll use it again after launching MVP product)
+i won't use testsprite for a while since it's not working well.(maybe this will be changed in the future)
 
 We prioritize automated testing using **TestSprite** to ensure high quality and reliability.
 

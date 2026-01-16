@@ -9,8 +9,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     Optional<Member> findBySupabaseId(String supabaseId);
 
-    void deleteBySupabaseId(String supabaseId);
-
     boolean existsByEmail(String email);
 
     long countByTier(UserTier tier);
