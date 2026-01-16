@@ -74,10 +74,11 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
 
+        String email = jwt.getClaimAsString("email");
         String supabaseId = jwt.getSubject();
-        log.info("[Auth] deleteMe called for sub: {}", supabaseId);
+        log.info("[Auth] deleteMe called for: {} (sub: {})", email, supabaseId);
 
-        authService.deleteMember(supabaseId);
+        authService.deleteMember(email, supabaseId);
         return ResponseEntity.noContent().build();
     }
 }

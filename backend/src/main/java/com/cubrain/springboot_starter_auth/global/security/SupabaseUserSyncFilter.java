@@ -37,6 +37,12 @@ public class SupabaseUserSyncFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Skip sync for account deletion endpoint to avoid recreation or interference
+        if ("DELETE".equalsIgnoreCase(request.getMethod()) && "/api/v1/auth/me".equals(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {

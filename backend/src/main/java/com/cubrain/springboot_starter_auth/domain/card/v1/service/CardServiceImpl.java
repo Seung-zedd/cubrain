@@ -193,9 +193,11 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public void deleteDeck(Long deckId) {
         log.info("🗑️ [Transaction Start] Deleting deck ID: {}", deckId);
-        flashcardRepository.deleteByDeckId(deckId);
-        deckRepository.deleteById(deckId);
-        log.info("✅ [Transaction Success] Deck and associated cards deleted.");
+        deckRepository.findById(deckId).ifPresent(deck -> {
+            deckRepository.delete(deck);
+            deckRepository.flush(); // Ensure deletion is synchronized to DB immediately
+            log.info("✅ [Transaction Success] Deck and associated cards deleted: {}", deck.getTitle());
+        });
     }
 
     @Override

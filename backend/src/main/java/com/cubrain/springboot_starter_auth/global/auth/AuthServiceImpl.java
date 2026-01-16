@@ -62,12 +62,25 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void deleteMember(String supabaseId) {
-        log.info("[Auth] Deleting member with supabaseId: {}", supabaseId);
-        memberRepository.findBySupabaseId(supabaseId)
-                .ifPresent(member -> {
-                    memberRepository.delete(member);
-                    log.info("[Auth] Member deleted: {}", member.getEmail());
-                });
+    public void deleteMember(String email, String supabaseId) {
+        log.info("[Auth] Deleting member: {} (sub: {})", email, supabaseId);
+
+        // 1. Try finding by supabaseId
+        Optional<Member> memberOpt = memberRepository.findBySupabaseId(supabaseId);
+
+        // 2. Fallback to email if not found by supabaseId
+        if (memberOpt.isEmpty() && email != null) {
+            log.info("[Auth] Member not found by supabaseId, trying email: {}", email);
+            memberOpt = memberRepository.findByEmail(email.toLowerCase());
+        }
+
+        memberOpt.ifPresentOrElse(member -> {
+            log.info("[Auth] Found member to delete: {} (ID: {})", member.getEmail(), member.getId());
+            memberRepository.delete(member);
+            memberRepository.flush(); // Force flush to ensure deletion is executed and catch any FK issues
+            log.info("[Auth] Member deleted and flushed: {}", member.getEmail());
+        }, () -> {
+            log.warn("[Auth] No member found to delete for email: {} or sub: {}", email, supabaseId);
+        });
     }
 }
