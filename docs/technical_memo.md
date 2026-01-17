@@ -113,3 +113,27 @@ I developed a **Client IP-Based Usage Tracking System**. This system treats the 
 2. **Unified Service Layer**: Integrated the IP-based logic into the existing `UsageLimitService`. The service maintains a separate tracking bucket for guests, keyed by their IP.
 3. **Frictionless Fallback**: The `getUsage` endpoint first checks for a valid JWT. If absent, it automatically falls back to IP-based tracking, ensuring the frontend always has accurate usage data to display to the user.
 4. **Resilient Identification**: By using the IP address, we strike a balance between preventing mass abuse and allowing legitimate users to explore the product without immediate registration.
+
+---
+
+### Problem 6: Real-time Progress Tracking with SSE
+
+#### Why: What was the challenge?
+
+The initial implementation of the PDF generation progress bar relied on **Short Polling** (`setInterval`). This caused several issues:
+
+1. **Network Overhead**: Over 130 HTTP requests per minute for a single user, leading to unnecessary server load.
+2. **Preflight Latency**: Each polling request triggered a CORS `OPTIONS` preflight, adding significant latency and redundant network traffic.
+3. **Poor UX**: The progress bar felt "stuttery" due to the fixed polling interval, and mobile users experienced faster battery drain.
+
+#### What: What was the solution?
+
+I refactored the data fetching mechanism from polling to **Server-Sent Events (SSE)**. This allows the server to push progress updates to the client over a single, persistent HTTP connection, providing a smooth, real-time experience while drastically reducing network noise.
+
+#### How: How was it implemented?
+
+1. **Thread-Safe Broadcasting**: Updated the `JobManager` to manage `SseEmitter` instances using a `ConcurrentHashMap` combined with `CopyOnWriteArrayList`. This ensures that multiple async threads can broadcast progress updates without triggering `ConcurrentModificationException`.
+2. **Railway/Nginx Compatibility**: Implemented a critical header `X-Accel-Buffering: no` in the `SseController`. Without this, proxies like Nginx or Railway's edge nodes would buffer the stream, causing the progress bar to jump from 0% to 100% instantly instead of showing gradual progress.
+3. **Universal SSE Client**: Developed a custom frontend utility using `fetch` and `ReadableStream` instead of the native `EventSource`. This was necessary to support **JWT Authorization headers**, which the native `EventSource` API does not allow.
+4. **CORS Optimization**: Set `Access-Control-Max-Age` to `3600` in the `CorsConfig` to cache preflight results for one hour, effectively eliminating redundant `OPTIONS` requests during the session.
+5. **Robust Lifecycle Management**: Integrated auto-reconnection logic on the frontend and ensured proper cleanup (aborting the stream) on component unmount or job completion to prevent memory leaks.
