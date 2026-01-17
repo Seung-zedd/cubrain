@@ -2,7 +2,13 @@ package com.cubrain.springboot_starter_auth.domain.job.v1;
 
 import com.cubrain.springboot_starter_auth.domain.job.JobStatus;
 
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 public interface JobManager {
+    void addSseEmitter(String jobId, SseEmitter emitter);
+
+    void removeSseEmitter(String jobId, SseEmitter emitter);
+
     void cleanupOldJobs();
 
     String createJob();

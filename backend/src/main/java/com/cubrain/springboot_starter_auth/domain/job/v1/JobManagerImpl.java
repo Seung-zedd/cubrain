@@ -8,10 +8,15 @@ import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.COMPLETED
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.FAILED;
 import static com.cubrain.springboot_starter_auth.domain.job.JobStatus.PROCESSING;
 
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @Component
@@ -23,6 +28,7 @@ public class JobManagerImpl implements JobManager {
     private final Map<String, Instant> jobCompletionTimes = new ConcurrentHashMap<>();
     private final Map<String, String> jobOwners = new ConcurrentHashMap<>();
     private final Map<String, Map<String, Object>> jobMetadata = new ConcurrentHashMap<>();
+    private final Map<String, List<SseEmitter>> sseEmitters = new ConcurrentHashMap<>();
 
     private static final long JOB_RETENTION_SECONDS = 3600;
 
@@ -53,6 +59,44 @@ public class JobManagerImpl implements JobManager {
     }
 
     @Override
+    public void addSseEmitter(String jobId, SseEmitter emitter) {
+        sseEmitters.computeIfAbsent(jobId, k -> new CopyOnWriteArrayList<>()).add(emitter);
+        emitter.onCompletion(() -> removeSseEmitter(jobId, emitter));
+        emitter.onTimeout(() -> removeSseEmitter(jobId, emitter));
+        emitter.onError(e -> removeSseEmitter(jobId, emitter));
+    }
+
+    @Override
+    public void removeSseEmitter(String jobId, SseEmitter emitter) {
+        List<SseEmitter> emitters = sseEmitters.get(jobId);
+        if (emitters != null) {
+            emitters.remove(emitter);
+            if (emitters.isEmpty()) {
+                sseEmitters.remove(jobId);
+            }
+        }
+    }
+
+    private void broadcast(String jobId, String eventName, Object data) {
+        List<SseEmitter> emitters = sseEmitters.get(jobId);
+        if (emitters == null || emitters.isEmpty()) {
+            return;
+        }
+
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name(eventName)
+                        .data(data));
+            } catch (IOException e) {
+                deadEmitters.add(emitter);
+            }
+        }
+        emitters.removeAll(deadEmitters);
+    }
+
+    @Override
     public String createJob() {
         return createJob("anonymous");
     }
@@ -80,6 +124,7 @@ public class JobManagerImpl implements JobManager {
     @Override
     public void updateProgress(String jobId, int progress) {
         jobProgress.put(jobId, progress);
+        broadcast(jobId, "PROGRESS", Map.of("progress", progress, "status", PROCESSING));
     }
 
     @Override
@@ -88,6 +133,7 @@ public class JobManagerImpl implements JobManager {
         jobStatuses.put(jobId, COMPLETED);
         jobProgress.put(jobId, 100);
         jobCompletionTimes.put(jobId, Instant.now());
+        broadcast(jobId, "COMPLETE", Map.of("progress", 100, "status", COMPLETED, "results", result));
     }
 
     @Override
@@ -99,6 +145,7 @@ public class JobManagerImpl implements JobManager {
     public void failJob(String jobId) {
         jobStatuses.put(jobId, FAILED);
         jobCompletionTimes.put(jobId, Instant.now());
+        broadcast(jobId, "ERROR", Map.of("status", FAILED, "message", "Job failed"));
     }
 
     @Override

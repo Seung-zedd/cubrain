@@ -28,6 +28,7 @@
   import LayoutGrid from "@lucide/svelte/icons/layout-grid";
   import List from "@lucide/svelte/icons/list";
   import Flashcard from "$lib/components/ui/Flashcard.svelte";
+  import { subscribeToJob } from "$lib/sse";
 
   interface Flashcard {
     question: string;
@@ -47,7 +48,7 @@
   let showSaveModal = $state(false);
   let showTierModal = $state(false);
   let proModalType = $state<"daily_limit">("daily_limit");
-  let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let unsubscribe: (() => void) | null = null;
   let errorMessage = $state<string | null>(null);
   let jobMetadata = $state<Record<string, any>>({});
   let sourceFileName = $state<string | null>(null);
@@ -114,12 +115,12 @@
     }
   });
 
-  // Cleanup polling interval when component unmounts
+  // Cleanup SSE connection when component unmounts
   $effect(() => {
     return () => {
-      if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
+      if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
       }
     };
   });
@@ -203,37 +204,43 @@
         jobStatus = "PROCESSING";
         jobProgress = 0;
 
-        // 3. Poll for this specific job
+        // 3. Subscribe to SSE for this specific job
         const jobResult = await new Promise<Flashcard[]>((resolve, reject) => {
-          const interval = setInterval(async () => {
-            try {
-              const statusResponse = await authFetch(
-                `/api/v1/pdf/jobs/${jobId}`
-              );
-              if (statusResponse.ok) {
-                const statusData = await statusResponse.json();
-                jobStatus = statusData.status;
-                jobProgress = statusData.progress;
-                if (statusData.metadata) {
-                  jobMetadata = { ...jobMetadata, ...statusData.metadata };
+          unsubscribe = subscribeToJob(
+            jobId!,
+            {
+              onInit: (data) => {
+                jobStatus = data.status;
+                jobProgress = data.progress;
+              },
+              onProgress: (data) => {
+                jobStatus = data.status;
+                jobProgress = data.progress;
+              },
+              onComplete: async (data) => {
+                if (unsubscribe) {
+                  unsubscribe();
+                  unsubscribe = null;
                 }
-
-                if (jobStatus === "COMPLETED") {
-                  clearInterval(interval);
-                  // Refresh usage count after each successful job
-                  if (user.current) await fetchUser();
-                  else await fetchGuestUsage();
-                  resolve(statusData.results || []);
-                } else if (jobStatus === "FAILED") {
-                  clearInterval(interval);
-                  reject(new Error(`Generation failed for ${file.name}`));
+                // Refresh usage count after each successful job
+                if (user.current) await fetchUser();
+                else await fetchGuestUsage();
+                resolve(data.results || []);
+              },
+              onError: (error) => {
+                if (unsubscribe) {
+                  unsubscribe();
+                  unsubscribe = null;
                 }
-              }
-            } catch (e) {
-              clearInterval(interval);
-              reject(e);
-            }
-          }, 1000);
+                reject(
+                  new Error(
+                    error.message || `Generation failed for ${file.name}`
+                  )
+                );
+              },
+            },
+            user.current?.accessToken // Pass token if available
+          );
         });
 
         // 4. Accumulate results

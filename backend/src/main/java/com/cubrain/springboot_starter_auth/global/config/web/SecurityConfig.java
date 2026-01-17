@@ -161,7 +161,9 @@ public class SecurityConfig {
                             .permitAll()
                             .requestMatchers("/static/**", "/assets/**", "/_app/**", "/_vercel/**").permitAll()
                             .requestMatchers("/dashboard", "/dashboard/**").permitAll()
-                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**").permitAll();
+                            .requestMatchers("/api/v1/pdf/**", "/api/v1/cards/**", "/api/v1/waitlist/**",
+                                    "/api/v1/sse/subscribe/**")
+                            .permitAll();
 
                     if (isSwaggerEnabled) {
                         log.info("✅ Swagger/OpenAPI is ENABLED. Permitting access to /v3/api-docs");
