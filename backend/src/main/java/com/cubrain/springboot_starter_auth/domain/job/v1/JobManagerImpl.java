@@ -90,6 +90,7 @@ public class JobManagerImpl implements JobManager {
                         .name(eventName)
                         .data(data));
             } catch (IOException e) {
+                log.debug("[SSE] Failed to send event {} to emitter for job {}: {}", eventName, jobId, e.getMessage());
                 deadEmitters.add(emitter);
             }
         }

@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,14 +30,18 @@ public class SseController {
 
     @Operation(summary = "Subscribe to Job Progress", description = "Subscribes to real-time progress updates for a specific job.")
     @GetMapping(value = "/subscribe/{jobId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@PathVariable String jobId, HttpServletResponse response) {
+    public SseEmitter subscribe(
+            @PathVariable String jobId,
+            @AuthenticationPrincipal Jwt jwt,
+            HttpServletResponse response) {
         // Critical for Railway/Nginx to prevent buffering
         response.setHeader("X-Accel-Buffering", "no");
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
 
-        // 600,000ms = 10 minutes timeout
-        SseEmitter emitter = new SseEmitter(600000L);
+        // Dynamic timeout: 5 mins for Guests, 10 mins for Authenticated
+        long timeout = (jwt != null) ? 600000L : 300000L;
+        SseEmitter emitter = new SseEmitter(timeout);
 
         JobStatus status = jobManager.getStatus(jobId);
         if (status == null) {

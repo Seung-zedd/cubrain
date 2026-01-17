@@ -71,20 +71,6 @@ git push -u origin feature/your-feature-name
 1. **Local Review First**: Before pushing your code, ALWAYS ask your local AI agent to perform a "Pull Request Review".
    - **Prompt Example**: _"Please perform a comprehensive PR review of my current changes. Check for bugs, security, and SOLID principles."_
 2. **Refine & Polish**: Address all feedback provided by the agent locally.
-3. **Create PR**: Push your branch and open a Pull Request on GitHub targeting the `dev` branch.
-4. **Final Check**: Use the remote PR as a final integration check, but the heavy lifting of code quality should be done via the local agent.
-
-### 4. Merge & Cleanup
-
-Once the PR is approved and CI passes:
-
-1. **Squash and Merge**: Use the "Squash and Merge" option on GitHub to keep a clean history on `dev`.
-2. **Sync & Delete**:
-   ```bash
-   git checkout dev
-   git pull origin dev
-   git branch -d feature/your-feature-name
-   ```
 
 ### 5. Release (Main Branch) & Versioning
 
