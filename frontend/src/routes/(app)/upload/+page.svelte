@@ -69,7 +69,7 @@
   let isTotalSizeExceeded = $derived(totalSize > MAX_SIZE_BYTES);
   let hasOversizedFiles = $derived(files.some((f) => f.size > MAX_SIZE_BYTES));
   let isGenerationBlocked = $derived(
-    isTotalSizeExceeded || hasOversizedFiles || files.length === 0
+    isTotalSizeExceeded || hasOversizedFiles || files.length === 0,
   );
 
   let showTotalSizeToast = $state(false);
@@ -84,7 +84,7 @@
   });
 
   let dailyUploadCount = $derived(
-    user.current?.dailyUploadCount ?? guestUsage.count
+    user.current?.dailyUploadCount ?? guestUsage.count,
   );
   let maxLimit = $derived(user.current?.tier === "PRO_USER" ? 100 : 3);
   let badgeColor = $derived(
@@ -92,7 +92,7 @@
       ? "bg-red-500/20 text-red-400 border-red-500/50"
       : dailyUploadCount >= maxLimit - 1
         ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
-        : "bg-slate-800/50 text-slate-400 border-slate-700"
+        : "bg-slate-800/50 text-slate-400 border-slate-700",
   );
 
   onMount(async () => {
@@ -133,8 +133,8 @@
           (existing) =>
             existing.name === newFile.name &&
             existing.size === newFile.size &&
-            existing.lastModified === newFile.lastModified
-        )
+            existing.lastModified === newFile.lastModified,
+        ),
     );
     files = [...files, ...uniqueNewFiles];
     if (files.length > 0 && !sourceFileName) {
@@ -233,19 +233,20 @@
                   const results = (data.results as Flashcard[]) ?? [];
                   resolve(results);
                 },
-                onError: (error: any) => {
+                onError: (error: unknown) => {
+                  const err = error as any;
                   if (unsubscribe) {
                     unsubscribe();
                     unsubscribe = null;
                   }
                   reject(
                     new Error(
-                      error.message || `Generation failed for ${file.name}`
-                    )
+                      err.message || `Generation failed for ${file.name}`,
+                    ),
                   );
                 },
               },
-              token
+              token,
             );
           });
         });
@@ -340,7 +341,7 @@
     <div
       class={cn(
         "flex items-center gap-3 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300",
-        badgeColor
+        badgeColor,
       )}
     >
       <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
@@ -401,7 +402,7 @@
                       "p-1.5 rounded-md transition-all duration-200",
                       viewMode === "list"
                         ? "bg-zinc-800 text-amber-500 shadow-sm"
-                        : "text-zinc-500 hover:text-zinc-300"
+                        : "text-zinc-500 hover:text-zinc-300",
                     )}
                     title="List View"
                   >
@@ -413,7 +414,7 @@
                       "p-1.5 rounded-md transition-all duration-200",
                       viewMode === "grid"
                         ? "bg-zinc-800 text-amber-500 shadow-sm"
-                        : "text-zinc-500 hover:text-zinc-300"
+                        : "text-zinc-500 hover:text-zinc-300",
                     )}
                     title="Grid View"
                   >
@@ -486,7 +487,7 @@
           class={cn(
             viewMode === "grid"
               ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-              : "flex flex-col gap-4 max-w-3xl mx-auto w-full"
+              : "flex flex-col gap-4 max-w-3xl mx-auto w-full",
           )}
         >
           {#each generatedCards as card, i}
