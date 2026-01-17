@@ -1,5 +1,6 @@
 <script lang="ts">
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
+  import HeroVideo from "$lib/components/HeroVideo.svelte";
   import { onMount } from "svelte";
   import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
@@ -313,7 +314,7 @@
       "flex-1 transition-all duration-500 ease-in-out",
       isMobileMenuOpen
         ? "blur-md brightness-50 scale-[0.98] pointer-events-none"
-        : ""
+        : "",
     )}
   >
     <header
@@ -386,6 +387,9 @@
       <div
         class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
       ></div>
+
+      <HeroVideo />
+
       <FlashcardDemo />
 
       <div class="mt-12 text-center">
