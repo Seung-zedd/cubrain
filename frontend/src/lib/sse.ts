@@ -77,6 +77,13 @@ export function subscribeToJob(
           }
         }
       }
+
+      // If we reach here, the stream ended normally (e.g., server timeout)
+      // If the client hasn't aborted, we should reconnect
+      if (!signal.aborted) {
+        console.log("[SSE] Stream ended normally, reconnecting...");
+        setTimeout(connect, 3000);
+      }
     } catch (error: unknown) {
       if (error instanceof Error && error.name === "AbortError") {
         return;
@@ -84,7 +91,7 @@ export function subscribeToJob(
       console.error("SSE Connection Error:", error);
       handlers.onError?.(error);
 
-      // Simple auto-reconnect logic (only if not aborted)
+      // Reconnect on error
       if (!signal.aborted) {
         setTimeout(connect, 3000);
       }
