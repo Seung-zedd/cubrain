@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { authFetch } from "$lib/api";
+  import { supabase } from "$lib/supabaseClient";
   import {
     user,
     fetchUser,
@@ -206,41 +207,47 @@
 
         // 3. Subscribe to SSE for this specific job
         const jobResult = await new Promise<Flashcard[]>((resolve, reject) => {
-          unsubscribe = subscribeToJob(
-            jobId!,
-            {
-              onInit: (data) => {
-                jobStatus = data.status;
-                jobProgress = data.progress;
+          // Get token from Supabase session
+          supabase?.auth.getSession().then(({ data: { session } }) => {
+            const token = session?.access_token;
+
+            unsubscribe = subscribeToJob(
+              jobId!,
+              {
+                onInit: (data) => {
+                  jobStatus = data.status;
+                  jobProgress = data.progress;
+                },
+                onProgress: (data) => {
+                  jobStatus = data.status;
+                  jobProgress = data.progress;
+                },
+                onComplete: async (data) => {
+                  if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                  }
+                  // Refresh usage count after each successful job
+                  if (user.current) await fetchUser();
+                  else await fetchGuestUsage();
+                  const results = (data.results as Flashcard[]) ?? [];
+                  resolve(results);
+                },
+                onError: (error: any) => {
+                  if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                  }
+                  reject(
+                    new Error(
+                      error.message || `Generation failed for ${file.name}`
+                    )
+                  );
+                },
               },
-              onProgress: (data) => {
-                jobStatus = data.status;
-                jobProgress = data.progress;
-              },
-              onComplete: async (data) => {
-                if (unsubscribe) {
-                  unsubscribe();
-                  unsubscribe = null;
-                }
-                // Refresh usage count after each successful job
-                if (user.current) await fetchUser();
-                else await fetchGuestUsage();
-                resolve(data.results || []);
-              },
-              onError: (error) => {
-                if (unsubscribe) {
-                  unsubscribe();
-                  unsubscribe = null;
-                }
-                reject(
-                  new Error(
-                    error.message || `Generation failed for ${file.name}`
-                  )
-                );
-              },
-            },
-            user.current?.accessToken // Pass token if available
-          );
+              token
+            );
+          });
         });
 
         // 4. Accumulate results

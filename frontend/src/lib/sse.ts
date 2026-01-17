@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "./config/config";
+
 export interface SseEvent {
   status: string;
   progress: number;
@@ -29,7 +31,7 @@ export function subscribeToJob(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const url = `/api/v1/sse/subscribe/${jobId}`;
+  const url = `${API_BASE_URL}/api/v1/sse/subscribe/${jobId}`;
 
   async function connect() {
     try {
