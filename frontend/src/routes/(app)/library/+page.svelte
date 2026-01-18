@@ -1,11 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { authFetch } from "$lib/api";
+  import { page } from "$app/state";
   import LibraryDashboard from "$lib/components/study/LibraryDashboard.svelte";
   import { goto } from "$app/navigation";
   import { uiState } from "$lib/stores/ui.svelte";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
+  import FloatingSurveyWidget from "$lib/components/ui/FloatingSurveyWidget.svelte";
+
+  let isSessionEnded = $derived(
+    page.url.searchParams.get("session_ended") === "true",
+  );
 
   let decks = $state<any[]>([]);
   let isLoading = $state(true);
@@ -115,4 +121,8 @@
     onconfirm={confirmDelete}
     oncancel={() => (deckToDelete = null)}
   />
+{/if}
+
+{#if isSessionEnded}
+  <FloatingSurveyWidget />
 {/if}

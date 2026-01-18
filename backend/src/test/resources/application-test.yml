@@ -56,3 +56,5 @@ jwt:
 resend:
   api-key: "re_test_123456789"
   from: "onboarding@resend.dev"
+
+RESEND_API_KEY: "re_test_123456789"

@@ -86,7 +86,6 @@ Always provide the TestSprite markdown report after running tests.
   - Design for extension. Use **Interfaces** for components that might change implementations.
   - Do not use `if-else` blocks for switching logic; use Strategy Pattern or Polymorphism.
 - **DIP (Dependency Inversion):**
-
   - Always depend on abstractions (Interfaces), not concretions.
   - **Package-based Versioning**: Organize all version-specific logic into sub-packages: `domain/{domain_name}/v1`, `domain/{domain_name}/v2`.
   - **Naming Convention**: Do NOT include version numbers in class names (e.g., use `PdfRequestDto`, not `PdfRequestDtoV1`). The version context must be provided ONLY by the package path. This applies to Controllers, Services, and DTOs.
@@ -107,6 +106,9 @@ Always provide the TestSprite markdown report after running tests.
   - **Static Imports:** Aggressively use `import static` for constants, enums, and utility methods (e.g., `HttpStatus.OK`) to improve readability.
 - **Annotation Style:**
   - **Implicit Names:** Omit the name parameter if the variable name matches (e.g., use `@RequestParam String name` instead of `@RequestParam("name") String name`).
+- **Testing (Spring Boot 3.4+):**
+  - **Rule:** Use `@MockitoBean` and `@MockitoSpyBean` instead of the deprecated `@MockBean` and `@SpyBean`.
+  - **Reason:** `@MockBean` and `@SpyBean` are deprecated in Spring Boot 3.4 and will be removed in future versions.
 
 ### 7. Object Creation & Mapping Strategy (Entity vs. DTO)
 

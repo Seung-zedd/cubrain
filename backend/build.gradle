@@ -109,6 +109,9 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // ✅ Resend API for Email
+    implementation 'com.resend:resend-java:4.11.0'
 }
 
 // QueryDSL generated sources directory

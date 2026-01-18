@@ -31,7 +31,9 @@
 
   let currentCard = $derived(cards[currentIndex]);
   let progress = $derived(
-    cards.length > 0 ? Math.round(((currentIndex + 1) / cards.length) * 100) : 0
+    cards.length > 0
+      ? Math.round(((currentIndex + 1) / cards.length) * 100)
+      : 0,
   );
 
   async function updateProgress() {
@@ -123,7 +125,7 @@
 
   function handleExit() {
     uiState.setStudyMode(false);
-    goto("/library");
+    goto("/library?session_ended=true");
   }
 
   onMount(() => {
@@ -208,7 +210,7 @@
         <div
           class={cn(
             "relative w-full h-full transition-all duration-500 preserve-3d",
-            isFlipped ? "rotate-y-180" : ""
+            isFlipped ? "rotate-y-180" : "",
           )}
         >
           <!-- Front (Question) -->
