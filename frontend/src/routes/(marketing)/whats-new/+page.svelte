@@ -25,8 +25,17 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-black text-white selection:bg-amber-500/30">
-  <div class="max-w-4xl mx-auto px-6 py-20">
+<div
+  class="min-h-screen relative text-white selection:bg-amber-500/30 overflow-x-hidden"
+>
+  <!-- Background Image with Overlay -->
+  <div
+    class="fixed inset-0 z-0 bg-fixed bg-cover bg-center"
+    style="background-image: url('/images/neural-network.jpg');"
+  ></div>
+  <div class="fixed inset-0 z-0 bg-slate-950/85"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto px-6 py-20">
     <!-- Header -->
     <header class="mb-16 text-center">
       <div
@@ -37,7 +46,7 @@
         Product Updates
       </div>
       <h1
-        class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 bg-linear-to-b from-white to-white/60 bg-clip-text text-transparent"
+        class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 bg-linear-to-b from-white to-slate-400 bg-clip-text text-transparent drop-shadow-sm"
         in:fly={{ y: 20, duration: 800, delay: 100 }}
       >
         What's New
@@ -57,7 +66,7 @@
         <div in:fly={{ y: 30, duration: 800, delay: 300 + i * 100 }}>
           <a
             href="/whats-new/{post.slug}{fromApp ? '?from=app' : ''}"
-            class="group block relative p-8 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-amber-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]"
+            class="group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:bg-white/10 hover:border-white/20 transition-all duration-300"
           >
             <div
               class="flex flex-col md:flex-row md:items-center justify-between gap-6"

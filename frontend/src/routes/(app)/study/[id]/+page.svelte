@@ -7,6 +7,7 @@
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
+  import Shuffle from "@lucide/svelte/icons/shuffle";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import BookOpen from "@lucide/svelte/icons/book-open";
   import { cn } from "$lib/utils";
@@ -110,6 +111,17 @@
     isComplete = false;
   }
 
+  function shuffleDeck() {
+    // Fisher-Yates Shuffle
+    const shuffled = [...cards];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    cards = shuffled;
+    restart();
+  }
+
   function handleKeydown(e: KeyboardEvent) {
     if (isComplete || isLoading) return;
 
@@ -142,6 +154,26 @@
         {#if !isLoading && cards.length > 0}
           {currentIndex + 1} / {cards.length}
         {/if}
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          onclick={shuffleDeck}
+          disabled={isLoading || cards.length <= 1}
+          class="p-2 text-zinc-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed outline-none ring-0"
+          title="Shuffle Deck"
+        >
+          <Shuffle class="w-5 h-5" />
+        </button>
+        <button
+          onclick={restart}
+          disabled={isLoading ||
+            (currentIndex === 0 && !isFlipped && !isComplete)}
+          class="p-2 text-zinc-500 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed outline-none ring-0"
+          title="Restart Session"
+        >
+          <RotateCcw class="w-5 h-5" />
+        </button>
       </div>
     </div>
 
