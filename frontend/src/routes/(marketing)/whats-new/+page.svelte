@@ -33,7 +33,7 @@
     class="fixed inset-0 z-0 bg-fixed bg-cover bg-center"
     style="background-image: url('/images/neural-network.jpg');"
   ></div>
-  <div class="fixed inset-0 z-0 bg-slate-950/85"></div>
+  <div class="fixed inset-0 z-0 bg-slate-950/40"></div>
 
   <div class="relative z-10 max-w-4xl mx-auto px-6 py-20">
     <!-- Header -->
