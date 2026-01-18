@@ -12,6 +12,17 @@
   const backHref = $derived(fromApp ? "/library" : "/");
   const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
 
+  let showToast = $state(false);
+  let toastTimeout: ReturnType<typeof setTimeout>;
+
+  function triggerToast() {
+    showToast = true;
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+      showToast = false;
+    }, 3000);
+  }
+
   $effect(() => {
     fromApp = page.url.searchParams.get("from") === "app";
   });
@@ -62,6 +73,48 @@
 
     <!-- Posts List -->
     <div class="space-y-8">
+      <!-- Lucidify Teaser Card (Pinned) -->
+      <div in:fly={{ y: 30, duration: 800, delay: 300 }}>
+        <button
+          onclick={triggerToast}
+          class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:border-violet-500/30 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] transition-all duration-500 cursor-pointer"
+        >
+          <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <span
+                  class="px-2.5 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[10px] font-bold uppercase tracking-wider"
+                >
+                  Project in Progress
+                </span>
+              </div>
+              <h2
+                class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-violet-300 to-fuchsia-300"
+              >
+                Lucidify: Visualizing your dreams
+              </h2>
+              <p class="text-zinc-400">
+                Turn your subconscious memories into cinematic AI videos.
+                Powered by Gemini 3 & Google Veo.
+              </p>
+            </div>
+            <div class="shrink-0 self-end md:self-center">
+              <span
+                class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
+              >
+                Coming Feb 2026 🔒
+              </span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="h-4"></div>
+      <div class="border-t border-white/5"></div>
+      <div class="h-4"></div>
+
       {#each posts as post, i}
         <div in:fly={{ y: 30, duration: 800, delay: 300 + i * 100 }}>
           <a
@@ -122,6 +175,19 @@
       </a>
     </div>
   </div>
+
+  <!-- Toast Notification -->
+  {#if showToast}
+    <div
+      transition:fly={{ y: 20, duration: 300 }}
+      class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/90 backdrop-blur border border-zinc-700 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 whitespace-nowrap"
+    >
+      <span class="text-lg">🚀</span>
+      <span class="font-medium"
+        >Preparing for launch. Stay tuned for Feb 2026!</span
+      >
+    </div>
+  {/if}
 </div>
 
 <style>
