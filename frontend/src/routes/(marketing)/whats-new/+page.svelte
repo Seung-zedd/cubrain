@@ -7,15 +7,18 @@
 
   let { data } = $props();
   const posts = data.posts;
+  const teasers = data.teasers;
 
   let fromApp = $state(false);
   const backHref = $derived(fromApp ? "/library" : "/");
   const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
 
   let showToast = $state(false);
+  let currentToastMessage = $state("");
   let toastTimeout: ReturnType<typeof setTimeout>;
 
-  function triggerToast() {
+  function triggerToast(message: string) {
+    currentToastMessage = message;
     showToast = true;
     if (toastTimeout) clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
@@ -73,54 +76,60 @@
 
     <!-- Posts List -->
     <div class="space-y-8">
-      <!-- Lucidify Teaser Card (Pinned) -->
-      <div in:fly={{ y: 30, duration: 800, delay: 300 }}>
-        <button
-          onclick={triggerToast}
-          class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:border-violet-500/30 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] transition-all duration-500 cursor-pointer overflow-hidden"
-        >
-          <!-- Animated Background Layer -->
-          <img
-            src="/images/purple-dream.gif"
-            alt=""
-            class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
-          />
-
-          <div
-            class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+      {#each teasers as teaser}
+        <div in:fly={{ y: 30, duration: 800, delay: 300 }}>
+          <button
+            onclick={() => triggerToast(teaser.toast)}
+            class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl {teaser
+              .theme
+              .hover} transition-all duration-500 cursor-pointer overflow-hidden"
           >
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <span
-                  class="px-2.5 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[10px] font-bold uppercase tracking-wider"
+            <!-- Animated Background Layer -->
+            <img
+              src={teaser.bgImage}
+              alt=""
+              class="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen z-0 pointer-events-none"
+            />
+
+            <div
+              class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+            >
+              <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="px-2.5 py-0.5 rounded-full {teaser.theme
+                      .badge} text-[10px] font-bold uppercase tracking-wider"
+                  >
+                    {teaser.badge}
+                  </span>
+                </div>
+                <h2
+                  class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r {teaser
+                    .theme.title}"
                 >
-                  Project in Progress
+                  {teaser.title}
+                </h2>
+                <p class="text-zinc-400">
+                  {teaser.description}
+                </p>
+              </div>
+              <div class="shrink-0 self-end md:self-center">
+                <span
+                  class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
+                >
+                  {teaser.cta}
                 </span>
               </div>
-              <h2
-                class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-violet-300 to-fuchsia-300"
-              >
-                Lucidify: Visualizing your dreams
-              </h2>
-              <p class="text-zinc-400">
-                Turn your subconscious memories into cinematic AI videos.
-                Powered by Gemini 3 & Google Veo.
-              </p>
             </div>
-            <div class="shrink-0 self-end md:self-center">
-              <span
-                class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
-              >
-                Coming Feb 2026 🔒
-              </span>
-            </div>
-          </div>
-        </button>
-      </div>
+          </button>
+        </div>
+      {/each}
 
-      <div class="h-4"></div>
-      <div class="border-t border-white/5"></div>
-      <div class="h-4"></div>
+      {#if teasers.length > 0}
+        <div class="h-4"></div>
+        <div class="border-t border-white/5"></div>
+        <div class="h-4"></div>
+      {/if}
 
       {#each posts as post, i}
         <div in:fly={{ y: 30, duration: 800, delay: 300 + i * 100 }}>
@@ -190,9 +199,7 @@
       class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/90 backdrop-blur border border-zinc-700 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 whitespace-nowrap"
     >
       <span class="text-lg">🚀</span>
-      <span class="font-medium"
-        >Preparing for launch. Stay tuned for Feb 2026!</span
-      >
+      <span class="font-medium">{currentToastMessage}</span>
     </div>
   {/if}
 </div>
