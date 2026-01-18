@@ -42,6 +42,16 @@
     "Consistency is key. 🔑",
     "Focus is your superpower. 💪",
   ];
+
+  // Nudge Messages
+  const nudgeMessages = [
+    { title: "Brains warmed up!", subtitle: "Decide next step in 10s?" },
+    { title: "Flow state active.", subtitle: "Capture this momentum?" },
+    { title: "Knowledge unlocked.", subtitle: "Lock it in for good?" },
+    { title: "Solid focus today.", subtitle: "Want to keep the streak?" },
+    { title: "Brain upgraded.", subtitle: "What's your next target?" },
+  ];
+  let selectedNudge = $state(nudgeMessages[0]);
   let randomQuote = $state("");
 
   // Check history on mount
@@ -50,6 +60,8 @@
       localStorage.getItem("cubrain_survey_submitted") === "true";
     isSubmitted = alreadySubmitted;
     randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    selectedNudge =
+      nudgeMessages[Math.floor(Math.random() * nudgeMessages.length)];
 
     // 800ms delay before showing
     setTimeout(() => {
@@ -114,6 +126,12 @@
   function prevStep() {
     if (currentStep > 1) currentStep--;
   }
+
+  function handleExpand() {
+    if (!isExpanded && !isSubmitted) {
+      isExpanded = true;
+    }
+  }
 </script>
 
 {#if isVisible}
@@ -127,10 +145,20 @@
       class={cn(
         "relative bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl transition-all duration-500 ease-in-out overflow-hidden",
         isExpanded
-          ? "w-[350px] h-auto p-6"
-          : "w-[280px] h-[70px] p-4 cursor-pointer hover:border-amber-500/30",
+          ? "w-[500px] max-w-[95vw] h-auto p-6"
+          : "w-[400px] h-[80px] p-5 cursor-pointer hover:border-amber-500/30",
       )}
-      onclick={() => !isExpanded && !isSubmitted && (isExpanded = true)}
+      role="button"
+      tabindex={!isExpanded && !isSubmitted ? 0 : -1}
+      onclick={handleExpand}
+      onkeydown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          if (!isExpanded && !isSubmitted) {
+            e.preventDefault();
+            handleExpand();
+          }
+        }
+      }}
     >
       <!-- Close Button (Always Visible) -->
       <button
@@ -157,10 +185,10 @@
       {:else if !isExpanded}
         <!-- Nudge State -->
         <div class="flex flex-col justify-center h-full pr-6">
-          <p class="text-zinc-200 text-sm font-bold leading-tight">
-            Brains warmed up!
+          <p class="text-zinc-200 text-base font-medium leading-tight">
+            {selectedNudge.title}
           </p>
-          <p class="text-zinc-500 text-xs">Decide next step in 10s?</p>
+          <p class="text-zinc-500 text-xs">{selectedNudge.subtitle}</p>
         </div>
       {:else}
         <!-- Survey Form (Expanded) -->
@@ -183,11 +211,11 @@
               <p class="text-zinc-500 text-xs mb-4">
                 What growth do you want? (Max 2)
               </p>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-2 gap-4">
                 {#each goalOptions as option}
                   <button
                     class={cn(
-                      "py-2 px-3 rounded-xl text-xs font-medium border transition-all",
+                      "py-3 px-4 rounded-xl text-xs font-medium border transition-all",
                       goals.includes(option)
                         ? "bg-amber-500/10 border-amber-500 text-amber-500"
                         : "bg-zinc-800/50 border-zinc-800 text-zinc-400 hover:border-zinc-700",
@@ -205,11 +233,11 @@
               <p class="text-zinc-500 text-xs mb-4">
                 Who broke your flow today?
               </p>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-2 gap-4">
                 {#each painPointOptions as option}
                   <button
                     class={cn(
-                      "py-2 px-3 rounded-xl text-xs font-medium border transition-all",
+                      "py-3 px-4 rounded-xl text-xs font-medium border transition-all",
                       painPoints.includes(option)
                         ? "bg-amber-500/10 border-amber-500 text-amber-500"
                         : "bg-zinc-800/50 border-zinc-800 text-zinc-400 hover:border-zinc-700",
