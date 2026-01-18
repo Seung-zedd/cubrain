@@ -88,7 +88,7 @@
             <img
               src={teaser.bgImage}
               alt=""
-              class="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-screen z-0 pointer-events-none"
+              class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
             />
 
             <div
