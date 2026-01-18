@@ -77,10 +77,17 @@
       <div in:fly={{ y: 30, duration: 800, delay: 300 }}>
         <button
           onclick={triggerToast}
-          class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:border-violet-500/30 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] transition-all duration-500 cursor-pointer"
+          class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:border-violet-500/30 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] transition-all duration-500 cursor-pointer overflow-hidden"
         >
+          <!-- Animated Background Layer -->
+          <img
+            src="/images/purple-dream.gif"
+            alt=""
+            class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
+          />
+
           <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-6"
+            class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
           >
             <div class="space-y-4">
               <div class="flex items-center gap-3">
