@@ -137,3 +137,59 @@ I refactored the data fetching mechanism from polling to **Server-Sent Events (S
 3. **Universal SSE Client**: Developed a custom frontend utility using `fetch` and `ReadableStream` instead of the native `EventSource`. This was necessary to support **JWT Authorization headers**, which the native `EventSource` API does not allow.
 4. **CORS Optimization**: Set `Access-Control-Max-Age` to `3600` in the `CorsConfig` to cache preflight results for one hour, effectively eliminating redundant `OPTIONS` requests during the session.
 5. **Robust Lifecycle Management**: Integrated auto-reconnection logic on the frontend and ensured proper cleanup (aborting the stream) on component unmount or job completion to prevent memory leaks.
+
+---
+
+### Problem 7: Unbiased Randomization for Active Recall
+
+#### Why: What was the challenge?
+
+To prevent "pattern memorization" (where a student remembers the order of cards rather than the content), a robust shuffle mechanism is essential. A naive implementation like `deck.sort(() => Math.random() - 0.5)` is computationally inefficient (O(n log n)) and, more importantly, statistically biased, leading to certain permutations appearing more frequently than others.
+
+#### What: What was the solution?
+
+I implemented the **Fisher-Yates (Knuth) Shuffle** algorithm. This ensures that every possible permutation of the deck is equally likely, providing a truly unbiased randomization for the "Smart Recall" feature.
+
+#### How: How was it implemented?
+
+1. **Algorithm Selection**: Chose Fisher-Yates for its O(n) time complexity and mathematical correctness.
+2. **In-Place Mutation**: The algorithm iterates through the array from the last element to the first, swapping each element with a randomly selected one from the remaining unshuffled portion.
+3. **Svelte 5 Integration**: Wrapped the shuffle logic in a Svelte 5 `$state` update, ensuring that the UI reacts instantly to the new card order while maintaining the "Restart" capability by keeping a reference to the original sequence.
+
+---
+
+### Problem 8: Non-Intrusive Feedback Collection with Morphing UI
+
+#### Why: What was the challenge?
+
+User feedback is critical for an MVP, but intrusive pop-ups or static forms often lead to low engagement or "form fatigue." The challenge was to create a feedback mechanism that felt like a natural part of the user journey, encouraging participation without disrupting the study flow.
+
+#### What: What was the solution?
+
+I developed a **Morphing Feedback Widget** that uses a multi-stage state machine to guide the user. It starts as a subtle "nudge" and expands into a structured 3-step survey, finally transforming into a "Cheer Mode" once submitted.
+
+#### How: How was it implemented?
+
+1. **State-Driven UI**: Used Svelte 5 Runes to manage the widget's lifecycle (`HIDDEN` -> `NUDGE` -> `SURVEY` -> `CHEER`).
+2. **Step-by-Step Survey**: Implemented a 3-step flow (Goals -> Pain Points -> Feedback) to lower the cognitive load for the user.
+3. **Cheer Mode**: After submission, the widget morphs into a motivational tool, displaying random quotes to keep the user's momentum high.
+4. **Resend Integration**: Connected the backend to the **Resend API** to deliver feedback directly to the development team, ensuring a closed-loop communication channel.
+
+---
+
+### Problem 9: High-Performance Glassmorphism & Visual Polish
+
+#### Why: What was the challenge?
+
+Modern "Premium" aesthetics often rely on heavy blur effects and complex gradients, which can significantly impact rendering performance, especially on mobile devices or lower-end hardware. The goal was to achieve a high-end "Tech" look (Glassmorphism) without sacrificing the 60fps smoothness of the Svelte 5 application.
+
+#### What: What was the solution?
+
+I implemented a **Layered Design System** using **Tailwind CSS 4.0** and optimized CSS properties. By carefully balancing `backdrop-blur` with hardware-accelerated transforms, I achieved a "Frosted Glass" effect that feels premium yet performant.
+
+#### How: How was it implemented?
+
+1. **Tailwind 4 Optimization**: Leveraged the latest Tailwind 4 standards for cleaner utility classes and better build-time optimization.
+2. **Neural Network Background**: Created a "Future Tech" background using a subtle, connected texture that sits behind the glass layers, providing depth without adding heavy image assets.
+3. **Gradient Typography**: Used `bg-clip-text` with white-to-slate gradients to make titles pop against the dark theme.
+4. **Performance Tuning**: Applied `will-change: transform` and limited the use of `backdrop-filter` to key interactive elements to ensure smooth transitions and scrolling.

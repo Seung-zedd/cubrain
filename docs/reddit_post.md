@@ -109,4 +109,108 @@ Built with **Svelte 5** and **Spring Boot**. I focused heavily on making the ext
 
 Would love any feedback on the UI/UX or the card quality!
 
+---
+
+## 🌎 r/languagelearning
+
+**Focus**: Vocabulary in context, reading comprehension, and Anki integration.
+
+**Title**: I built a tool to turn foreign language PDF highlights into Anki cards instantly (with context!)
+
+**Body**:
+Hey language learners!
+
+One of the biggest hurdles in reading foreign texts is the "Highlight -> Look up -> Copy to Anki" loop. It breaks your flow.
+
+I built **Cubrain** to automate this. It’s an AI-powered tool that turns your PDF highlights directly into high-quality flashcards.
+
+**Why it’s great for language learning**:
+
+- **Contextual Extraction**: It doesn't just grab the word you highlighted. It captures the surrounding sentence/paragraph so your Anki cards have the necessary context for better retention.
+- **Precision**: Because it uses coordinate-based extraction, it handles complex layouts (like dual-language PDFs) much better than standard text scrapers.
+- **Anki Ready**: Export your vocabulary list as a CSV and import it straight into your decks.
+
+I’m currently using it for my own reading and would love to see if it helps your workflow too!
+
 Link: [Link to Cubrain]
+
+---
+
+## 🩺 r/medschoolanki
+
+**Focus**: High volume, precision, and "Minimum Information Principle".
+
+**Title**: [Showcase] High-precision PDF-to-Anki converter for heavy study loads (Zero Hallucination)
+
+**Body**:
+Fellow med students! We all deal with 1000+ page PDFs and the constant struggle of making cards that actually follow the Minimum Information Principle.
+
+I built **Cubrain** to solve the "AI Hallucination" problem in automated card creation.
+
+**Key Features for Med Students**:
+
+- **Precision Extraction**: It maps the exact visual coordinates of your highlights. No more messy text dumps or the AI "guessing" what you meant.
+- **Tier Synthesis**:
+  - **Smart Synthesis**: Groups highlights by page to create concise, high-yield cards.
+  - **Deep Synthesis**: For when you need every detail captured accurately.
+- **Batch Processing**: I implemented a page-based batching strategy that reduces latency by 90%. You can process a whole chapter's highlights in seconds.
+- **Atomic Cards**: The AI is tuned to create one-fact-per-card, perfect for the Anki workflow.
+
+It’s in MVP/Demo mode and I’d love some feedback from the community on how it handles complex medical diagrams and terminology.
+
+Link: [Link to Cubrain]
+
+---
+
+## ⚡ r/productivity
+
+**Focus**: Workflow optimization and the "Reading to Remembering" bridge.
+
+**Title**: Cubrain: The missing bridge between "Reading" and "Remembering" 🧠
+
+**Body**:
+Hi r/productivity!
+
+We all spend hours reading and highlighting PDFs, but how much of that actually sticks? Most of our highlights just go to "digital graveyards."
+
+I built **Cubrain** to turn those highlights into active recall sessions instantly.
+
+**The Workflow**:
+
+1. **Highlight** your PDF as you normally would.
+2. **Upload** to Cubrain.
+3. **Generate**: AI turns your specific highlights into atomic flashcards.
+4. **Smart Recall**: Use the built-in study mode with **Fisher-Yates Shuffle** and **Instant Restart** to start memorizing immediately.
+
+It’s built with a "Precision First" approach—it only looks at what _you_ marked as important, so the cards are 100% relevant to your goals.
+
+Would love to hear how this fits into your second brain or study workflow!
+
+Link: [Link to Cubrain]
+
+---
+
+## 💻 r/SvelteJS
+
+**Focus**: Technical implementation, Svelte 5 Runes, and performance.
+
+**Title**: Building a complex AI study tool with Svelte 5 Runes. Here’s what I learned.
+
+**Body**:
+Hey Svelte devs!
+
+I just finished the MVP for **Cubrain**, a PDF-to-Anki tool built with **Svelte 5** and **Spring Boot**.
+
+**Technical Highlights**:
+
+- **Svelte 5 Runes**: Used `$state`, `$derived`, and `$effect` for a complex PDF viewer and real-time progress tracking. The DX improvement over Svelte 4 is massive.
+- **Fisher-Yates Shuffle**: Implemented for unbiased randomization in the study mode.
+- **SSE (Server-Sent Events)**: Built a custom SSE client to handle real-time progress updates with JWT authorization (since native `EventSource` doesn't support headers).
+- **Tailwind 4 & Glassmorphism**: Leveraged the new Tailwind 4 standards for a premium, high-performance UI.
+
+I’m particularly proud of the **Morphing UI** in the feedback widget—it transitions from a subtle nudge to a 3-step survey using Svelte's built-in transitions.
+
+Happy to answer any questions about the Svelte 5 migration or the AI integration!
+
+Repo: [Link to GitHub]
+Demo: [Link to Cubrain]
