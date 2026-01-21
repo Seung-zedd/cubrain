@@ -131,7 +131,7 @@ if (typeof window !== "undefined" && supabase) {
         window.history.replaceState(
           null,
           "",
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
 
         // If we just signed in via OAuth, ensure we are on the library
@@ -142,6 +142,15 @@ if (typeof window !== "undefined" && supabase) {
     } else if (event === "SIGNED_OUT") {
       user.current = null;
       fetchGuestUsage();
+
+      // Clear nudge persistence on sign out
+      if (typeof localStorage !== "undefined") {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("nudge_dismissed_")) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
     }
   });
 
@@ -164,6 +173,13 @@ export async function logout() {
 
   if (typeof localStorage !== "undefined") {
     localStorage.setItem("isLoggedOut", "true");
+
+    // Clear nudge persistence on logout
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("nudge_dismissed_")) {
+        localStorage.removeItem(key);
+      }
+    });
   }
 
   user.current = null;
