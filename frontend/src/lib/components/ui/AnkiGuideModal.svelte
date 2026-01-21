@@ -85,7 +85,7 @@
             <p class="text-zinc-200 text-sm font-bold leading-tight">
               Anki Import Guide
             </p>
-            <p class="text-zinc-500 text-xs">Click to see how to import .csv</p>
+            <p class="text-zinc-400 text-xs">Click to see how to import .csv</p>
           </div>
         </div>
       {:else}
@@ -94,14 +94,17 @@
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
               <span class="text-amber-500">Anki</span> Import Guide
             </h3>
-            <p class="text-zinc-500 text-sm mt-1">
+            <p class="text-zinc-400 text-sm mt-1">
               Follow these steps to load your flashcards.
             </p>
           </div>
 
           <div class="space-y-4">
             {#each steps as step, i}
-              <div class="flex gap-4">
+              <div
+                class="flex gap-4"
+                in:fly={{ x: 10, duration: 400, delay: 300 + i * 100 }}
+              >
                 <div class="flex flex-col items-center">
                   <div
                     class="w-6 h-6 rounded-full bg-amber-500 text-black text-[10px] font-black flex items-center justify-center shrink-0"
@@ -114,7 +117,9 @@
                 </div>
                 <div class="pb-2">
                   <p class="text-zinc-200 text-sm font-bold">{step.title}</p>
-                  <p class="text-zinc-500 text-xs mt-0.5">{step.desc}</p>
+                  <p class="text-zinc-300 text-xs mt-0.5 leading-relaxed">
+                    {step.desc}
+                  </p>
                 </div>
               </div>
             {/each}
