@@ -8,6 +8,8 @@
   import FileDown from "@lucide/svelte/icons/file-down";
   import { getRelativeTime, cn } from "$lib/utils";
   import { authFetch } from "$lib/api";
+  import SmartNudge from "../SmartNudge.svelte";
+  import { trackEvent } from "$lib/utils/telemetry";
 
   interface Deck {
     id: number;
@@ -39,6 +41,7 @@
 
   let showMenu = $state(false);
   let menuRef = $state<HTMLDivElement | null>(null);
+  let showExportNudge = $state(false);
 
   function toggleMenu(e: MouseEvent) {
     e.preventDefault();
@@ -76,13 +79,13 @@
         let filename = "";
         if (contentDisposition) {
           const filenameStarMatch = contentDisposition.match(
-            /filename\*=UTF-8''([^;]+)/
+            /filename\*=UTF-8''([^;]+)/,
           );
           if (filenameStarMatch) {
             filename = decodeURIComponent(filenameStarMatch[1]);
           } else {
             const filenameMatch = contentDisposition.match(
-              /filename="?([^";]+)"?/
+              /filename="?([^";]+)"?/,
             );
             if (filenameMatch) {
               filename = filenameMatch[1];
@@ -100,6 +103,9 @@
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+
+        // Trigger Post-Export Nudge
+        showExportNudge = true;
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -138,7 +144,7 @@
         "relative border rounded-xl p-4 flex gap-4 shadow-xl z-10 h-full transition-all duration-300",
         isCinematic
           ? "bg-black/40 backdrop-blur-md border-white/10 hover:bg-black/50 hover:border-white/20"
-          : "bg-[#1a1a1a] border-zinc-700 hover:border-[#FFD700]"
+          : "bg-[#1a1a1a] border-zinc-700 hover:border-[#FFD700]",
       )}
     >
       <!-- Thumbnail -->
@@ -147,7 +153,7 @@
           "shrink-0 w-20 rounded-lg flex items-center justify-center border transition-colors",
           isCinematic
             ? "bg-zinc-800/50 border-white/5 group-hover:border-amber-500/30"
-            : "bg-linear-to-br from-zinc-800 to-zinc-700 border-zinc-700/50"
+            : "bg-linear-to-br from-zinc-800 to-zinc-700 border-zinc-700/50",
         )}
       >
         <Book
@@ -155,7 +161,7 @@
             "w-8 h-8 transition-colors",
             isCinematic
               ? "text-zinc-600 group-hover:text-amber-500"
-              : "text-zinc-500 group-hover:text-[#FFD700]"
+              : "text-zinc-500 group-hover:text-[#FFD700]",
           )}
         />
       </div>
@@ -168,7 +174,7 @@
               "w-full text-left text-lg font-bold transition-colors truncate pr-8 block",
               isCinematic
                 ? "text-white group-hover:text-amber-400"
-                : "text-zinc-100 group-hover:text-[#FFD700]"
+                : "text-zinc-100 group-hover:text-[#FFD700]",
             )}
             title={deck.title}
           >
@@ -179,7 +185,7 @@
             <span
               class={cn(
                 "absolute bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-bold px-2 py-0.5 rounded-md transition-all",
-                viewMode === "grid" ? "top-0 right-0" : "top-0 right-0"
+                viewMode === "grid" ? "top-0 right-0" : "top-0 right-0",
               )}
             >
               P.{deck.page}
@@ -197,13 +203,13 @@
           <div
             class={cn(
               "h-1.5 w-full rounded-full overflow-hidden",
-              isCinematic ? "bg-white/5" : "bg-zinc-800"
+              isCinematic ? "bg-white/5" : "bg-zinc-800",
             )}
           >
             <div
               class={cn(
                 "h-full rounded-full transition-all duration-500",
-                isCinematic ? "bg-amber-500" : "bg-[#FFD700]"
+                isCinematic ? "bg-amber-500" : "bg-[#FFD700]",
               )}
               style="width: {deck.studyProgress || 0}%"
             ></div>
@@ -218,13 +224,13 @@
                 "flex items-center gap-1.5 px-2 py-0.5 rounded-full border",
                 isCinematic
                   ? "bg-white/5 border-white/10"
-                  : "bg-zinc-800 border-zinc-700"
+                  : "bg-zinc-800 border-zinc-700",
               )}
             >
               <Zap
                 class={cn(
                   "w-3 h-3",
-                  isCinematic ? "text-amber-500" : "text-[#FFD700]"
+                  isCinematic ? "text-amber-500" : "text-[#FFD700]",
                 )}
               />
               <span class="text-xs font-bold text-zinc-300"
@@ -253,7 +259,7 @@
             "absolute right-0 mt-2 w-56 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95 duration-200",
             isCinematic
               ? "bg-black/80 backdrop-blur-xl border border-white/10"
-              : "bg-zinc-900 border border-zinc-800"
+              : "bg-zinc-900 border border-zinc-800",
           )}
         >
           {#if onEditCards}
@@ -267,7 +273,7 @@
                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
                 isCinematic
                   ? "text-zinc-300 hover:bg-white/10 hover:text-white"
-                  : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                  : "text-zinc-300 hover:bg-zinc-800 hover:text-white",
               )}
             >
               <Pencil class="w-4 h-4" />
@@ -281,7 +287,7 @@
               "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
               isCinematic
                 ? "text-zinc-300 hover:bg-white/10 hover:text-white"
-                : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                : "text-zinc-300 hover:bg-zinc-800 hover:text-white",
             )}
           >
             <FileDown class="w-4 h-4" />
@@ -299,7 +305,7 @@
                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors outline-none ring-0",
                 isCinematic
                   ? "text-red-400 hover:bg-red-500/20 hover:text-red-300"
-                  : "text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                  : "text-red-400 hover:bg-red-500/10 hover:text-red-300",
               )}
             >
               <Trash2 class="w-4 h-4" />
@@ -311,6 +317,25 @@
     </div>
   {/if}
 </div>
+
+{#if showExportNudge}
+  <SmartNudge
+    type="toast"
+    message="Export complete! Do you need help importing into Anki?"
+    options={[
+      { label: "I know how", value: "known" },
+      { label: "Show Guide", value: "guide", primary: true },
+    ]}
+    onAction={(val) => {
+      trackEvent("anki_knowledge", { value: val === "known" });
+      if (val === "guide") {
+        // Placeholder for guide
+        if (import.meta.env.DEV) console.log("Opening Anki Guide...");
+      }
+    }}
+    onDismiss={() => (showExportNudge = false)}
+  />
+{/if}
 
 <style>
   a,

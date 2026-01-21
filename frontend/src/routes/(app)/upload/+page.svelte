@@ -30,6 +30,8 @@
   import List from "@lucide/svelte/icons/list";
   import Flashcard from "$lib/components/ui/Flashcard.svelte";
   import { subscribeToJob } from "$lib/sse";
+  import SmartNudge from "$lib/components/SmartNudge.svelte";
+  import { trackEvent } from "$lib/utils/telemetry";
 
   interface Flashcard {
     question: string;
@@ -60,6 +62,38 @@
   let feedbackSubmitted = $state(false);
   let selectedStruggle = $state<string | null>(null);
   let viewMode = $state<"grid" | "list">("list");
+
+  // Stalling Logic
+  let uploadStallTimer = $state<NodeJS.Timeout | null>(null);
+  let exportStallTimer = $state<NodeJS.Timeout | null>(null);
+  let showExportNudge = $state(false);
+
+  $effect(() => {
+    // upload_stalled: 30s without action on upload page
+    if (files.length === 0 && !isGenerating && !showResults && !isEmptyState) {
+      uploadStallTimer = setTimeout(() => {
+        trackEvent("upload_stalled");
+      }, 30000);
+    }
+
+    return () => {
+      if (uploadStallTimer) clearTimeout(uploadStallTimer);
+    };
+  });
+
+  $effect(() => {
+    // export_stalled: 60s after generation without export
+    if (showResults && !isSaved) {
+      exportStallTimer = setTimeout(() => {
+        trackEvent("export_stalled");
+        showExportNudge = true;
+      }, 60000);
+    }
+
+    return () => {
+      if (exportStallTimer) clearTimeout(exportStallTimer);
+    };
+  });
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -496,6 +530,19 @@
             </div>
           {/each}
         </div>
+
+        <!-- SmartNudge Inline Feedback -->
+        <div class="max-w-3xl mx-auto w-full mt-8">
+          <SmartNudge
+            type="inline"
+            message="How is the quality of the flashcards?"
+            options={[
+              { label: "Perfect", value: "perfect", primary: true },
+              { label: "Needs Work", value: "bad" },
+            ]}
+            onAction={(val) => trackEvent("feedback_quality", { value: val })}
+          />
+        </div>
       </div>
     {:else if isEmptyState}
       <div
@@ -566,47 +613,19 @@
                 Analyzing {files[currentFileIndex]?.name || "document"}...
               </p>
 
-              <!-- Mini Insights Survey -->
-              <div
-                class="mt-12 w-full max-w-md p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500"
-              >
-                {#if !feedbackSubmitted}
-                  <h3 class="text-white font-bold mb-4 text-center">
-                    What's your biggest struggle with studying?
-                  </h3>
-                  <div class="grid gap-2">
-                    {#each ["📚 Too much to read", "⏰ No time", "💡 Hate making flashcards"] as option}
-                      <button
-                        onclick={() => {
-                          selectedStruggle = option;
-                          feedbackSubmitted = true;
-                          if (import.meta.env.DEV) {
-                            console.log("User struggle feedback:", option);
-                          }
-                        }}
-                        class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-[#FFD700]/10 hover:text-[#FFD700] border border-white/5 hover:border-[#FFD700]/30 text-zinc-400 text-sm font-medium transition-all text-left"
-                      >
-                        {option}
-                      </button>
-                    {/each}
-                  </div>
-                {:else}
-                  <div
-                    class="py-8 flex flex-col items-center justify-center text-center space-y-3 animate-in zoom-in duration-300"
-                  >
-                    <div
-                      class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center"
-                    >
-                      <CircleCheck class="w-6 h-6 text-green-500" />
-                    </div>
-                    <p class="text-white font-bold">
-                      Thanks! AI is getting smarter.
-                    </p>
-                    <p class="text-zinc-500 text-xs">
-                      Your feedback helps us build a better Cubrain.
-                    </p>
-                  </div>
-                {/if}
+              <!-- SmartNudge Loading Tip -->
+              <div class="mt-12 w-full max-w-md">
+                <SmartNudge
+                  type="loading"
+                  message="Welcome back! What are you studying today?"
+                  options={[
+                    { label: "Textbook", value: "textbook" },
+                    { label: "Lecture Notes", value: "lecture_notes" },
+                    { label: "Certification", value: "certification" },
+                  ]}
+                  onAction={(tag) =>
+                    trackEvent("upload_context", { type: tag })}
+                />
               </div>
             </div>
           {:else}

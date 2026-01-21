@@ -22,6 +22,7 @@ declare global {
       Refresh: () => void;
     };
     createLemonSqueezy?: () => void;
+    hj?: (command: string, ...args: unknown[]) => void;
   }
 }
 

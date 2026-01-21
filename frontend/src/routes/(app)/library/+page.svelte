@@ -7,7 +7,6 @@
   import { uiState } from "$lib/stores/ui.svelte";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
-  import FloatingSurveyWidget from "$lib/components/ui/FloatingSurveyWidget.svelte";
 
   let isSessionEnded = $derived(
     page.url.searchParams.get("session_ended") === "true",
@@ -124,5 +123,5 @@
 {/if}
 
 {#if isSessionEnded}
-  <FloatingSurveyWidget />
+  <!-- FloatingSurveyWidget removed for Context-Aware Nudge System -->
 {/if}

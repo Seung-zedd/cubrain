@@ -9,6 +9,7 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
+  import { initTelemetry } from "$lib/utils/telemetry";
 
   if (browser && !dev) {
     injectSpeedInsights();
@@ -19,6 +20,7 @@
 
   onMount(() => {
     fetchUser();
+    initTelemetry();
   });
 
   // SEO Configuration

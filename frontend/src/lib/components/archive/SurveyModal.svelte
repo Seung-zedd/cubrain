@@ -1,3 +1,9 @@
+<!--
+  Morphing Logic Documentation:
+  This logic handles the CSS transition from a small card to a full modal.
+  Keep this intact for future porting to the 'Lucidify' project.
+  Relevant lines: 145-150 (isExpanded state and transition classes).
+-->
 <script lang="ts">
   import { onMount } from "svelte";
   import { fade, fly, slide } from "svelte/transition";
