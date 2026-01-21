@@ -421,6 +421,19 @@
                   </div>
                 </div>
               </div>
+              <!-- SmartNudge Inline Feedback -->
+              <div class="mt-4">
+                <SmartNudge
+                  type="inline"
+                  message="How is the quality of the flashcards?"
+                  options={[
+                    { label: "Perfect", value: "perfect", primary: true },
+                    { label: "Needs Work", value: "bad" },
+                  ]}
+                  onAction={(val) =>
+                    trackEvent("feedback_quality", { value: val })}
+                />
+              </div>
               <div class="flex items-center gap-4 mt-2">
                 <p class="text-zinc-400 text-sm">
                   Created {generatedCards.length} flashcards
@@ -531,18 +544,7 @@
           {/each}
         </div>
 
-        <!-- SmartNudge Inline Feedback -->
-        <div class="max-w-3xl mx-auto w-full mt-8">
-          <SmartNudge
-            type="inline"
-            message="How is the quality of the flashcards?"
-            options={[
-              { label: "Perfect", value: "perfect", primary: true },
-              { label: "Needs Work", value: "bad" },
-            ]}
-            onAction={(val) => trackEvent("feedback_quality", { value: val })}
-          />
-        </div>
+        <!-- SmartNudge Inline Feedback moved to top -->
       </div>
     {:else if isEmptyState}
       <div
