@@ -90,13 +90,13 @@
       in:fly={{ y: 50, duration: 600, easing: cubicOut, delay: 200 }}
       out:fade={{ duration: 300 }}
     >
-      <p class="text-xs font-bold text-zinc-300 whitespace-nowrap">{message}</p>
+      <p class="text-sm font-bold text-zinc-300 whitespace-nowrap">{message}</p>
       <div class="flex items-center gap-1.5">
         {#each options as option}
           <button
             onclick={() => handleAction(option.value)}
             class={cn(
-              "px-3 py-1 rounded-full text-[10px] font-black transition-all",
+              "px-3 py-1 rounded-full text-xs font-black transition-all",
               option.primary
                 ? "bg-amber-500 text-black hover:bg-amber-400"
                 : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 border border-zinc-700",
@@ -116,12 +116,12 @@
       in:fly={{ y: 50, duration: 600, easing: cubicOut }}
       out:fade={{ duration: 300 }}
     >
-      <h3 class="text-zinc-200 font-bold text-sm text-center">{message}</h3>
+      <h3 class="text-zinc-200 font-bold text-base text-center">{message}</h3>
       <div class="flex flex-wrap justify-center gap-2">
         {#each options as option}
           <button
             onclick={() => handleAction(option.value)}
-            class="py-1.5 px-3 rounded-xl bg-zinc-800/50 hover:bg-amber-500/10 hover:text-amber-500 border border-zinc-700/30 hover:border-amber-500/30 text-zinc-400 text-[10px] font-bold transition-all"
+            class="py-1.5 px-3 rounded-xl bg-zinc-800/50 hover:bg-amber-500/10 hover:text-amber-500 border border-zinc-700/30 hover:border-amber-500/30 text-zinc-400 text-xs font-bold transition-all"
           >
             {option.label}
           </button>
@@ -143,13 +143,13 @@
         <div class="shrink-0">
           <Info class="w-5 h-5 text-amber-500" />
         </div>
-        <p class="flex-1 text-sm font-medium leading-tight">{message}</p>
+        <p class="flex-1 text-base font-medium leading-tight">{message}</p>
         <div class="flex items-center gap-2">
           {#each options as option}
             <button
               onclick={() => handleAction(option.value)}
               class={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                "px-3 py-1.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
                 option.primary
                   ? "bg-amber-500 text-black hover:bg-amber-400"
                   : "bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700",

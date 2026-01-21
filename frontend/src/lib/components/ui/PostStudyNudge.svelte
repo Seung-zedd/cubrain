@@ -98,15 +98,15 @@
           >
             <Check class="w-4 h-4 text-green-500" />
           </div>
-          <p class="text-zinc-200 text-sm font-medium">{randomQuote}</p>
+          <p class="text-zinc-200 text-base font-medium">{randomQuote}</p>
         </div>
       {:else}
         <!-- Nudge State -->
         <div class="flex flex-col justify-center h-full pr-6">
-          <p class="text-zinc-200 text-sm font-bold leading-tight">
+          <p class="text-zinc-200 text-base font-bold leading-tight">
             {selectedNudge.title}
           </p>
-          <p class="text-zinc-500 text-xs">{selectedNudge.subtitle}</p>
+          <p class="text-zinc-500 text-sm">{selectedNudge.subtitle}</p>
         </div>
       {/if}
     </div>

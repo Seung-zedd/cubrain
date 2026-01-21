@@ -86,10 +86,10 @@
             <ExternalLink class="w-5 h-5 text-amber-500" />
           </div>
           <div>
-            <p class="text-zinc-200 text-sm font-bold leading-tight">
+            <p class="text-zinc-200 text-base font-bold leading-tight">
               Anki Import Guide
             </p>
-            <p class="text-zinc-400 text-xs">Click to see how to import .csv</p>
+            <p class="text-zinc-400 text-sm">Click to see how to import .csv</p>
           </div>
         </div>
       {:else}
@@ -124,8 +124,8 @@
                   {/if}
                 </div>
                 <div class="pb-2">
-                  <p class="text-zinc-200 text-sm font-bold">{step.title}</p>
-                  <p class="text-zinc-300 text-xs mt-0.5 leading-relaxed">
+                  <p class="text-zinc-200 text-base font-bold">{step.title}</p>
+                  <p class="text-zinc-300 text-sm mt-0.5 leading-relaxed">
                     {step.desc}
                   </p>
                 </div>
@@ -135,7 +135,7 @@
 
           <button
             onclick={handleClose}
-            class="w-full py-3 rounded-xl bg-amber-500 text-black font-black text-sm hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2"
+            class="w-full py-3 rounded-xl bg-amber-500 text-black font-black text-base hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2"
           >
             <Check class="w-4 h-4" />
             Got it, thanks!
