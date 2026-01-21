@@ -10,6 +10,7 @@
   import { authFetch } from "$lib/api";
   import SmartNudge from "../SmartNudge.svelte";
   import { trackEvent } from "$lib/utils/telemetry";
+  import AnkiGuideModal from "../ui/AnkiGuideModal.svelte";
 
   interface Deck {
     id: number;
@@ -42,6 +43,7 @@
   let showMenu = $state(false);
   let menuRef = $state<HTMLDivElement | null>(null);
   let showExportNudge = $state(false);
+  let showAnkiGuide = $state(false);
 
   function toggleMenu(e: MouseEvent) {
     e.preventDefault();
@@ -329,12 +331,15 @@
     onAction={(val) => {
       trackEvent("anki_knowledge", { value: val === "known" });
       if (val === "guide") {
-        // Placeholder for guide
-        if (import.meta.env.DEV) console.log("Opening Anki Guide...");
+        showAnkiGuide = true;
       }
     }}
     onDismiss={() => (showExportNudge = false)}
   />
+{/if}
+
+{#if showAnkiGuide}
+  <AnkiGuideModal onClose={() => (showAnkiGuide = false)} />
 {/if}
 
 <style>

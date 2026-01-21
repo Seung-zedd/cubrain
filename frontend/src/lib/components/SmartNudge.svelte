@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
   import X from "@lucide/svelte/icons/x";
   import Info from "@lucide/svelte/icons/info";
   import { cn } from "$lib/utils";
@@ -39,10 +40,11 @@
   {#if type === "inline"}
     <div
       class={cn(
-        "p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2",
+        "p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4",
         className,
       )}
-      transition:fade
+      in:fly={{ y: 10, duration: 400 }}
+      out:fade={{ duration: 300 }}
     >
       <p class="text-sm font-medium text-zinc-200">{message}</p>
       <div class="flex items-center gap-2">
@@ -67,7 +69,8 @@
         "w-full p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-4",
         className,
       )}
-      transition:fade
+      in:fade={{ duration: 500 }}
+      out:fade={{ duration: 300 }}
     >
       <h3 class="text-white font-bold text-center">{message}</h3>
       <div class="grid grid-cols-3 gap-2">
@@ -87,8 +90,8 @@
         "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 min-w-[320px] max-w-md",
         className,
       )}
-      in:fly={{ y: 20, duration: 400 }}
-      out:fade
+      in:fly={{ y: 40, duration: 500, easing: cubicOut }}
+      out:fade={{ duration: 300 }}
     >
       <div
         class="flex items-center gap-3 p-4 rounded-xl border border-zinc-700/50 bg-zinc-900/80 backdrop-blur-md shadow-2xl text-zinc-200"
