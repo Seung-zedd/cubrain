@@ -40,21 +40,21 @@
   {#if type === "inline"}
     <div
       class={cn(
-        "p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4",
+        "mx-auto w-fit px-4 py-2 rounded-full bg-zinc-900/90 backdrop-blur-md border border-zinc-800 shadow-2xl flex items-center gap-4",
         className,
       )}
-      transition:fade={{ duration: 400 }}
+      transition:fly={{ y: 10, duration: 500, easing: cubicOut }}
     >
-      <p class="text-sm font-medium text-zinc-200">{message}</p>
-      <div class="flex items-center gap-2">
+      <p class="text-xs font-bold text-zinc-300 whitespace-nowrap">{message}</p>
+      <div class="flex items-center gap-1.5">
         {#each options as option}
           <button
             onclick={() => handleAction(option.value)}
             class={cn(
-              "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+              "px-3 py-1 rounded-full text-[10px] font-black transition-all",
               option.primary
                 ? "bg-amber-500 text-black hover:bg-amber-400"
-                : "bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700",
+                : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 border border-zinc-700",
             )}
           >
             {option.label}
@@ -65,17 +65,17 @@
   {:else if type === "loading"}
     <div
       class={cn(
-        "w-full p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-4",
+        "w-full p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 backdrop-blur-sm space-y-3",
         className,
       )}
       transition:fade={{ duration: 400 }}
     >
-      <h3 class="text-white font-bold text-center">{message}</h3>
-      <div class="grid grid-cols-3 gap-2">
+      <h3 class="text-zinc-200 font-bold text-sm text-center">{message}</h3>
+      <div class="flex flex-wrap justify-center gap-2">
         {#each options as option}
           <button
             onclick={() => handleAction(option.value)}
-            class="py-2 px-3 rounded-xl bg-white/5 hover:bg-amber-500/10 hover:text-amber-500 border border-white/5 hover:border-amber-500/30 text-zinc-400 text-xs font-medium transition-all"
+            class="py-1.5 px-3 rounded-xl bg-zinc-800/50 hover:bg-amber-500/10 hover:text-amber-500 border border-zinc-700/30 hover:border-amber-500/30 text-zinc-400 text-[10px] font-bold transition-all"
           >
             {option.label}
           </button>
@@ -88,11 +88,10 @@
         "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 min-w-[320px] max-w-md",
         className,
       )}
-      in:fly={{ y: 20, duration: 500, easing: cubicOut }}
-      out:fade={{ duration: 400 }}
+      transition:fly={{ y: 20, duration: 500, easing: cubicOut }}
     >
       <div
-        class="flex items-center gap-3 p-4 rounded-xl border border-zinc-700/50 bg-zinc-900/80 backdrop-blur-md shadow-2xl text-zinc-200"
+        class="flex items-center gap-3 p-4 rounded-xl border border-zinc-700/50 bg-zinc-900/90 backdrop-blur-md shadow-2xl text-zinc-200"
       >
         <div class="shrink-0">
           <Info class="w-5 h-5 text-amber-500" />

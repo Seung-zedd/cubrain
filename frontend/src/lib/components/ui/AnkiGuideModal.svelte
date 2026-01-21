@@ -75,7 +75,11 @@
       </button>
 
       {#if !isExpanded}
-        <div class="flex items-center gap-3 h-full" in:fade>
+        <div
+          class="flex items-center gap-3 h-full"
+          in:fade
+          out:fade={{ duration: 200 }}
+        >
           <div
             class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0"
           >
@@ -89,7 +93,11 @@
           </div>
         </div>
       {:else}
-        <div class="space-y-6" in:fade={{ delay: 200 }}>
+        <div
+          class="space-y-6"
+          in:fade={{ duration: 400, delay: 200 }}
+          out:fade={{ duration: 200 }}
+        >
           <div>
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
               <span class="text-amber-500">Anki</span> Import Guide

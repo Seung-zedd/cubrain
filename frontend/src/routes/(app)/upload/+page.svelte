@@ -606,15 +606,8 @@
 
           {#if isGenerating}
             <div class="flex flex-col items-center justify-center py-12">
-              <div class="w-full max-w-md">
-                <ProgressBar progress={jobProgress} status={jobStatus} />
-              </div>
-              <p class="text-zinc-400 mt-4">
-                Analyzing {files[currentFileIndex]?.name || "document"}...
-              </p>
-
               <!-- SmartNudge Loading Tip -->
-              <div class="mt-12 w-full max-w-md">
+              <div class="mb-8 w-full max-w-md">
                 <SmartNudge
                   type="loading"
                   message="Welcome back! What are you studying today?"
@@ -627,6 +620,13 @@
                     trackEvent("upload_context", { type: tag })}
                 />
               </div>
+
+              <div class="w-full max-w-md">
+                <ProgressBar progress={jobProgress} status={jobStatus} />
+              </div>
+              <p class="text-zinc-400 mt-4">
+                Analyzing {files[currentFileIndex]?.name || "document"}...
+              </p>
             </div>
           {:else}
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
