@@ -43,7 +43,7 @@
         "w-fit px-4 py-2 rounded-full bg-zinc-900/90 backdrop-blur-md border border-zinc-800 shadow-2xl flex items-center gap-4",
         className,
       )}
-      in:fly={{ y: 20, duration: 500, easing: cubicOut, delay: 200 }}
+      in:fly={{ y: 50, duration: 600, easing: cubicOut, delay: 200 }}
       out:fade={{ duration: 300 }}
     >
       <p class="text-xs font-bold text-zinc-300 whitespace-nowrap">{message}</p>
@@ -69,7 +69,7 @@
         "w-full p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 backdrop-blur-sm space-y-3",
         className,
       )}
-      in:fly={{ y: 10, duration: 500, easing: cubicOut }}
+      in:fly={{ y: 50, duration: 600, easing: cubicOut }}
       out:fade={{ duration: 300 }}
     >
       <h3 class="text-zinc-200 font-bold text-sm text-center">{message}</h3>
@@ -90,7 +90,7 @@
         "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 min-w-[320px] max-w-md",
         className,
       )}
-      in:fly={{ y: 20, duration: 600, easing: cubicOut }}
+      in:fly={{ y: 50, duration: 600, easing: cubicOut }}
       out:fade={{ duration: 400 }}
     >
       <div
