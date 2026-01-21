@@ -36,16 +36,17 @@
     localStorage.setItem("launch_banner_dismissed", "true");
   }
 
+  let isGuest = $derived(!user.current);
   let isFreeUser = $derived(user.current?.tier === "FREE_USER");
   let isGracePeriod = $derived(
-    user.current?.tier === "PRO_USER" && user.current?.endsAt !== null
+    user.current?.tier === "PRO_USER" && user.current?.endsAt !== null,
   );
   let isActivePro = $derived(
-    user.current?.tier === "PRO_USER" && user.current?.endsAt === null
+    user.current?.tier === "PRO_USER" && user.current?.endsAt === null,
   );
 
   let showBanner = $derived(
-    isVisible && !isActivePro && (isFreeUser || isGracePeriod)
+    isVisible && !isActivePro && (isGuest || isFreeUser || isGracePeriod),
   );
 </script>
 
