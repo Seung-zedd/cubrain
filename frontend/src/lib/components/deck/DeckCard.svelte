@@ -11,6 +11,7 @@
   import SmartNudge from "../SmartNudge.svelte";
   import { trackEvent } from "$lib/utils/telemetry";
   import AnkiGuideModal from "../ui/AnkiGuideModal.svelte";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface Deck {
     id: number;
@@ -110,7 +111,7 @@
         showExportNudge = true;
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to export deck:", error);
       }
     }

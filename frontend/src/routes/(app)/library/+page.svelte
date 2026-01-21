@@ -8,6 +8,7 @@
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
   import PostStudyNudge from "$lib/components/ui/PostStudyNudge.svelte";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   let isSessionEnded = $derived(
     page.url.searchParams.get("session_ended") === "true",
@@ -33,7 +34,7 @@
         decks = data.content;
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to fetch decks:", error);
       }
     } finally {
@@ -54,7 +55,7 @@
         decks = decks.filter((d) => d.id !== id);
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to delete deck:", error);
       }
     }
@@ -69,7 +70,7 @@
         showEditModal = true;
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to fetch deck cards:", error);
       }
     }

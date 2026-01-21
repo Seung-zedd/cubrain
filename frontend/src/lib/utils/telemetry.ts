@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import { afterNavigate } from "$app/navigation";
+import { IS_DEV_MODE } from "./env";
 
 /**
  * Tracks a custom event in Hotjar.
@@ -9,7 +10,8 @@ import { afterNavigate } from "$app/navigation";
 export function trackEvent(eventName: string, props?: Record<string, unknown>) {
   if (browser && window.hj) {
     window.hj("event", eventName, props);
-    if (import.meta.env.DEV) {
+    // Show logs on local dev OR the dev staging website
+    if (IS_DEV_MODE) {
       console.log(`[Telemetry] Event: ${eventName}`, props);
     }
   }
@@ -25,7 +27,8 @@ export function initTelemetry() {
       if (window.hj && to) {
         // Track page view on navigation
         window.hj("stateChange", to.url.pathname);
-        if (import.meta.env.DEV) {
+        // Show logs on local dev OR the dev staging website
+        if (IS_DEV_MODE) {
           console.log(`[Telemetry] Page View: ${to.url.pathname}`);
         }
       }

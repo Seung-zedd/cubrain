@@ -10,6 +10,7 @@
   import Markdown from "$lib/components/ui/Markdown.svelte";
   import { cn } from "$lib/utils";
   import AlertCircle from "@lucide/svelte/icons/alert-circle";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface Flashcard {
     id?: number;
@@ -36,7 +37,7 @@
   let showValidation = $state(false);
 
   const hasErrors = $derived(
-    cards.some((c) => !c.question.trim() || !c.answer.trim())
+    cards.some((c) => !c.question.trim() || !c.answer.trim()),
   );
 
   async function fetchCards() {
@@ -46,7 +47,7 @@
         cards = await response.json();
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to fetch cards:", error);
       }
     } finally {
@@ -81,7 +82,7 @@
         onclose();
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to save deck:", error);
       }
     } finally {
@@ -171,7 +172,7 @@
                       "w-full bg-zinc-800/50 border rounded-lg p-3 text-white focus:ring-1 transition-all resize-none min-h-[100px]",
                       showValidation && !card.question.trim()
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500"
+                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500",
                     )}
                     placeholder="Enter question..."
                   ></textarea>
@@ -211,7 +212,7 @@
                       "w-full bg-zinc-800/50 border rounded-lg p-3 text-white focus:ring-1 transition-all resize-none min-h-[100px]",
                       showValidation && !card.answer.trim()
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500"
+                        : "border-zinc-700 focus:border-amber-500 focus:ring-amber-500",
                     )}
                     placeholder="Enter answer..."
                   ></textarea>

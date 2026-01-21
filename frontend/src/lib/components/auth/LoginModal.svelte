@@ -7,6 +7,7 @@
   import CircleCheck from "@lucide/svelte/icons/circle-check";
   import { fade, scale, slide, fly } from "svelte/transition";
   import { useModal } from "$lib/modal.svelte";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   let { onclose, redirectTo = "/library" } = $props<{
     onclose: () => void;
@@ -64,7 +65,7 @@
       status = "success";
       message = "Your verification code is sent to your email!";
     } catch (err: any) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Supabase OTP error:", err);
       }
       status = "error";
@@ -101,7 +102,7 @@
         window.location.href = redirectTo;
       }, 800);
     } catch (err: any) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Supabase Verify error:", err);
       }
       status = "error";
@@ -171,7 +172,7 @@
                 redirectTo: `${window.location.origin}${redirectTo}`,
               },
             });
-            if (error && import.meta.env.DEV) {
+            if (error && IS_DEV_MODE) {
               console.error("Google login error:", error);
             }
           }}

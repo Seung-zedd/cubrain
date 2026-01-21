@@ -15,6 +15,7 @@
   import { uiState } from "$lib/stores/ui.svelte";
   import StudySession from "$lib/components/study/StudySession.svelte";
   import { goto } from "$app/navigation";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface Flashcard {
     id: number;
@@ -52,7 +53,7 @@
         body: JSON.stringify({ progress: currentProgress }),
       });
     } catch (e) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to update progress", e);
       }
     }
@@ -72,7 +73,7 @@
         cards = await response.json();
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to fetch cards:", error);
       }
     } finally {

@@ -32,6 +32,7 @@
   import { subscribeToJob } from "$lib/sse";
   import SmartNudge from "$lib/components/SmartNudge.svelte";
   import { trackEvent } from "$lib/utils/telemetry";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface Flashcard {
     question: string;
@@ -144,7 +145,7 @@
         }
       }
     } catch (e) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to fetch recent job", e);
       }
     }
@@ -312,7 +313,7 @@
         method: "POST",
       });
     } catch (e) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to dismiss all jobs:", e);
       }
     }
@@ -354,7 +355,7 @@
         await dismissAllJobs();
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to save deck:", error);
       }
     } finally {

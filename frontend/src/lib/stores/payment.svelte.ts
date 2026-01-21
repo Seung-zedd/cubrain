@@ -1,4 +1,5 @@
 import { authFetch } from "$lib/api";
+import { IS_DEV_MODE } from "$lib/utils/env";
 
 export interface LemonSqueezyConfig {
   productId: string;
@@ -28,7 +29,7 @@ class PaymentStore {
       const data = await response.json();
       this.config = data;
 
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.log("💳 [PaymentStore] Lemon Squeezy config loaded:", data);
       }
 
@@ -36,7 +37,7 @@ class PaymentStore {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       this.error = message;
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("❌ [PaymentStore] Error fetching config:", message);
       }
       return null;

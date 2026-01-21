@@ -2,6 +2,7 @@
   import { fade, fly } from "svelte/transition";
   import { API_BASE_URL } from "$lib/config/config";
   import Markdown from "$lib/components/ui/Markdown.svelte";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface Flashcard {
     question: string;
@@ -131,7 +132,7 @@
     currentContext = captureContext(range, text);
     if (!currentContext) return;
 
-    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
+    if (IS_DEV_MODE || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Captured Context Data:", {
         Layer1_Selection: currentContext.selection,
         Layer2_LocalContext: currentContext.localContext,
@@ -251,7 +252,7 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    if (import.meta.env.DEV || import.meta.env.VITE_SHOW_LOGS === "true") {
+    if (IS_DEV_MODE || import.meta.env.VITE_SHOW_LOGS === "true") {
       console.log("🔍 Debug Info:");
       console.log("API_BASE_URL:", API_BASE_URL);
       console.log("import.meta.env:", import.meta.env);

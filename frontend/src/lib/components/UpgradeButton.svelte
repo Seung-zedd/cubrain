@@ -5,6 +5,7 @@
   import { goto } from "$app/navigation";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
   import { onMount } from "svelte";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   let {
     class: className = "",
@@ -55,7 +56,7 @@
     if (!checkoutUrl.startsWith("http")) {
       console.error(
         "❌ [UpgradeButton] Invalid checkout URL constructed:",
-        checkoutUrl
+        checkoutUrl,
       );
       alert("Invalid payment configuration. Please contact support.");
       return;
@@ -70,7 +71,7 @@
 
     const finalUrl = `${checkoutUrl}?${params.toString()}`;
 
-    if (import.meta.env.DEV) {
+    if (IS_DEV_MODE) {
       console.log("💳 [UpgradeButton] Opening checkout:", finalUrl);
     }
 

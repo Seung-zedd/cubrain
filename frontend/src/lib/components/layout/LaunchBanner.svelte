@@ -6,6 +6,7 @@
   import { user } from "$lib/stores/user.svelte";
   import { authFetch } from "$lib/api";
   import AlertTriangle from "@lucide/svelte/icons/alert-triangle";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   let isVisible = $state(false);
   let remainingSpots = $state(100);
@@ -18,8 +19,7 @@
         remainingSpots = data.remainingSpots;
       }
     } catch (e) {
-      if (import.meta.env.DEV)
-        console.error("Failed to fetch early bird count", e);
+      if (IS_DEV_MODE) console.error("Failed to fetch early bird count", e);
     }
   }
 

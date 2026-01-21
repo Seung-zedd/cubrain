@@ -1,5 +1,6 @@
 import { supabase } from "$lib/supabaseClient";
 import { authFetch } from "$lib/api";
+import { IS_DEV_MODE } from "$lib/utils/env";
 
 export interface User {
   id: number;
@@ -27,7 +28,7 @@ export async function fetchGuestUsage() {
       guestUsage.count = data.dailyUploadCount;
     }
   } catch (err) {
-    if (import.meta.env.DEV) {
+    if (IS_DEV_MODE) {
       console.error("fetchGuestUsage error:", err);
     }
   }
@@ -69,7 +70,7 @@ export async function fetchUser() {
       };
     }
   } catch (err) {
-    if (import.meta.env.DEV) {
+    if (IS_DEV_MODE) {
       console.error("fetchUser error:", err);
     }
     // Even on network error, try to keep the user "logged in" with session data
@@ -100,7 +101,7 @@ export async function fetchUser() {
 // Initialize auth listener
 if (typeof window !== "undefined" && supabase) {
   supabase.auth.onAuthStateChange(async (event, session) => {
-    if (import.meta.env.DEV) {
+    if (IS_DEV_MODE) {
       console.log(`[Auth] Event: ${event}`);
     }
 
@@ -115,7 +116,7 @@ if (typeof window !== "undefined" && supabase) {
         }),
       });
     } catch (e) {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.error("Failed to sync session cookie", e);
       }
     }
@@ -166,7 +167,7 @@ export async function logout() {
   try {
     await supabase.auth.signOut();
   } catch (e) {
-    if (import.meta.env.DEV) {
+    if (IS_DEV_MODE) {
       console.error("Failed to logout", e);
     }
   }

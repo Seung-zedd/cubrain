@@ -2,6 +2,7 @@
   import { uiState } from "$lib/stores/ui.svelte";
   import DeckCard from "../deck/DeckCard.svelte";
   import { fade } from "svelte/transition";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   let { decks, onStartStudy, onDelete, onEditCards } = $props();
 
@@ -9,7 +10,7 @@
     // Play sound
     const audio = new Audio("/sounds/switch-on.mp3");
     audio.play().catch((err) => {
-      if (import.meta.env.DEV) {
+      if (IS_DEV_MODE) {
         console.warn("Audio playback failed:", err);
       }
     });
