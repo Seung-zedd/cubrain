@@ -4,6 +4,9 @@
   import X from "@lucide/svelte/icons/x";
   import Info from "@lucide/svelte/icons/info";
   import { cn } from "$lib/utils";
+  import { trackEvent } from "$lib/utils/telemetry";
+  import { onMount } from "svelte";
+  import { browser } from "$app/environment";
 
   interface Props {
     type: "inline" | "loading" | "toast";
@@ -12,6 +15,7 @@
     onAction?: (value: string) => void;
     onDismiss?: () => void;
     className?: string;
+    nudgeId?: string; // Optional ID for persistence
   }
 
   let {
@@ -21,17 +25,57 @@
     onAction,
     onDismiss,
     className,
+    nudgeId,
   }: Props = $props();
 
-  let isVisible = $state(true);
+  let isVisible = $state(false); // Default to false, check on mount
+
+  // Generate a unique key for this nudge
+  const storageKey = $derived(
+    `nudge_dismissed_${nudgeId || type}_${message.replace(/\s+/g, "_").toLowerCase()}`,
+  );
+
+  onMount(() => {
+    if (browser) {
+      const isDismissed = localStorage.getItem(storageKey);
+      if (!isDismissed) {
+        isVisible = true;
+      }
+    }
+  });
 
   function handleAction(value: string) {
+    // Trigger specific Hotjar events for precise tracking
+    if (type === "inline") {
+      if (value === "perfect") trackEvent("nudge_feedback_perfect");
+      else if (value === "bad") trackEvent("nudge_feedback_needs_work");
+    } else if (type === "loading") {
+      if (value === "textbook") trackEvent("nudge_context_textbook");
+      else if (value === "lecture_notes")
+        trackEvent("nudge_context_lecture_notes");
+      else if (value === "certification")
+        trackEvent("nudge_context_certification");
+    } else if (type === "toast") {
+      if (value === "known") trackEvent("nudge_export_help_dismissed");
+      else if (value === "guide") trackEvent("nudge_export_help_clicked");
+    }
+
     if (onAction) onAction(value);
+
+    // Persist the hidden state
+    if (browser) {
+      localStorage.setItem(storageKey, "true");
+    }
     isVisible = false;
   }
 
   function handleDismiss() {
     if (onDismiss) onDismiss();
+
+    // Persist the hidden state
+    if (browser) {
+      localStorage.setItem(storageKey, "true");
+    }
     isVisible = false;
   }
 </script>
