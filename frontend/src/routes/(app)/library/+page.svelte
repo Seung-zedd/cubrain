@@ -91,6 +91,13 @@
   }
 </script>
 
+<svelte:head>
+  <link rel="preload" as="image" href="/images/library-bg.jpg" />
+</svelte:head>
+
+<!-- Atmospheric Background (Rendered immediately for better LCP) -->
+<div class="bg-overlay fixed inset-0 -z-10"></div>
+
 {#if isLoading}
   <div class="flex items-center justify-center min-h-[60vh]">
     <div
@@ -127,3 +134,13 @@
 {#if isSessionEnded}
   <PostStudyNudge />
 {/if}
+
+<style>
+  .bg-overlay {
+    background-image: url("/images/library-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.85);
+    background-blend-mode: overlay;
+  }
+</style>

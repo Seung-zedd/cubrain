@@ -1,13 +1,5 @@
 <script lang="ts">
-  import { browser, dev } from "$app/environment";
   import { page } from "$app/state";
-  import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
-  import { injectAnalytics } from "@vercel/analytics/sveltekit";
-
-  if (browser && !dev) {
-    injectSpeedInsights();
-    injectAnalytics();
-  }
 
   let { title, description, date, version, type, children } = $props<{
     title: string;
