@@ -80,8 +80,4 @@
     background-color: rgba(251, 191, 36, 0.2);
     border-radius: 20px;
   }
-
-  button {
-    -webkit-tap-highlight-color: transparent;
-  }
 </style>
