@@ -96,7 +96,7 @@
 </svelte:head>
 
 <!-- Atmospheric Background (Rendered immediately for better LCP) -->
-<div class="bg-overlay fixed inset-0 -z-10"></div>
+<div class="bg-overlay fixed inset-0 z-0"></div>
 
 {#if isLoading}
   <div class="flex items-center justify-center min-h-[60vh]">
@@ -140,7 +140,7 @@
     background-image: url("/images/library-bg.jpg");
     background-size: cover;
     background-position: center;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.75);
     background-blend-mode: overlay;
   }
 </style>

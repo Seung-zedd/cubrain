@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="library-container fixed inset-0 z-0 overflow-y-auto" in:fade>
+<div class="library-container fixed inset-0 z-10 overflow-y-auto" in:fade>
   <div class="relative z-10 p-8 md:p-16 max-w-7xl mx-auto">
     <header class="mb-12" in:fade={{ delay: 200 }}>
       <h1 class="text-5xl font-bold text-amber-400 tracking-tight mb-4">
