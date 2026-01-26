@@ -17,6 +17,7 @@
     onDismiss?: () => void;
     className?: string;
     nudgeId?: string; // Optional ID for persistence
+    expiryHours?: number; // Hours to hide the nudge (default: 24h)
   }
 
   let {
@@ -27,6 +28,7 @@
     onDismiss,
     className,
     nudgeId,
+    expiryHours = 24,
   }: Props = $props();
 
   let isVisible = $state(false); // Default to false, check on mount
@@ -39,9 +41,20 @@
 
   onMount(() => {
     if (browser) {
-      const isDismissed = localStorage.getItem(storageKey);
-      if (!isDismissed) {
+      const storedValue = localStorage.getItem(storageKey);
+      if (!storedValue) {
         isVisible = true;
+      } else {
+        const timestamp = parseInt(storedValue);
+        if (isNaN(timestamp)) {
+          // Handle legacy "true" values by showing the nudge again
+          isVisible = true;
+        } else {
+          const elapsedHours = (Date.now() - timestamp) / (1000 * 60 * 60);
+          if (elapsedHours >= expiryHours) {
+            isVisible = true;
+          }
+        }
       }
     }
   });
@@ -64,9 +77,9 @@
 
     if (onAction) onAction(value);
 
-    // Persist the hidden state
+    // Persist the dismissal timestamp
     if (browser) {
-      localStorage.setItem(storageKey, "true");
+      localStorage.setItem(storageKey, Date.now().toString());
     }
 
     if (type === "inline" || type === "loading") {
@@ -82,9 +95,9 @@
   function handleDismiss() {
     if (onDismiss) onDismiss();
 
-    // Persist the hidden state
+    // Persist the dismissal timestamp
     if (browser) {
-      localStorage.setItem(storageKey, "true");
+      localStorage.setItem(storageKey, Date.now().toString());
     }
     isVisible = false;
   }
