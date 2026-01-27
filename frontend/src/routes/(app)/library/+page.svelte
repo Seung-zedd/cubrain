@@ -8,38 +8,30 @@
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
   import PostStudyNudge from "$lib/components/ui/PostStudyNudge.svelte";
+  import type { PageData } from "./$types";
   import { IS_DEV_MODE } from "$lib/utils/env";
+  import { invalidateAll } from "$app/navigation";
+
+  let { data } = $props<{ data: PageData }>();
 
   let isSessionEnded = $derived(
     page.url.searchParams.get("session_ended") === "true",
   );
 
   let decks = $state<any[]>([]);
-  let isLoading = $state(true);
-  let searchQuery = $state("");
   let selectedDeck = $state<any | null>(null);
   let showEditModal = $state(false);
-
-  // Deletion state
   let deckToDelete = $state<number | null>(null);
 
-  onMount(async () => {
+  $effect(() => {
+    data.streamed.decks.then((res: any) => {
+      decks = res.content || [];
+    });
+  });
+
+  onMount(() => {
     // Reset study mode when entering library
     uiState.setStudyMode(false);
-
-    try {
-      const response = await authFetch("/api/v1/decks");
-      if (response.ok) {
-        const data = await response.json();
-        decks = data.content;
-      }
-    } catch (error) {
-      if (IS_DEV_MODE) {
-        console.error("Failed to fetch decks:", error);
-      }
-    } finally {
-      isLoading = false;
-    }
   });
 
   async function confirmDelete() {
@@ -103,13 +95,27 @@
 <!-- Atmospheric Background (Rendered immediately for better LCP) -->
 <div class="bg-overlay fixed inset-0 z-0"></div>
 
-<LibraryDashboard
-  {decks}
-  {isLoading}
-  onStartStudy={handleStartStudy}
-  onDelete={(id: number) => (deckToDelete = id)}
-  onEditCards={handleEditCards}
-/>
+{#await data.streamed.decks}
+  <LibraryDashboard
+    decks={[]}
+    isLoading={true}
+    onStartStudy={handleStartStudy}
+    onDelete={(id: number) => (deckToDelete = id)}
+    onEditCards={handleEditCards}
+  />
+{:then decksData}
+  <LibraryDashboard
+    decks={decksData.content}
+    isLoading={false}
+    onStartStudy={handleStartStudy}
+    onDelete={(id: number) => (deckToDelete = id)}
+    onEditCards={handleEditCards}
+  />
+{:catch error}
+  <div class="flex items-center justify-center min-h-[60vh] text-red-500">
+    Failed to load library: {error.message}
+  </div>
+{/await}
 
 {#if showEditModal && selectedDeck}
   <EditDeckModal

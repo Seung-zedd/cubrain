@@ -16,11 +16,14 @@
   import UpgradeButton from "$lib/components/UpgradeButton.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
 
-  let { form } = $props();
+  import type { PageData } from "./$types";
+
+  let { data, form } = $props<{ data: PageData; form: any }>();
   let supabaseUser: any = $state(null);
   let copied = $state(false);
   let showConfirmModal = $state(false);
   let deleteForm = $state<HTMLFormElement | null>(null);
+
   let modalConfig = $state({
     title: "",
     message: "",
@@ -30,12 +33,20 @@
     onConfirm: () => {},
   });
 
+  $effect(() => {
+    data.streamed.profile.then((profile: any) => {
+      if (profile) {
+        user.current = profile;
+      }
+    });
+  });
+
   onMount(async () => {
     if (supabase) {
       const {
-        data: { user },
+        data: { user: sUser },
       } = await supabase.auth.getUser();
-      supabaseUser = user;
+      supabaseUser = sUser;
     }
   });
 

@@ -1,4 +1,4 @@
-import { fail, redirect, isRedirect } from "@sveltejs/kit";
+import { fail, redirect, isRedirect, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import { createClient } from "@supabase/supabase-js";
 import { API_BASE_URL } from "$lib/config/config";
@@ -10,6 +10,32 @@ const SUPABASE_URL =
   env.VITE_PUBLIC_SUPABASE_URL ||
   "https://nsnbzlzttvvxdlhsuskt.supabase.co";
 const SUPABASE_SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
+
+export const load = async ({ fetch, cookies }: RequestEvent) => {
+  const token = cookies.get("sb-access-token");
+
+  const fetchProfile = async () => {
+    if (!token) return null;
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return response.json();
+  };
+
+  return {
+    streamed: {
+      profile: fetchProfile(),
+    },
+  };
+};
 
 export const actions: Actions = {
   deleteAccount: async ({ cookies, fetch, request }) => {
@@ -60,7 +86,7 @@ export const actions: Actions = {
             autoRefreshToken: false,
             persistSession: false,
           },
-        }
+        },
       );
 
       // 3. Get User ID from Supabase Auth
@@ -81,13 +107,13 @@ export const actions: Actions = {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!backendDeleteResponse.ok) {
         console.error(
           "Backend deletion failed:",
-          await backendDeleteResponse.text()
+          await backendDeleteResponse.text(),
         );
         return fail(backendDeleteResponse.status, {
           error: "Failed to delete user data from database",
@@ -96,7 +122,7 @@ export const actions: Actions = {
 
       // 5. Delete User from Supabase Auth
       const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
-        user.id
+        user.id,
       );
 
       if (deleteError) {

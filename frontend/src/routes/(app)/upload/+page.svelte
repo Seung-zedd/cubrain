@@ -34,7 +34,7 @@
   import { trackEvent } from "$lib/utils/telemetry";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
-  interface Flashcard {
+  interface GeneratedFlashcard {
     question: string;
     answer: string;
     page?: number;
@@ -46,7 +46,7 @@
   let jobId = $state<string | null>(null);
   let jobStatus = $state("PROCESSING");
   let jobProgress = $state(0);
-  let generatedCards = $state<Flashcard[]>([]);
+  let generatedCards = $state<GeneratedFlashcard[]>([]);
   let showResults = $state(false);
   let showLoginModal = $state(false);
   let showSaveModal = $state(false);
@@ -130,25 +130,24 @@
         : "bg-slate-800/50 text-slate-400 border-slate-700",
   );
 
-  onMount(async () => {
-    // Check for pending guest cards after login redirect (IP-based persistence)
-    try {
-      const response = await authFetch("/api/v1/pdf/recent");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === "COMPLETED" && data.results) {
-          generatedCards = data.results;
-          showResults = true;
-          if (data.metadata) {
-            jobMetadata = data.metadata;
-          }
+  import type { PageData } from "./$types";
+
+  let { data } = $props<{ data: PageData }>();
+
+  $effect(() => {
+    data.streamed.recentJob.then((res: any) => {
+      if (res && res.status === "COMPLETED" && res.results) {
+        generatedCards = res.results;
+        showResults = true;
+        if (res.metadata) {
+          jobMetadata = res.metadata;
         }
       }
-    } catch (e) {
-      if (IS_DEV_MODE) {
-        console.error("Failed to fetch recent job", e);
-      }
-    }
+    });
+  });
+
+  onMount(async () => {
+    // No longer need to fetch recent job here
   });
 
   // Cleanup SSE connection when component unmounts
@@ -241,50 +240,53 @@
         jobProgress = 0;
 
         // 3. Subscribe to SSE for this specific job
-        const jobResult = await new Promise<Flashcard[]>((resolve, reject) => {
-          // Get token from Supabase session
-          supabase?.auth.getSession().then(({ data: { session } }) => {
-            const token = session?.access_token;
+        const jobResult = await new Promise<GeneratedFlashcard[]>(
+          (resolve, reject) => {
+            // Get token from Supabase session
+            supabase?.auth.getSession().then(({ data: { session } }) => {
+              const token = session?.access_token;
 
-            unsubscribe = subscribeToJob(
-              jobId!,
-              {
-                onInit: (data) => {
-                  jobStatus = data.status;
-                  jobProgress = data.progress;
+              unsubscribe = subscribeToJob(
+                jobId!,
+                {
+                  onInit: (data) => {
+                    jobStatus = data.status;
+                    jobProgress = data.progress;
+                  },
+                  onProgress: (data) => {
+                    jobStatus = data.status;
+                    jobProgress = data.progress;
+                  },
+                  onComplete: async (data) => {
+                    if (unsubscribe) {
+                      unsubscribe();
+                      unsubscribe = null;
+                    }
+                    // Refresh usage count after each successful job
+                    if (user.current) await fetchUser();
+                    else await fetchGuestUsage();
+                    const results =
+                      (data.results as GeneratedFlashcard[]) ?? [];
+                    resolve(results);
+                  },
+                  onError: (error: unknown) => {
+                    const err = error as any;
+                    if (unsubscribe) {
+                      unsubscribe();
+                      unsubscribe = null;
+                    }
+                    reject(
+                      new Error(
+                        err.message || `Generation failed for ${file.name}`,
+                      ),
+                    );
+                  },
                 },
-                onProgress: (data) => {
-                  jobStatus = data.status;
-                  jobProgress = data.progress;
-                },
-                onComplete: async (data) => {
-                  if (unsubscribe) {
-                    unsubscribe();
-                    unsubscribe = null;
-                  }
-                  // Refresh usage count after each successful job
-                  if (user.current) await fetchUser();
-                  else await fetchGuestUsage();
-                  const results = (data.results as Flashcard[]) ?? [];
-                  resolve(results);
-                },
-                onError: (error: unknown) => {
-                  const err = error as any;
-                  if (unsubscribe) {
-                    unsubscribe();
-                    unsubscribe = null;
-                  }
-                  reject(
-                    new Error(
-                      err.message || `Generation failed for ${file.name}`,
-                    ),
-                  );
-                },
-              },
-              token,
-            );
-          });
-        });
+                token,
+              );
+            });
+          },
+        );
 
         // 4. Accumulate results
         generatedCards = [...generatedCards, ...jobResult];

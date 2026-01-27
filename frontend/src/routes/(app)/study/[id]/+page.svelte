@@ -16,6 +16,7 @@
   import StudySession from "$lib/components/study/StudySession.svelte";
   import { goto } from "$app/navigation";
   import { IS_DEV_MODE } from "$lib/utils/env";
+  import type { PageData } from "./$types";
 
   interface Flashcard {
     id: number;
@@ -24,12 +25,20 @@
     page?: number;
   }
 
+  let { data } = $props<{ data: PageData }>();
   let deckId = $derived(page.params.id);
   let cards = $state<Flashcard[]>([]);
   let currentIndex = $state(0);
   let isFlipped = $state(false);
   let isLoading = $state(true);
   let isComplete = $state(false);
+
+  $effect(() => {
+    data.streamed.cards.then((res: any) => {
+      cards = res || [];
+      isLoading = false;
+    });
+  });
 
   let currentCard = $derived(cards[currentIndex]);
   let progress = $derived(
@@ -63,22 +72,9 @@
     updateProgress();
   });
 
-  onMount(async () => {
+  onMount(() => {
     // Ensure study mode is active when entering this page
     uiState.setStudyMode(true);
-
-    try {
-      const response = await authFetch(`/api/v1/decks/${deckId}/cards`);
-      if (response.ok) {
-        cards = await response.json();
-      }
-    } catch (error) {
-      if (IS_DEV_MODE) {
-        console.error("Failed to fetch cards:", error);
-      }
-    } finally {
-      isLoading = false;
-    }
   });
 
   function nextCard() {
