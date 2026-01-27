@@ -4,7 +4,13 @@
   import { fade } from "svelte/transition";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
-  let { decks, onStartStudy, onDelete, onEditCards } = $props();
+  let {
+    decks,
+    onStartStudy,
+    onDelete,
+    onEditCards,
+    isLoading = false,
+  } = $props();
 
   async function handleStartStudy(deckId: number) {
     // Play sound
@@ -28,9 +34,9 @@
   }
 </script>
 
-<div class="library-container fixed inset-0 z-10 overflow-y-auto" in:fade>
+<div class="library-container fixed inset-0 z-10 overflow-y-auto">
   <div class="relative z-10 p-8 md:p-16 max-w-7xl mx-auto">
-    <header class="mb-12" in:fade={{ delay: 200 }}>
+    <header class="mb-12">
       <h1 class="text-5xl font-bold text-amber-400 tracking-tight mb-4">
         My Library
       </h1>
@@ -40,17 +46,25 @@
     </header>
 
     <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {#each decks as deck, i}
-        <div in:fade={{ delay: 300 + i * 100 }}>
-          <DeckCard
-            {deck}
-            {onDelete}
-            {onEditCards}
-            onStartStudy={handleStartStudy}
-            isCinematic={true}
-          />
-        </div>
-      {/each}
+      {#if isLoading}
+        {#each Array(6) as _}
+          <div
+            class="h-48 rounded-xl bg-white/5 border border-white/10 animate-pulse"
+          ></div>
+        {/each}
+      {:else}
+        {#each decks as deck, i}
+          <div in:fade={{ delay: 100 + i * 50 }}>
+            <DeckCard
+              {deck}
+              {onDelete}
+              {onEditCards}
+              onStartStudy={handleStartStudy}
+              isCinematic={true}
+            />
+          </div>
+        {/each}
+      {/if}
     </div>
   </div>
 </div>

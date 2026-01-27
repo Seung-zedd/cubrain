@@ -69,6 +69,7 @@
 
 <svelte:head>
   <!-- JSON-LD is injected via onMount for security and compliance with Rule 19 -->
+  <link rel="preload" href="/og-image.png" as="image" fetchpriority="high" />
 </svelte:head>
 
 <div
@@ -374,6 +375,8 @@
             src="/og-image.png"
             alt="Cubrain Interface"
             class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50"
+            fetchpriority="high"
+            loading="eager"
           />
         </div>
         <!-- Ambient Glow -->

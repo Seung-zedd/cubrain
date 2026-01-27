@@ -92,26 +92,24 @@
 </script>
 
 <svelte:head>
-  <link rel="preload" as="image" href="/images/library-bg.jpg" />
+  <link
+    rel="preload"
+    as="image"
+    href="/images/library-bg.jpg"
+    fetchpriority="high"
+  />
 </svelte:head>
 
 <!-- Atmospheric Background (Rendered immediately for better LCP) -->
 <div class="bg-overlay fixed inset-0 z-0"></div>
 
-{#if isLoading}
-  <div class="flex items-center justify-center min-h-[60vh]">
-    <div
-      class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"
-    ></div>
-  </div>
-{:else}
-  <LibraryDashboard
-    {decks}
-    onStartStudy={handleStartStudy}
-    onDelete={(id: number) => (deckToDelete = id)}
-    onEditCards={handleEditCards}
-  />
-{/if}
+<LibraryDashboard
+  {decks}
+  {isLoading}
+  onStartStudy={handleStartStudy}
+  onDelete={(id: number) => (deckToDelete = id)}
+  onEditCards={handleEditCards}
+/>
 
 {#if showEditModal && selectedDeck}
   <EditDeckModal

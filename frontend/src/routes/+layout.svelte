@@ -11,16 +11,16 @@
   import { IS_LAUNCH_SALE } from "$lib/config/config";
   import { initTelemetry } from "$lib/utils/telemetry";
 
-  if (browser && !dev) {
-    injectSpeedInsights();
-    injectAnalytics();
-  }
-
   let { children } = $props();
 
   onMount(() => {
     fetchUser();
     initTelemetry();
+
+    if (browser && !dev) {
+      injectSpeedInsights();
+      injectAnalytics();
+    }
   });
 
   // SEO Configuration

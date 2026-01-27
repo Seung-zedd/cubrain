@@ -49,6 +49,7 @@
       muted
       loop
       playsinline
+      preload="metadata"
       class="w-full h-auto block"
     >
       <track kind="captions" />
