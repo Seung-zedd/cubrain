@@ -35,7 +35,7 @@
   <!-- Floating Glass Card Container -->
   <div
     class={cn(
-      "relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm transition-all duration-700 ease-out shadow-2xl",
+      "relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-sm transition-all duration-700 ease-out shadow-2xl aspect-video",
       "group-hover:rotate-y-1 group-hover:rotate-x-1 group-hover:scale-[1.01]",
       "border-[#FFD700]/30 shadow-[0_0_50px_rgba(255,215,0,0.1)]",
     )}
@@ -50,7 +50,7 @@
       loop
       playsinline
       preload="metadata"
-      class="w-full h-auto block"
+      class="w-full h-full object-cover block"
     >
       <track kind="captions" />
     </video>

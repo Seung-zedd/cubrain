@@ -8,7 +8,7 @@
   import AlertTriangle from "@lucide/svelte/icons/alert-triangle";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
-  let isVisible = $state(false);
+  let isVisible = $state(true);
   let remainingSpots = $state(100);
 
   async function fetchCount() {
@@ -25,8 +25,8 @@
 
   onMount(() => {
     const dismissed = localStorage.getItem("launch_banner_dismissed");
-    if (!dismissed) {
-      isVisible = true;
+    if (dismissed) {
+      isVisible = false;
     }
     fetchCount();
   });
