@@ -405,8 +405,6 @@
         class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
       ></div>
 
-      <HeroVideo />
-
       <FlashcardDemo />
 
       <div class="mt-12 text-center">
@@ -732,9 +730,16 @@
         src="/videos/demo-full.mp4"
         controls
         autoplay
+        crossorigin="anonymous"
         class="w-full h-full"
       >
-        <track kind="captions" />
+        <track
+          kind="captions"
+          src="/captions/demo.vtt"
+          srclang="en"
+          label="English"
+          default
+        />
       </video>
     </div>
   </div>
