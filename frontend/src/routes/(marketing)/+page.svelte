@@ -371,13 +371,18 @@
           <div
             class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"
           ></div>
-          <img
-            src="/og-image.png"
-            alt="Cubrain Interface"
-            class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50"
-            fetchpriority="high"
-            loading="eager"
-          />
+          <video
+            src="/videos/hero-video.mp4"
+            poster="/og-image.png"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            aria-label="Cubrain App Demo Video showing PDF to Flashcard conversion"
+            class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50 overflow-hidden"
+          >
+          </video>
         </div>
         <!-- Ambient Glow -->
         <div
