@@ -2,7 +2,6 @@
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import HeroVideo from "$lib/components/HeroVideo.svelte";
   import { onMount } from "svelte";
-  import { authFetch } from "$lib/api";
   import { fade, fly } from "svelte/transition";
   import { user } from "$lib/stores/user.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
@@ -13,20 +12,19 @@
   import Zap from "@lucide/svelte/icons/zap";
   import Star from "@lucide/svelte/icons/star";
   import Brain from "@lucide/svelte/icons/brain";
-  import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import Tag from "@lucide/svelte/icons/tag";
   import FileText from "@lucide/svelte/icons/file-text";
-  import ShieldCheck from "@lucide/svelte/icons/shield-check";
   import GraduationCap from "@lucide/svelte/icons/graduation-cap";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
-  import LogIn from "@lucide/svelte/icons/log-in";
   import Home from "@lucide/svelte/icons/home";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Play from "@lucide/svelte/icons/play";
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
+  let showDemoModal = $state(false);
   let isMobileMenuOpen = $state(false);
 
   const toggleMobileMenu = () => {
@@ -362,6 +360,17 @@
             class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
             >View Pricing</a
           >
+          <button
+            class="flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all group text-white font-bold text-lg"
+            onclick={() => (showDemoModal = true)}
+          >
+            <div
+              class="w-8 h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center text-[#FFD700] group-hover:scale-110 transition-transform"
+            >
+              <Play class="w-4 h-4" fill="currentColor" />
+            </div>
+            <span>Watch Demo</span>
+          </button>
         </div>
       </div>
       <div class="relative z-10 group perspective-1000">
@@ -372,14 +381,14 @@
             class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"
           ></div>
           <video
-            src="/videos/hero-video.mp4"
+            src="/videos/hero-bg.mp4"
             poster="/og-image.png"
             autoplay
             muted
             loop
             playsinline
             preload="auto"
-            aria-label="Cubrain App Demo Video showing PDF to Flashcard conversion"
+            aria-label="Cubrain App Background Animation"
             class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50 overflow-hidden"
           >
           </video>
@@ -690,4 +699,43 @@
 
 {#if showLoginModal}
   <LoginModal onclose={() => (showLoginModal = false)} />
+{/if}
+
+{#if showDemoModal}
+  <div
+    class="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+    onclick={() => (showDemoModal = false)}
+    onkeydown={(e) => e.key === "Escape" && (showDemoModal = false)}
+    role="button"
+    tabindex="0"
+    aria-label="Close modal"
+    transition:fade={{ duration: 200 }}
+  >
+    <div
+      class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-white/10"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      transition:fly={{ y: 20, duration: 300 }}
+    >
+      <button
+        class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/20 rounded-full text-white/70 hover:text-white transition-colors"
+        onclick={() => (showDemoModal = false)}
+        aria-label="Close"
+      >
+        <X class="w-6 h-6" />
+      </button>
+
+      <video
+        src="/videos/demo-full.mp4"
+        controls
+        autoplay
+        class="w-full h-full"
+      >
+        <track kind="captions" />
+      </video>
+    </div>
+  </div>
 {/if}
