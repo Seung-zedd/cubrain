@@ -1,0 +1,17 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 자정 실행
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Auth
+        run: |
+          # 테이블 조회 대신, Auth 설정 정보를 요청해서 서버를 깨웁니다.
+          # 이 요청은 테이블이 없어도 작동하며, 프로젝트 활동으로 인정됩니다.
+          curl -I -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/settings" \
+          -H "apikey: ${{ secrets.SUPABASE_KEY }}"
