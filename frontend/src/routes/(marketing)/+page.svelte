@@ -31,7 +31,7 @@
     isMobileMenuOpen = !isMobileMenuOpen;
   };
 
-  const CURRENT_VERSION = "1.1.0";
+  const CURRENT_VERSION = "1.4.4";
   let hasNewUpdate = $state(false);
 
   onMount(() => {
