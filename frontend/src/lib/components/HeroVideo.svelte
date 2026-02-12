@@ -43,7 +43,7 @@
     <!-- Video Element -->
     <video
       bind:this={videoElement}
-      src="/videos/hero-video.mp4"
+      src="/videos/demo-full.mp4"
       poster="/og-image.png"
       autoplay
       muted
