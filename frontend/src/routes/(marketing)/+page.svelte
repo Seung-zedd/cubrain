@@ -98,7 +98,7 @@
   class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
 >
   <nav
-    class="sticky top-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/10"
+    class="sticky top-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/10"
   >
     <a href="/" class="z-50">
       <img
