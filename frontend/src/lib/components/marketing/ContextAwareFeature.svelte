@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade, fly, scale } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import Brain from "@lucide/svelte/icons/brain";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import Sparkles from "@lucide/svelte/icons/sparkles";
@@ -23,28 +23,27 @@
 >
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
     <!-- Left: Content -->
-    <div class="space-y-8" in:fly={{ x: -20, duration: 800 }}>
+    <div class="space-y-8">
       <div
         class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFC107]/10 border border-[#FFC107]/20 text-[#FFC107] text-sm font-bold tracking-wide uppercase"
       >
         <Sparkles class="w-4 h-4" />
-        Advanced AI Context
+        Trust & Accuracy
       </div>
 
-      <h2 class="text-4xl md:text-6xl font-bold text-white leading-[1.1]">
-        Stop the <span
-          class="bg-linear-to-r from-red-400 to-red-600 bg-clip-text text-transparent italic"
-          >Soul-Crushing</span
-        > <br class="hidden md:block" /> Manual Bottleneck.
+      <h2
+        class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+      >
+        Context-Aware <br /> <span class="text-[#FFC107]">Accuracy</span>
       </h2>
 
       <p class="text-lg md:text-xl text-white/60 leading-relaxed max-w-xl">
-        Cubrain isn't just another AI. It understands deep context, ensuring
-        every flashcard is a perfect reflection of your source material.
+        We don't just guess. Cubrain links every flashcard back to the exact
+        paragraph in your PDF.
       </p>
 
       <ul class="space-y-4">
-        {#each ["Precision Context Extraction", "Zero Hallucination Proof", "Technical Terminology Mastery"] as feature}
+        {#each ["Precision Context Extraction", "Zero Hallucination Verified", "Direct Source Linking"] as feature}
           <li class="flex items-center gap-3 text-white/80">
             <div
               class="w-6 h-6 rounded-full bg-[#FFC107]/20 flex items-center justify-center text-[#FFC107]"
@@ -59,156 +58,177 @@
       <div class="pt-4">
         <a
           href="/upload"
-          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
+          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all transform hover:-translate-y-1"
         >
-          Try it Now
+          View Live Demo
           <ArrowRight class="w-5 h-5" />
         </a>
       </div>
     </div>
 
-    <!-- Right: Clay Mockup Proof -->
-    <div
-      class="relative perspective-2000"
-      in:fly={{ x: 20, duration: 800, delay: 200 }}
-    >
+    <!-- Right: MacBook Pro Mockup -->
+    <div class="relative" in:fly={{ y: 20, duration: 800, delay: 200 }}>
       <!-- Ambient Glow -->
       <div
-        class="absolute -inset-20 bg-[#FFC107]/10 blur-[100px] -z-10 rounded-full"
+        class="absolute -inset-20 bg-[#FFC107]/5 blur-[120px] -z-10 rounded-full"
       ></div>
 
-      <!-- Clay Mockup Container -->
-      <div
-        class="relative bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl overflow-hidden group"
-      >
-        <!-- PDF/Source Side -->
+      <!-- MacBook Pro Frame -->
+      <div class="relative mx-auto max-w-[600px] perspective-2000">
+        <!-- The Laptop Chassis -->
         <div
-          class="space-y-4 opacity-80 group-hover:opacity-100 transition-opacity"
+          class="relative bg-zinc-800 rounded-4xl p-4 shadow-2xl border border-white/10 ring-1 ring-white/5"
         >
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex gap-1.5">
-              <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
-              <div class="w-2.5 h-2.5 rounded-full bg-amber-500/50"></div>
-              <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/50"></div>
-            </div>
-            <div
-              class="text-[10px] text-white/30 font-mono tracking-widest uppercase"
-            >
-              Source: Neuroscience_Vol2.pdf
-            </div>
-          </div>
-
-          <h4
-            class="text-sm font-bold text-white/40 uppercase tracking-tighter"
-          >
-            Chapter 4: Synaptic Dynamics
-          </h4>
-
-          <div class="text-[13px] leading-relaxed text-white/50 font-serif">
-            <p>
-              The arrival of an action potential at the presynaptic terminal
-              triggers the opening of voltage-gated calcium channels. The
-              resulting influx of Ca2+ ions facilitates the docking of synaptic
-              vesicles to the active zone via the
-              <span
-                class={activeHighlight
-                  ? "bg-[#FFC107]/40 text-[#FFC107] px-1 rounded transition-all duration-1000 delay-500"
-                  : ""}
-              >
-                SNARE complex
-              </span>
-              mediating neurotransmitter release into the synaptic cleft. This process
-              is highly regulated by various proteins including synaptotagmin and
-              complexin.
-            </p>
-          </div>
-        </div>
-
-        <!-- Flashcard Output Overlay (The "Result") -->
-        <div
-          class="absolute bottom-6 right-6 md:bottom-12 md:right-12 w-[280px] md:w-[320px] transform transition-all duration-700"
-          class:translate-y-0={isVisible}
-          class:translate-y-8={!isVisible}
-          class:opacity-100={isVisible}
-          class:opacity-0={!isVisible}
-        >
+          <!-- The Screen -->
           <div
-            class="bg-zinc-800/90 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 overflow-hidden relative group/card"
+            class="relative bg-black rounded-xl overflow-hidden aspect-16/10 border border-white/5"
           >
-            <!-- Glow effect on card -->
+            <!-- App UI Inside Screen -->
             <div
-              class="absolute inset-0 bg-linear-to-br from-[#FFC107]/5 to-transparent pointer-events-none"
-            ></div>
-
-            <div class="relative z-10">
-              <div class="flex items-center gap-2 mb-4">
-                <div
-                  class="w-8 h-8 rounded-lg bg-[#FFC107]/10 flex items-center justify-center text-[#FFC107]"
-                >
-                  <Brain class="w-4 h-4" />
+              class="absolute inset-0 flex flex-col pt-4 px-4 pb-0 bg-zinc-950"
+            >
+              <!-- Header inside mockup -->
+              <div
+                class="flex items-center justify-between mb-4 border-b border-white/5 pb-2"
+              >
+                <div class="flex gap-1.5">
+                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
                 </div>
                 <div
-                  class="text-[10px] font-bold text-[#FFC107] tracking-widest uppercase"
+                  class="text-[8px] text-white/20 font-mono tracking-widest uppercase"
                 >
-                  Verified Card
+                  Cubrain Reader v1.4
                 </div>
               </div>
 
-              <div class="space-y-4">
-                <div>
+              <!-- Split View Content -->
+              <div class="flex-1 grid grid-cols-2 gap-4 pb-4">
+                <div
+                  class="bg-zinc-900/50 rounded-lg p-3 border border-white/5 overflow-hidden flex flex-col"
+                >
                   <div
-                    class="text-[10px] text-white/30 uppercase font-black mb-1"
+                    class="text-[9px] text-zinc-500 font-bold mb-2 uppercase tracking-tighter"
                   >
-                    Question
+                    PDF View
                   </div>
-                  <div class="text-sm font-medium text-white leading-snug">
-                    Which protein complex facilitates the docking of synaptic
-                    vesicles to the active zone?
+                  <div class="space-y-2 font-serif">
+                    <div class="h-1 w-full bg-white/5 rounded-full"></div>
+                    <div class="h-1 w-5/6 bg-white/5 rounded-full"></div>
+                    <div class="relative h-4 w-full">
+                      <div
+                        class="absolute top-1.5 h-1 w-full bg-white/5 rounded-full"
+                      ></div>
+                      <div
+                        class="absolute top-0 left-0 h-4 bg-amber-400/30 rounded transition-all duration-1000 delay-500"
+                        style="width: {activeHighlight ? '66.6%' : '0%'}"
+                      ></div>
+                      <div
+                        class="absolute top-1.5 left-0 h-1 w-2/3 bg-white/20 rounded-full"
+                        class:opacity-0={activeHighlight}
+                      ></div>
+                      <div
+                        class="absolute top-1.5 left-0 h-1 w-2/3 bg-white/60 rounded-full opacity-0 transition-opacity duration-1000 delay-500"
+                        class:opacity-100={activeHighlight}
+                      ></div>
+                    </div>
+                    <div class="h-1 w-full bg-white/5 rounded-full"></div>
+                    <div class="h-1 w-4/5 bg-white/5 rounded-full"></div>
+                    <div class="h-1 w-3/4 bg-white/5 rounded-full"></div>
                   </div>
                 </div>
 
-                <div
-                  class="transition-all duration-700 delay-[1.5s]"
-                  class:opacity-100={activeHighlight}
-                  class:translate-y-0={activeHighlight}
-                  class:opacity-0={!activeHighlight}
-                  class:translate-y-2={!activeHighlight}
-                >
+                <!-- Flashcard Section (Right) -->
+                <div class="flex flex-col justify-center gap-4">
                   <div
-                    class="text-[10px] text-[#FFC107] uppercase font-black mb-1"
+                    class="bg-zinc-900 border border-white/10 rounded-xl p-4 shadow-xl transform transition-all duration-700"
+                    class:translate-y-0={isVisible}
+                    class:translate-y-4={!isVisible}
+                    class:opacity-100={isVisible}
+                    class:opacity-0={!isVisible}
                   >
-                    Answer
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <Brain class="w-3 h-3 text-[#FFC107]" />
+                      <span
+                        class="text-[8px] font-bold text-[#FFC107] uppercase tracking-widest"
+                        >Question</span
+                      >
+                    </div>
+                    <div
+                      class="text-[10px] text-white/80 font-medium leading-relaxed mb-3"
+                    >
+                      What triggers neurotransmitter release?
+                    </div>
+
+                    <div
+                      class="transition-all duration-700 delay-[1.2s]"
+                      class:opacity-100={activeHighlight}
+                      class:translate-y-0={activeHighlight}
+                      class:opacity-0={!activeHighlight}
+                      class:translate-y-1={!activeHighlight}
+                    >
+                      <hr class="border-white/5 mb-3" />
+                      <div class="flex items-center gap-2">
+                        <span class="w-1 h-3 bg-[#FFC107] rounded-full"></span>
+                        <span class="text-[10px] font-bold text-white"
+                          >Action Potential Influx</span
+                        >
+                      </div>
+                    </div>
                   </div>
+
+                  <!-- Connection Badge -->
                   <div
-                    class="text-sm font-bold text-white flex items-center gap-2"
+                    class="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 transition-opacity duration-700 delay-[1.8s]"
+                    class:opacity-100={activeHighlight}
+                    class:opacity-0={!activeHighlight}
                   >
-                    <span class="w-1.5 h-4 bg-[#FFC107] rounded-full"></span>
-                    SNARE complex
+                    <div
+                      class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"
+                    ></div>
+                    <span
+                      class="text-[8px] font-bold text-emerald-400 uppercase tracking-widest"
+                      >Verified 100%</span
+                    >
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Connection Line (Visual Cue) -->
+            <!-- Screen Reflection Finish -->
             <div
-              class="absolute -top-10 -left-10 w-40 h-40 bg-[#FFC107]/5 blur-3xl -z-10 group-hover/card:bg-[#FFC107]/10 transition-colors"
+              class="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent pointer-events-none"
             ></div>
           </div>
         </div>
+
+        <!-- Bottom Base/Lip -->
+        <div
+          class="relative -mt-4 mx-12 h-2 bg-zinc-700 rounded-b-xl shadow-xl border-x border-b border-white/10"
+        ></div>
+        <div
+          class="relative mx-auto mt-px w-[150px] h-1.5 bg-zinc-900 rounded-b-xl opacity-50 shadow-inner"
+        ></div>
       </div>
 
-      <!-- Supporting Badges -->
+      <!-- Verified Floating Badge -->
       <div
-        class="absolute -top-4 -right-4 bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-2 shadow-xl animate-bounce"
-        style="animation-duration: 3s;"
+        class="absolute -bottom-6 -right-6 lg:-right-12 bg-white/5 border border-white/10 backdrop-blur-xl p-4 rounded-2xl shadow-2xl flex items-center gap-4 group"
       >
         <div
-          class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"
-        ></div>
-        <span
-          class="text-xs font-bold text-emerald-400 uppercase tracking-tighter"
-          >Zero Hallucination</span
+          class="w-10 h-10 rounded-full bg-[#FFC107]/10 flex items-center justify-center text-[#FFC107] group-hover:bg-[#FFC107]/20 transition-colors"
         >
+          <CheckCircle2 class="w-6 h-6" />
+        </div>
+        <div>
+          <div
+            class="text-xs font-black text-white uppercase tracking-widest mb-0.5"
+          >
+            Zero Hallucination
+          </div>
+          <div class="text-[10px] text-white/40">Context-Aware Core Engine</div>
+        </div>
       </div>
     </div>
   </div>
@@ -217,13 +237,5 @@
 <style>
   :global(.perspective-2000) {
     perspective: 2000px;
-  }
-
-  :global(.rotate-y-2) {
-    transform: rotateY(2deg);
-  }
-
-  :global(.rotate-x-2) {
-    transform: rotateX(2deg);
   }
 </style>
