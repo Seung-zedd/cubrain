@@ -96,9 +96,9 @@
 
 <div class="min-h-screen flex flex-col bg-background text-foreground">
   <nav
-    class="sticky top-4 z-50 mx-4 md:mx-6 lg:mx-auto max-w-[1400px] px-6 md:px-8 py-3 md:py-4 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-xl shadow-black/30 transition-all duration-300"
+    class="sticky top-4 z-50 mx-4 md:mx-6 lg:mx-auto w-[92%] max-w-[1440px] px-8 md:px-12 py-3 md:py-4 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-xl shadow-black/30 transition-all duration-300"
   >
-    <a href="/" class="z-50 shrink-0">
+    <a href="/" class="shrink-0">
       <img
         src="/logo-gold.png"
         alt="Cubrain AI Logo"
@@ -106,39 +106,41 @@
       />
     </a>
 
-    <!-- Desktop Menu -->
-    <div class="hidden md:flex flex-1 justify-end gap-8 lg:gap-10 items-center">
-      <a
-        href="#features"
-        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-        >Features</a
-      >
-      <a
-        href="#pricing"
-        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-        >Pricing</a
-      >
-      <a
-        href="/whats-new"
-        onclick={markAsSeen}
-        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
-      >
-        What's New
-        {#if hasNewUpdate}
-          <span class="relative flex h-2 w-2">
-            <span
-              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-            ></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-            ></span>
-          </span>
-        {/if}
-      </a>
-      <a
-        href="/library"
-        class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-        >Library</a
-      >
+    <!-- Desktop Menu + CTA -->
+    <div class="hidden md:flex items-center gap-12 lg:gap-16">
+      <div class="flex items-center gap-8 lg:gap-10">
+        <a
+          href="#features"
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+          >Features</a
+        >
+        <a
+          href="#pricing"
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+          >Pricing</a
+        >
+        <a
+          href="/whats-new"
+          onclick={markAsSeen}
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
+        >
+          What's New
+          {#if hasNewUpdate}
+            <span class="relative flex h-2 w-2">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+              ></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+              ></span>
+            </span>
+          {/if}
+        </a>
+        <a
+          href="/library"
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+          >Library</a
+        >
+      </div>
       {#if user.current}
         <a
           href="/library"
