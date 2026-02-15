@@ -96,7 +96,7 @@
 
 <div class="min-h-screen flex flex-col bg-background text-foreground">
   <nav
-    class="sticky top-4 z-50 mx-4 max-w-7xl lg:mx-auto px-6 md:px-10 py-3 md:py-4 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-lg shadow-black/20 transition-all duration-300"
+    class="sticky top-4 z-50 mx-4 max-w-7xl lg:mx-auto px-8 md:px-14 py-4 md:py-5 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-lg shadow-black/20 transition-all duration-300"
   >
     <a href="/" class="z-50">
       <img
@@ -107,7 +107,7 @@
     </a>
 
     <!-- Desktop Menu -->
-    <div class="hidden md:flex gap-8 items-center">
+    <div class="hidden md:flex gap-12 items-center">
       <a
         href="#features"
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
