@@ -49,7 +49,30 @@
     script.type = "application/ld+json";
     script.text = JSON.stringify(jsonLd);
     document.head.appendChild(script);
+
+    const interval = setInterval(() => {
+      currentSlide = (currentSlide + 1) % heroSlides.length;
+    }, 4000);
+
+    return () => clearInterval(interval);
   });
+
+  const heroSlides = [
+    {
+      h: 'Stop <span class="text-[#FFD700]">soul-crushing</span> typing.',
+      s: "Turn highlights into flashcards instantly.",
+    },
+    {
+      h: 'Is prep your <span class="text-[#FFD700]">bottleneck</span>?',
+      s: "Generate flashcards in seconds, not hours.",
+    },
+    {
+      h: 'Tired of <span class="text-[#FFD700]">random, low-quality</span> AI cards?',
+      s: "Generate precise flashcards strictly from highlights.",
+    },
+  ];
+
+  let currentSlide = $state(0);
 
   function markAsSeen() {
     localStorage.setItem("cubrain_whats_new_seen", CURRENT_VERSION);
@@ -318,30 +341,34 @@
     )}
   >
     <header
-      class="pt-32 md:pt-40 pb-12 md:pb-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 max-w-6xl mx-auto items-center min-h-[90vh] px-6"
+      class="pt-32 md:pt-40 pb-12 md:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 max-w-7xl mx-auto items-center min-h-[90vh] px-6"
     >
-      <div class="text-center md:text-left z-10">
-        <h1
-          class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6 md:mb-8 text-white tracking-tight"
-        >
-          Turn Your PDFs into <br class="hidden sm:block" />
-          <span
-            class="bg-linear-to-r from-[#FFD700] via-[#FDB931] to-[#FFD700] bg-clip-text text-transparent bg-size-[200%_auto] animate-gradient"
-            >Flashcards</span
-          >
-          in Seconds.
-        </h1>
-        <p
-          class="text-base md:text-xl text-white/60 mb-8 md:mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed"
-        >
-          Soak your brain with AI-generated flashcards. <br
-            class="hidden md:block"
-          />
-          Every flashcard is backed by your PDF file and keeps the text context to
-          ensure zero hallucinations.
-        </p>
+      <div class="text-left z-10">
+        <!-- Hero Carousel Container -->
         <div
-          class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
+          class="min-h-[220px] md:min-h-[280px] lg:min-h-[320px] flex flex-col justify-center"
+        >
+          {#key currentSlide}
+            <div
+              in:fly={{ y: 20, duration: 400 }}
+              class="space-y-6 md:space-y-8"
+            >
+              <h1
+                class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight text-white tracking-tight"
+              >
+                {@html heroSlides[currentSlide].h}
+              </h1>
+              <p
+                class="text-base md:text-xl text-white/60 max-w-lg leading-relaxed"
+              >
+                {heroSlides[currentSlide].s}
+              </p>
+            </div>
+          {/key}
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row gap-4 justify-start mt-8 md:mt-10"
         >
           {#if user.current}
             <a
@@ -353,7 +380,7 @@
             <button
               onclick={() => (showLoginModal = true)}
               class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >Start for Free</button
+              >Try with your PDF</button
             >
           {/if}
           <a
@@ -374,12 +401,12 @@
           </button>
         </div>
       </div>
-      <div class="relative z-10 group perspective-1000">
+      <div class="relative z-10 group lg:perspective-2000">
         <div
-          class="relative transform transition-transform duration-500 group-hover:rotate-y-2 group-hover:rotate-x-2"
+          class="relative transform transition-all duration-700 lg:group-hover:rotate-y-6 lg:group-hover:rotate-x-2 lg:group-hover:scale-105"
         >
           <div
-            class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"
+            class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000"
           ></div>
           <video
             src="/videos/hero-bg.mp4"
@@ -396,7 +423,7 @@
         </div>
         <!-- Ambient Glow -->
         <div
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[#FFD700]/10 blur-[100px] -z-10 pointer-events-none"
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"
         ></div>
       </div>
     </header>
