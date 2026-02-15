@@ -1,5 +1,6 @@
 <script lang="ts">
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
+  import ContextAwareFeature from "$lib/components/marketing/ContextAwareFeature.svelte";
   import HeroVideo from "$lib/components/HeroVideo.svelte";
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
@@ -430,7 +431,12 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- New Context-Aware Primary Feature -->
+      <div class="mb-24">
+        <ContextAwareFeature />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Feature 1 -->
         <div
           class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
@@ -447,23 +453,7 @@
           </p>
         </div>
 
-        <!-- Feature 2 -->
-        <div
-          class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
-        >
-          <div
-            class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
-          >
-            <Brain class="w-6 h-6 text-[#FFD700]" />
-          </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">Context Aware</h3>
-          <p class="text-white/60 leading-relaxed">
-            Cubrain understands the surrounding text to create better, more
-            meaningful questions that test true understanding.
-          </p>
-        </div>
-
-        <!-- Feature 3 -->
+        <!-- Feature 3 (Smart Study) -->
         <div
           class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
         >
@@ -479,7 +469,7 @@
           </p>
         </div>
 
-        <!-- Feature 4 -->
+        <!-- Feature 4 (Easy Export) -->
         <div
           class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
         >
