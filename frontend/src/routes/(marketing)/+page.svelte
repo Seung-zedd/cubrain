@@ -354,7 +354,7 @@
               class="space-y-6 md:space-y-8"
             >
               <h1
-                class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight text-white tracking-tight"
+                class="text-5xl sm:text-6xl lg:text-8xl font-black leading-[1.1] text-white tracking-tight"
               >
                 {@html heroSlides[currentSlide].h}
               </h1>
@@ -401,12 +401,17 @@
           </button>
         </div>
       </div>
-      <div class="relative z-10 group lg:perspective-2000">
+      <div class="relative z-10 group lg:perspective-2000 lg:ml-12">
+        <!-- Backdrop Glow -->
         <div
-          class="relative transform transition-all duration-700 lg:group-hover:rotate-y-6 lg:group-hover:rotate-x-2 lg:group-hover:scale-105"
+          class="absolute -inset-10 md:-inset-20 bg-[#FFD700]/15 blur-[100px] md:blur-[140px] rounded-full -z-10 pointer-events-none"
+        ></div>
+
+        <div
+          class="relative transform transition-all duration-1000 lg:group-hover:rotate-y-12 lg:group-hover:rotate-x-2 lg:group-hover:scale-110"
         >
           <div
-            class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000"
+            class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"
           ></div>
           <video
             src="/videos/hero-bg.mp4"
@@ -417,14 +422,10 @@
             playsinline
             preload="auto"
             aria-label="Cubrain App Background Animation"
-            class="relative w-full rounded-2xl shadow-2xl border border-white/10 bg-black/50 overflow-hidden"
+            class="relative w-full rounded-2xl shadow-[0_0_80px_-15px_rgba(255,193,7,0.4)] border border-white/20 bg-black/50 overflow-hidden transition-all duration-700"
           >
           </video>
         </div>
-        <!-- Ambient Glow -->
-        <div
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"
-        ></div>
       </div>
     </header>
 
