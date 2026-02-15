@@ -107,7 +107,7 @@
     </a>
 
     <!-- Desktop Menu -->
-    <div class="hidden md:flex gap-16 lg:gap-24 items-center">
+    <div class="hidden md:flex md:ml-20 lg:ml-32 gap-16 lg:gap-24 items-center">
       <a
         href="#features"
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
