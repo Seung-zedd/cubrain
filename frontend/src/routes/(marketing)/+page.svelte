@@ -96,7 +96,7 @@
 
 <div class="min-h-screen flex flex-col bg-background text-foreground">
   <nav
-    class="sticky top-0 left-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-100 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl"
+    class="sticky top-4 z-50 mx-4 max-w-7xl lg:mx-auto px-6 md:px-10 py-3 md:py-4 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-lg shadow-black/20 transition-all duration-300"
   >
     <a href="/" class="z-50">
       <img
