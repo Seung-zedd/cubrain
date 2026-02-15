@@ -341,12 +341,12 @@
     )}
   >
     <header
-      class="pt-32 md:pt-40 pb-12 md:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 max-w-7xl mx-auto items-center min-h-[90vh] px-6"
+      class="pt-32 md:pt-48 pb-20 flex flex-col items-center text-center max-w-7xl mx-auto min-h-screen px-6 overflow-hidden"
     >
-      <div class="text-left z-10">
+      <div class="z-10 w-full max-w-4xl mx-auto">
         <!-- Hero Carousel Container -->
         <div
-          class="min-h-[220px] md:min-h-[280px] lg:min-h-[320px] flex flex-col justify-center"
+          class="min-h-[220px] md:min-h-[280px] lg:min-h-[320px] flex flex-col justify-center items-center"
         >
           {#key currentSlide}
             <div
@@ -354,12 +354,12 @@
               class="space-y-6 md:space-y-8"
             >
               <h1
-                class="text-5xl sm:text-6xl lg:text-8xl font-black leading-[1.1] text-white tracking-tight"
+                class="text-5xl sm:text-7xl lg:text-8xl font-black leading-[1.1] text-white tracking-tight"
               >
                 {@html heroSlides[currentSlide].h}
               </h1>
               <p
-                class="text-base md:text-xl text-white/60 max-w-lg leading-relaxed"
+                class="text-base md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed"
               >
                 {heroSlides[currentSlide].s}
               </p>
@@ -368,32 +368,32 @@
         </div>
 
         <div
-          class="flex flex-col sm:flex-row gap-4 justify-start mt-8 md:mt-10"
+          class="flex flex-col sm:flex-row gap-4 justify-center mt-8 md:mt-12"
         >
           {#if user.current}
             <a
               href="/library"
-              class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
+              class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
               >Start Learning</a
             >
           {:else}
             <button
               onclick={() => (showLoginModal = true)}
-              class="px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
+              class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
               >Try with your PDF</button
             >
           {/if}
           <a
             href="#pricing"
-            class="px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
+            class="px-10 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
             >View Pricing</a
           >
           <button
-            class="flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all group text-white font-bold text-lg"
+            class="flex items-center justify-center gap-3 px-10 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all group text-white font-bold text-lg"
             onclick={() => (showDemoModal = true)}
           >
             <div
-              class="w-8 h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center text-[#FFD700] group-hover:scale-110 transition-transform"
+              class="w-8 h-8 rounded-full bg-[#FFD700]/10 flex items-center justify-center text-[#FFD700] group-hover:bg-[#FFD700]/20 transition-all"
             >
               <Play class="w-4 h-4" fill="currentColor" />
             </div>
@@ -401,18 +401,17 @@
           </button>
         </div>
       </div>
-      <div class="relative z-10 group lg:perspective-2000 lg:ml-12">
-        <!-- Backdrop Glow -->
+
+      <!-- Massive Video Container -->
+      <div class="relative z-10 w-full max-w-6xl mx-auto mt-20 md:mt-24 group">
+        <!-- Massive Backdrop Glow -->
         <div
-          class="absolute -inset-10 md:-inset-20 bg-[#FFD700]/15 blur-[100px] md:blur-[140px] rounded-full -z-10 pointer-events-none"
+          class="absolute -inset-20 md:-inset-40 bg-[#FFD700]/10 blur-[120px] md:blur-[180px] rounded-full -z-10 pointer-events-none"
         ></div>
 
         <div
-          class="relative transform transition-all duration-1000 lg:group-hover:rotate-y-12 lg:group-hover:rotate-x-2 lg:group-hover:scale-110"
+          class="relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/50 shadow-[0_0_100px_-20px_rgba(255,193,7,0.2)] transition-all duration-700"
         >
-          <div
-            class="absolute -inset-1 bg-linear-to-r from-[#FFD700] to-[#FDB931] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"
-          ></div>
           <video
             src="/videos/hero-bg.mp4"
             poster="/og-image.png"
@@ -422,9 +421,14 @@
             playsinline
             preload="auto"
             aria-label="Cubrain App Background Animation"
-            class="relative w-full rounded-2xl shadow-[0_0_80px_-15px_rgba(255,193,7,0.4)] border border-white/20 bg-black/50 overflow-hidden transition-all duration-700"
+            class="w-full aspect-video object-cover"
           >
           </video>
+
+          <!-- Glossy Overlay -->
+          <div
+            class="absolute inset-0 bg-linear-to-t from-zinc-950/20 to-transparent pointer-events-none"
+          ></div>
         </div>
       </div>
     </header>
