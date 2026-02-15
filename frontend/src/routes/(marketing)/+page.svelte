@@ -94,11 +94,9 @@
   <link rel="preload" href="/og-image.png" as="image" fetchpriority="high" />
 </svelte:head>
 
-<div
-  class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
->
+<div class="min-h-screen flex flex-col bg-background text-foreground">
   <nav
-    class="sticky top-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/10"
+    class="sticky top-0 left-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-100 bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl"
   >
     <a href="/" class="z-50">
       <img
