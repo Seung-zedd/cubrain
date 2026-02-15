@@ -52,7 +52,7 @@
 
 {#if showBanner}
   <div
-    class="sticky top-0 z-50 w-full {isGracePeriod
+    class="relative z-40 w-full {isGracePeriod
       ? 'bg-linear-to-r from-red-600 via-red-500 to-red-600 text-white'
       : 'bg-linear-to-r from-amber-600 via-amber-500 to-amber-600 text-black'} py-2.5 px-4 shadow-lg"
     transition:slide={{ duration: 300 }}

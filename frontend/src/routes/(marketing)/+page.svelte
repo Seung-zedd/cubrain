@@ -98,7 +98,7 @@
   class="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden"
 >
   <nav
-    class="relative w-full px-6 md:px-12 py-6 flex justify-between items-center z-40 bg-black border-b border-white/5"
+    class="sticky top-0 w-full px-6 md:px-12 py-6 flex justify-between items-center z-50 bg-black/80 backdrop-blur-md border-b border-white/5"
   >
     <a href="/" class="z-50">
       <img
@@ -316,16 +316,14 @@
               Start Learning
             </a>
           {:else}
-            <button
-              onclick={() => {
-                toggleMobileMenu();
-                showLoginModal = true;
-              }}
+            <a
+              href="/upload"
+              onclick={toggleMobileMenu}
               class="flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-[0.98] transition-all"
             >
               <Zap class="w-5 h-5" />
               Get Started
-            </button>
+            </a>
           {/if}
         </div>
       </div>
@@ -377,10 +375,10 @@
               >Start Learning</a
             >
           {:else}
-            <button
-              onclick={() => (showLoginModal = true)}
+            <a
+              href="/upload"
               class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >Try with your PDF</button
+              >Try with your PDF</a
             >
           {/if}
           <a
