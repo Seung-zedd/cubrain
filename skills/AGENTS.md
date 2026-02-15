@@ -283,3 +283,23 @@ When adapting external UI code (e.g., from Uiverse) into Cubrain:
     - **Border Radius:** Use `rounded-lg` as the default.
     - **Typography:** Match the project's font settings.
     - **Transitions:** Use smooth, consistent transitions.
+
+## 25. 🎨 Cubrain Design System (Expansion)
+
+- **Core Identity:** "Glassmorphism & Focus".
+- **Color Palette (Strict):**
+  - **Primary (Highlights/Action):** `#FFC107` (Amber/Yellow).
+  - **Glassmorphism Recipe:** `bg-white/10 backdrop-blur-md border border-white/20 shadow-lg`.
+- **Layout Rules:**
+  - **Hero Section:** ALWAYS use the **Two-Track Video Strategy** (`hero-bg.mp4` for background, `demo-full.mp4` for modal).
+  - **Feature Section:** Use **Split View** (Left: Text, Right: Image) for Desktop to show "Zero Hallucination" proof.
+
+## 26. ✍️ Marketing & Copywriting Guidelines
+
+- **Target Personas (Validated):** Students, Pros, Power-Users.
+- **Mandatory Keywords (Use these):**
+  - "Soul-crushing" (manual typing)
+  - "Bottleneck" (prep time)
+  - "Context-Aware" / "Precision" (vs Random AI)
+- **Forbidden Keywords:** "Magic", "Game-changer" (Too cliché).
+- **Tone:** Direct, Empathetic, Efficiency-focused.
