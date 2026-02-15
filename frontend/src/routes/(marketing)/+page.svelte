@@ -96,9 +96,9 @@
 
 <div class="min-h-screen flex flex-col bg-background text-foreground">
   <nav
-    class="sticky top-4 z-50 mx-4 max-w-7xl lg:mx-auto px-8 md:px-14 py-4 md:py-5 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-lg shadow-black/20 transition-all duration-300"
+    class="sticky top-4 z-50 mx-4 md:mx-8 lg:mx-auto max-w-[1600px] px-10 md:px-20 py-4 md:py-5 flex justify-between items-center bg-[#050505]/70 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-full shadow-xl shadow-black/30 transition-all duration-300"
   >
-    <a href="/" class="z-50">
+    <a href="/" class="z-50 shrink-0">
       <img
         src="/logo-gold.png"
         alt="Cubrain AI Logo"
@@ -107,7 +107,7 @@
     </a>
 
     <!-- Desktop Menu -->
-    <div class="hidden md:flex gap-12 items-center">
+    <div class="hidden md:flex gap-16 lg:gap-24 items-center">
       <a
         href="#features"
         class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
