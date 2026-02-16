@@ -125,18 +125,13 @@
                   </p>
 
                   <p class="relative">
-                    <span class="relative inline">
-                      <span
-                        class="relative z-10 font-bold transition-colors duration-1000"
-                        class:text-black={activeHighlight}
-                      >
-                        The DNS is a distributed database implemented in a
-                        hierarchy of many name servers.
-                      </span>
-                      <span
-                        class="absolute inset-0 bg-[#FFC107]/40 border-b-2 border-[#FFC107] scale-x-0 origin-left transition-transform duration-1000 ease-out z-0"
-                        class:scale-x-100={activeHighlight}
-                      ></span>
+                    <span
+                      class="relative z-10 font-bold transition-all duration-1000 box-decoration-clone px-1 {activeHighlight
+                        ? 'bg-[#FFC107]/40 border-b-2 border-[#FFC107] text-black'
+                        : ''}"
+                    >
+                      The DNS is a distributed database implemented in a
+                      hierarchy of many name servers.
                     </span>
                     It serves as an application-layer protocol that allows hosts
                     to query the database and resolve hostnames to IP addresses.
@@ -203,7 +198,7 @@
                 <div
                   class="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black px-3 py-1 rounded-lg"
                 >
-                  Q.1
+                  P.42
                 </div>
                 <Sparkles
                   class="w-5 h-5 text-[#FFC107]/40 group-hover/card:text-[#FFC107] transition-colors"
@@ -243,15 +238,6 @@
                     addresses.
                   </p>
                 </div>
-              </div>
-
-              <div class="mt-8 flex justify-end">
-                <button
-                  class="bg-[#FF4081]/10 border border-[#FF4081]/20 text-[#FF4081] text-[10px] font-black px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-[#FF4081]/20 transition-all"
-                >
-                  <Zap class="w-3 h-3 fill-current" />
-                  MASTERED
-                </button>
               </div>
             </div>
 
