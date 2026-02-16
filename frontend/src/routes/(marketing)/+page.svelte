@@ -1,7 +1,6 @@
 <script lang="ts">
   import FlashcardDemo from "$lib/components/FlashcardDemo.svelte";
   import ContextAwareFeature from "$lib/components/marketing/ContextAwareFeature.svelte";
-  import HeroVideo from "$lib/components/HeroVideo.svelte";
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import { user } from "$lib/stores/user.svelte";

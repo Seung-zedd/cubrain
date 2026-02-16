@@ -3,7 +3,7 @@
   import Brain from "@lucide/svelte/icons/brain";
   import CheckCircle2 from "@lucide/svelte/icons/check-circle-2";
   import Sparkles from "@lucide/svelte/icons/sparkles";
-  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Zap from "@lucide/svelte/icons/zap";
   import { onMount } from "svelte";
 
   let isVisible = $state(false);
@@ -13,221 +13,283 @@
     isVisible = true;
     setTimeout(() => {
       activeHighlight = true;
-    }, 1000);
+    }, 1500);
   });
 </script>
 
 <section
   id="context-aware"
-  class="py-24 px-6 max-w-7xl mx-auto overflow-hidden"
+  class="py-24 px-6 max-w-7xl mx-auto overflow-hidden relative"
 >
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-    <!-- Left: Content -->
-    <div class="space-y-8">
+  <!-- Ambient Glow Background -->
+  <div
+    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-amber-500/10 blur-[120px] rounded-full -z-10 pointer-events-none"
+  ></div>
+
+  <div class="flex flex-col gap-16 items-center">
+    <!-- Header Side (Top, Centered) -->
+    <div
+      class="w-full flex flex-col items-center text-center space-y-8 max-w-4xl"
+    >
       <div
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFC107]/10 border border-[#FFC107]/20 text-[#FFC107] text-sm font-bold tracking-wide uppercase"
+        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFC107]/10 border border-[#FFC107]/20 text-[#FFC107] text-xs font-black tracking-widest uppercase"
       >
         <Sparkles class="w-4 h-4" />
-        Trust & Accuracy
+        The Proof of Truth
       </div>
 
       <h2
-        class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+        class="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight"
       >
-        Context-Aware <br /> <span class="text-[#FFC107]">Accuracy</span>
+        Context-Aware <span class="text-[#FFC107]">Accuracy</span>
       </h2>
 
-      <p class="text-lg md:text-xl text-white/60 leading-relaxed max-w-xl">
-        We don't just guess. Cubrain links every flashcard back to the exact
-        paragraph in your PDF.
+      <p class="text-xl text-white/60 leading-relaxed max-w-2xl mx-auto">
+        Stop guessing. Cubrain links every flashcard back to the exact paragraph
+        in your PDF. <span class="text-white font-medium"
+          >Zero hallucinations, 100% traceability.</span
+        >
       </p>
 
-      <ul class="space-y-4">
-        {#each ["Precision Context Extraction", "Zero Hallucination Verified", "Direct Source Linking"] as feature}
-          <li class="flex items-center gap-3 text-white/80">
+      <div class="flex flex-wrap justify-center gap-6 pt-4">
+        {#each ["Precision Context Extraction", "Zero Hallucination Verified", "Direct Source Linking"] as feature, i}
+          <div
+            class="flex items-center gap-3 text-white/80 group/item"
+            in:fly={{ y: 10, duration: 400, delay: 600 + i * 100 }}
+          >
             <div
-              class="w-6 h-6 rounded-full bg-[#FFC107]/20 flex items-center justify-center text-[#FFC107]"
+              class="w-6 h-6 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[#FFC107] group-hover/item:border-[#FFC107]/50 transition-colors"
             >
               <CheckCircle2 class="w-4 h-4" />
             </div>
-            <span class="font-medium">{feature}</span>
-          </li>
+            <span class="text-base font-bold tracking-tight">{feature}</span>
+          </div>
         {/each}
-      </ul>
-
-      <div class="pt-4">
-        <a
-          href="/upload"
-          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all transform hover:-translate-y-1"
-        >
-          View Live Demo
-          <ArrowRight class="w-5 h-5" />
-        </a>
       </div>
     </div>
 
-    <!-- Right: MacBook Pro Mockup -->
-    <div class="relative" in:fly={{ y: 20, duration: 800, delay: 200 }}>
-      <!-- Ambient Glow -->
+    <!-- Visual Mockup (Bottom, Full Width Glass Stage) -->
+    <div
+      class="w-full relative group"
+      in:fly={{ y: 20, duration: 800, delay: 200 }}
+    >
+      <!-- Background Glow for Mockup -->
       <div
-        class="absolute -inset-20 bg-[#FFC107]/5 blur-[120px] -z-10 rounded-full"
+        class="absolute -inset-4 bg-amber-500/10 blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-700 rounded-full"
       ></div>
 
-      <!-- MacBook Pro Frame -->
-      <div class="relative mx-auto max-w-[600px] perspective-2000">
-        <!-- The Laptop Chassis -->
+      <!-- Massive Glass Stage Container -->
+      <div
+        class="relative bg-zinc-950/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl p-8 md:p-12"
+      >
         <div
-          class="relative bg-zinc-800 rounded-4xl p-4 shadow-2xl border border-white/10 ring-1 ring-white/5"
+          class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-center"
         >
-          <!-- The Screen -->
-          <div
-            class="relative bg-black rounded-xl overflow-hidden aspect-16/10 border border-white/5"
-          >
-            <!-- App UI Inside Screen -->
+          <!-- Left: PDF Document View -->
+          <div class="flex flex-col relative">
             <div
-              class="absolute inset-0 flex flex-col pt-4 px-4 pb-0 bg-zinc-950"
+              class="bg-white rounded-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden flex flex-col aspect-210/297 w-full max-w-[500px] mx-auto transition-transform duration-1000 group-hover:scale-[1.02]"
             >
-              <!-- Header inside mockup -->
+              <!-- PDF Header/Toolbar UI -->
               <div
-                class="flex items-center justify-between mb-4 border-b border-white/5 pb-2"
+                class="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center justify-between shrink-0"
               >
-                <div class="flex gap-1.5">
-                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
-                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
-                  <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                <div class="flex items-center gap-1.5">
+                  <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
                 </div>
                 <div
-                  class="text-[8px] text-white/20 font-mono tracking-widest uppercase"
+                  class="text-[9px] text-gray-400 font-mono tracking-tighter"
                 >
-                  Cubrain Reader v1.4
+                  comnet-03.pdf
                 </div>
               </div>
 
-              <!-- Split View Content -->
-              <div class="flex-1 grid grid-cols-2 gap-4 pb-4">
-                <div
-                  class="bg-zinc-900/50 rounded-lg p-3 border border-white/5 overflow-hidden flex flex-col"
+              <!-- PDF Page Content -->
+              <div
+                class="p-10 flex-1 bg-[#FDFDFD] overflow-y-auto selection:bg-amber-100 scrollbar-hide"
+              >
+                <h4
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-8 border-b border-gray-100 pb-2"
                 >
-                  <div
-                    class="text-[9px] text-zinc-500 font-bold mb-2 uppercase tracking-tighter"
-                  >
-                    PDF View
-                  </div>
-                  <div class="space-y-2 font-serif">
-                    <div class="h-1 w-full bg-white/5 rounded-full"></div>
-                    <div class="h-1 w-5/6 bg-white/5 rounded-full"></div>
-                    <div class="relative h-4 w-full">
-                      <div
-                        class="absolute top-1.5 h-1 w-full bg-white/5 rounded-full"
-                      ></div>
-                      <div
-                        class="absolute top-0 left-0 h-4 bg-amber-400/30 rounded transition-all duration-1000 delay-500"
-                        style="width: {activeHighlight ? '66.6%' : '0%'}"
-                      ></div>
-                      <div
-                        class="absolute top-1.5 left-0 h-1 w-2/3 bg-white/20 rounded-full"
-                        class:opacity-0={activeHighlight}
-                      ></div>
-                      <div
-                        class="absolute top-1.5 left-0 h-1 w-2/3 bg-white/60 rounded-full opacity-0 transition-opacity duration-1000 delay-500"
-                        class:opacity-100={activeHighlight}
-                      ></div>
-                    </div>
-                    <div class="h-1 w-full bg-white/5 rounded-full"></div>
-                    <div class="h-1 w-4/5 bg-white/5 rounded-full"></div>
-                    <div class="h-1 w-3/4 bg-white/5 rounded-full"></div>
-                  </div>
+                  3.2.1 The Domain Name System (DNS)
+                </h4>
+                <div
+                  class="space-y-6 text-xs md:text-sm text-gray-700 leading-relaxed font-serif"
+                >
+                  <p>
+                    Internet hosts and routers communicate using IP addresses
+                    (32-bit). However, humans prefer using hostnames (e.g.,
+                    www.google.com).
+                  </p>
+
+                  <p class="relative">
+                    <span class="relative inline">
+                      <span
+                        class="relative z-10 font-bold transition-colors duration-1000"
+                        class:text-black={activeHighlight}
+                      >
+                        The DNS is a distributed database implemented in a
+                        hierarchy of many name servers.
+                      </span>
+                      <span
+                        class="absolute inset-0 bg-[#FFC107]/40 border-b-2 border-[#FFC107] scale-x-0 origin-left transition-transform duration-1000 ease-out z-0"
+                        class:scale-x-100={activeHighlight}
+                      ></span>
+                    </span>
+                    It serves as an application-layer protocol that allows hosts
+                    to query the database and resolve hostnames to IP addresses.
+                  </p>
+
+                  <p class="opacity-40">
+                    DNS is critically important for the internet application
+                    environment because it simplifies complex IP addresses into
+                    something easily remembered by humans...
+                  </p>
                 </div>
 
-                <!-- Flashcard Section (Right) -->
-                <div class="flex flex-col justify-center gap-4">
+                <!-- Footnote/Page info -->
+                <div class="mt-20 pt-4 border-t border-gray-50/50">
                   <div
-                    class="bg-zinc-900 border border-white/10 rounded-xl p-4 shadow-xl transform transition-all duration-700"
-                    class:translate-y-0={isVisible}
-                    class:translate-y-4={!isVisible}
-                    class:opacity-100={isVisible}
-                    class:opacity-0={!isVisible}
+                    class="text-[9px] text-gray-300 font-mono text-center italic"
                   >
-                    <div class="flex items-center gap-1.5 mb-3">
-                      <Brain class="w-3 h-3 text-[#FFC107]" />
-                      <span
-                        class="text-[8px] font-bold text-[#FFC107] uppercase tracking-widest"
-                        >Question</span
-                      >
-                    </div>
-                    <div
-                      class="text-[10px] text-white/80 font-medium leading-relaxed mb-3"
-                    >
-                      What triggers neurotransmitter release?
-                    </div>
-
-                    <div
-                      class="transition-all duration-700 delay-[1.2s]"
-                      class:opacity-100={activeHighlight}
-                      class:translate-y-0={activeHighlight}
-                      class:opacity-0={!activeHighlight}
-                      class:translate-y-1={!activeHighlight}
-                    >
-                      <hr class="border-white/5 mb-3" />
-                      <div class="flex items-center gap-2">
-                        <span class="w-1 h-3 bg-[#FFC107] rounded-full"></span>
-                        <span class="text-[10px] font-bold text-white"
-                          >Action Potential Influx</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Connection Badge -->
-                  <div
-                    class="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 transition-opacity duration-700 delay-[1.8s]"
-                    class:opacity-100={activeHighlight}
-                    class:opacity-0={!activeHighlight}
-                  >
-                    <div
-                      class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"
-                    ></div>
-                    <span
-                      class="text-[8px] font-bold text-emerald-400 uppercase tracking-widest"
-                      >Verified 100%</span
-                    >
+                    PAGE 42 OF 312
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Screen Reflection Finish -->
+            <!-- Connection Line (Desktop Only) -->
+            {#if activeHighlight}
+              <div
+                class="hidden md:block absolute top-[45%] -right-12 lg:-right-24 w-12 lg:w-24 h-[2px] bg-linear-to-r from-[#FFC107]/60 to-[#FFC107] z-30 animate-in fade-in slide-in-from-left-4 duration-1000 origin-left"
+              >
+                <div
+                  class="absolute -right-1 -top-1 w-2 h-2 rounded-full bg-[#FFC107] shadow-[0_0_10px_#FFC107]"
+                ></div>
+              </div>
+            {/if}
+          </div>
+
+          <!-- Right: Flashcard Implementation -->
+          <div class="flex flex-col gap-8 items-center md:items-start">
+            <!-- Generation Status -->
             <div
-              class="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent pointer-events-none"
-            ></div>
+              class="flex items-center gap-3 py-2 px-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 transition-all duration-1000"
+              class:opacity-100={activeHighlight}
+              class:opacity-0={!activeHighlight}
+            >
+              <div
+                class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse"
+              ></div>
+              <span
+                class="text-[10px] font-black text-emerald-400 uppercase tracking-widest"
+                >Grounding Verified</span
+              >
+            </div>
+
+            <!-- The Flashcard -->
+            <div
+              class="w-full max-w-md bg-zinc-900 shadow-2xl border border-white/5 rounded-3xl p-8 relative overflow-hidden group/card hover:border-[#FFC107]/30 transition-all duration-700 {activeHighlight
+                ? 'opacity-100 translate-x-0'
+                : 'opacity-0 translate-x-12'}"
+            >
+              <div
+                class="absolute top-0 left-0 w-2 h-full bg-[#FFC107]/20 group-hover/card:bg-[#FFC107]/40 transition-colors"
+              ></div>
+
+              <div class="flex items-center justify-between mb-8">
+                <div
+                  class="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black px-3 py-1 rounded-lg"
+                >
+                  Q.1
+                </div>
+                <Sparkles
+                  class="w-5 h-5 text-[#FFC107]/40 group-hover/card:text-[#FFC107] transition-colors"
+                />
+              </div>
+
+              <div class="space-y-6">
+                <div>
+                  <div
+                    class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3"
+                  >
+                    Question
+                  </div>
+                  <p
+                    class="text-lg md:text-xl text-white font-bold leading-tight"
+                  >
+                    What is the definition of <span class="text-[#FFC107]"
+                      >DNS</span
+                    >?
+                  </p>
+                </div>
+
+                <div class="h-px bg-white/5 w-full"></div>
+
+                <div>
+                  <div
+                    class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3"
+                  >
+                    Answer
+                  </div>
+                  <p
+                    class="text-sm md:text-base text-white/80 leading-relaxed font-semibold"
+                  >
+                    A <span class="text-[#FFC107]">distributed database</span>
+                    implemented in a hierarchy of name servers that
+                    <span class="text-[#FFC107]">resolves hostnames</span> to IP
+                    addresses.
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-8 flex justify-end">
+                <button
+                  class="bg-[#FF4081]/10 border border-[#FF4081]/20 text-[#FF4081] text-[10px] font-black px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-[#FF4081]/20 transition-all"
+                >
+                  <Zap class="w-3 h-3 fill-current" />
+                  MASTERED
+                </button>
+              </div>
+            </div>
+
+            <!-- CTA/Action -->
+            <div
+              class="pt-4 transition-all duration-1000 delay-500"
+              class:opacity-100={activeHighlight}
+              class:opacity-0={!activeHighlight}
+            >
+              <button
+                class="bg-[#FFC107] hover:bg-[#FDB931] text-black px-8 py-4 rounded-2xl font-black shadow-xl shadow-amber-500/20 transition-all transform hover:-translate-y-1 flex items-center gap-3"
+              >
+                <Brain class="w-5 h-5" />
+                Save Context to Library
+              </button>
+            </div>
           </div>
         </div>
-
-        <!-- Bottom Base/Lip -->
-        <div
-          class="relative -mt-4 mx-12 h-2 bg-zinc-700 rounded-b-xl shadow-xl border-x border-b border-white/10"
-        ></div>
-        <div
-          class="relative mx-auto mt-px w-[150px] h-1.5 bg-zinc-900 rounded-b-xl opacity-50 shadow-inner"
-        ></div>
       </div>
 
-      <!-- Verified Floating Badge -->
+      <!-- Floating Achievement Badge -->
       <div
-        class="absolute -bottom-6 -right-6 lg:-right-12 bg-white/5 border border-white/10 backdrop-blur-xl p-4 rounded-2xl shadow-2xl flex items-center gap-4 group"
+        class="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-zinc-950/80 backdrop-blur-2xl border border-white/10 p-6 rounded-4xl shadow-2xl flex items-center gap-6 z-20 group-hover:border-[#FFC107]/30 transition-all duration-500"
       >
         <div
-          class="w-10 h-10 rounded-full bg-[#FFC107]/10 flex items-center justify-center text-[#FFC107] group-hover:bg-[#FFC107]/20 transition-colors"
+          class="w-16 h-16 rounded-full bg-amber-400/10 flex items-center justify-center text-[#FFC107] border border-amber-500/20"
         >
-          <CheckCircle2 class="w-6 h-6" />
+          <CheckCircle2 class="w-9 h-9" />
         </div>
         <div>
           <div
-            class="text-xs font-black text-white uppercase tracking-widest mb-0.5"
+            class="text-sm font-black text-white uppercase tracking-widest mb-1"
           >
             Zero Hallucination
           </div>
-          <div class="text-[10px] text-white/40">Context-Aware Core Engine</div>
+          <div class="text-xs text-white/40 font-mono tracking-tight">
+            Direct Source Context Extractor v2.4
+          </div>
         </div>
       </div>
     </div>
@@ -235,7 +297,5 @@
 </section>
 
 <style>
-  :global(.perspective-2000) {
-    perspective: 2000px;
-  }
+  /* Optional: Custom scroll-aware or timing-aware styles could go here */
 </style>
