@@ -24,6 +24,7 @@
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
+  let loginRedirectPath = $state("/library");
   let showDemoModal = $state(false);
   let isMobileMenuOpen = $state(false);
 
@@ -591,7 +592,10 @@
               class="w-full h-14"
               text="Upgrade to Monthly"
               plan="monthly"
-              onLoginRequired={() => (showLoginModal = true)}
+              onLoginRequired={() => {
+                loginRedirectPath = "/settings";
+                showLoginModal = true;
+              }}
             />
           </div>
 
@@ -672,7 +676,10 @@
                 ? "Upgrade to Yearly 👑"
                 : "Upgrade to Yearly"}
               plan="yearly"
-              onLoginRequired={() => (showLoginModal = true)}
+              onLoginRequired={() => {
+                loginRedirectPath = "/settings";
+                showLoginModal = true;
+              }}
             />
           </div>
         </div>
@@ -712,7 +719,10 @@
 </div>
 
 {#if showLoginModal}
-  <LoginModal onclose={() => (showLoginModal = false)} />
+  <LoginModal
+    onclose={() => (showLoginModal = false)}
+    redirectTo={loginRedirectPath}
+  />
 {/if}
 
 {#if showDemoModal}
