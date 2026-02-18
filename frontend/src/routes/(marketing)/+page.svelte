@@ -28,6 +28,10 @@
   let showDemoModal = $state(false);
   let isMobileMenuOpen = $state(false);
 
+  // Scroll visibility states
+  let isFeaturesVisible = $state(false);
+  let gridElement: HTMLElement | undefined = $state();
+
   const toggleMobileMenu = () => {
     isMobileMenuOpen = !isMobileMenuOpen;
   };
@@ -54,7 +58,23 @@
       currentSlide = (currentSlide + 1) % heroSlides.length;
     }, 4000);
 
-    return () => clearInterval(interval);
+    // Scroll Observer for Feature Grid
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          isFeaturesVisible = true;
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (gridElement) observer.observe(gridElement);
+
+    return () => {
+      clearInterval(interval);
+      observer.disconnect();
+    };
   });
 
   const heroSlides = [
@@ -433,69 +453,96 @@
 
     <ContextAwareFeature />
 
-    <section id="features" class="py-24 px-6 max-w-7xl mx-auto">
-      <div class="text-center mb-20">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
-          Why <span class="text-[#FFD700]">Cubrain</span>?
-        </h2>
-        <p class="text-white/60 max-w-2xl mx-auto text-lg">
-          Experience the next generation of study tools designed for efficiency
-          and retention.
-        </p>
-      </div>
+    <section id="features" class="py-32 md:py-48 px-6 relative overflow-hidden">
+      <!-- Background Radial Gradient -->
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(24,24,27,0.5)_0%,_transparent_70%)] pointer-events-none"
+      ></div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Feature 1 -->
-        <div
-          class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
-        >
-          <div
-            class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+      <div class="max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-24">
+          <h2
+            class="text-5xl md:text-6xl font-bold mb-8 text-white tracking-tight"
           >
-            <Zap class="w-6 h-6 text-[#FFD700]" />
-          </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
-          <p class="text-white/60 leading-relaxed">
-            Upload your PDFs and instantly turn them into flashcards. No context
-            switching required.
+            Why <span class="text-[#FFD700]">Cubrain</span>?
+          </h2>
+          <p class="text-white/60 max-w-2xl mx-auto text-xl leading-relaxed">
+            Experience the next generation of study tools designed for
+            efficiency and retention.
           </p>
         </div>
 
-        <!-- Feature 3 (Smart Study) -->
         <div
-          class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
+          bind:this={gridElement}
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
+          <!-- Feature 1 -->
           <div
-            class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+            class={cn(
+              "group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] delay-0",
+              isFeaturesVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12",
+            )}
           >
-            <GraduationCap class="w-6 h-6 text-[#FFD700]" />
+            <div
+              class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+            >
+              <Zap class="w-6 h-6 text-[#FFD700]" />
+            </div>
+            <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
+            <p class="text-white/60 leading-relaxed">
+              Upload your PDFs and instantly turn them into flashcards. No
+              context switching required.
+            </p>
           </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
-          <p class="text-white/60 leading-relaxed">
-            Practice directly in your browser with our built-in flashcard
-            player. Track your progress and master concepts faster.
-          </p>
-        </div>
 
-        <!-- Feature 4 (Easy Export) -->
-        <div
-          class="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-300 hover:-translate-y-1"
-        >
+          <!-- Feature 3 (Smart Study) -->
           <div
-            class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+            class={cn(
+              "group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] delay-150",
+              isFeaturesVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12",
+            )}
           >
-            <FileText class="w-6 h-6 text-[#FFD700]" />
+            <div
+              class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+            >
+              <GraduationCap class="w-6 h-6 text-[#FFD700]" />
+            </div>
+            <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
+            <p class="text-white/60 leading-relaxed">
+              Practice directly in your browser with our built-in flashcard
+              player. Track your progress and master concepts faster.
+            </p>
           </div>
-          <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
-          <p class="text-white/60 leading-relaxed">
-            Export your generated flashcards to .csv format instantly. Perfectly
-            formatted for Anki and other major study tools.
-          </p>
+
+          <!-- Feature 4 (Easy Export) -->
+          <div
+            class={cn(
+              "group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#FFD700]/50 hover:bg-white/[0.07] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] delay-300",
+              isFeaturesVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12",
+            )}
+          >
+            <div
+              class="w-12 h-12 rounded-lg bg-[#FFD700]/10 flex items-center justify-center mb-6 group-hover:bg-[#FFD700]/20 transition-colors"
+            >
+              <FileText class="w-6 h-6 text-[#FFD700]" />
+            </div>
+            <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
+            <p class="text-white/60 leading-relaxed">
+              Export your generated flashcards to .csv format instantly.
+              Perfectly formatted for Anki and other major study tools.
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="py-20 px-4 relative">
+    <section class="py-32 md:py-48 px-4 relative overflow-hidden">
       <div
         class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
       ></div>
@@ -514,7 +561,7 @@
       </div>
     </section>
 
-    <section id="pricing" class="py-24 px-6 relative">
+    <section id="pricing" class="py-32 md:py-48 px-6 relative">
       <!-- Background Glow -->
       <div
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#FFD700]/5 blur-[120px] -z-10 pointer-events-none"

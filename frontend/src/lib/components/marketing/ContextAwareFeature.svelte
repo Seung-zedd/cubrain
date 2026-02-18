@@ -19,7 +19,7 @@
 
 <section
   id="context-aware"
-  class="py-24 px-6 max-w-7xl mx-auto overflow-hidden relative"
+  class="py-32 md:py-48 px-6 max-w-7xl mx-auto overflow-hidden relative"
 >
   <!-- Ambient Glow Background -->
   <div
