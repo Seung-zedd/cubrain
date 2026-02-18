@@ -430,24 +430,7 @@
       </div>
     </header>
 
-    <section class="py-20 px-4 relative">
-      <div
-        class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
-      ></div>
-
-      <FlashcardDemo />
-
-      <div class="mt-12 text-center">
-        <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
-        <a
-          href="/upload"
-          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
-        >
-          Upload Now
-          <ArrowRight class="w-5 h-5" />
-        </a>
-      </div>
-    </section>
+    <ContextAwareFeature />
 
     <section id="features" class="py-24 px-6 max-w-7xl mx-auto">
       <div class="text-center mb-20">
@@ -458,11 +441,6 @@
           Experience the next generation of study tools designed for efficiency
           and retention.
         </p>
-      </div>
-
-      <!-- New Context-Aware Primary Feature -->
-      <div class="mb-24">
-        <ContextAwareFeature />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -513,6 +491,25 @@
             formatted for Anki and other major study tools.
           </p>
         </div>
+      </div>
+    </section>
+
+    <section class="py-20 px-4 relative">
+      <div
+        class="absolute inset-0 bg-linear-to-b from-transparent via-[#FFD700]/5 to-transparent pointer-events-none"
+      ></div>
+
+      <FlashcardDemo />
+
+      <div class="mt-12 text-center">
+        <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
+        <a
+          href="/upload"
+          class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
+        >
+          Upload Now
+          <ArrowRight class="w-5 h-5" />
+        </a>
       </div>
     </section>
 
