@@ -25,6 +25,11 @@ We've meticulously updated the entire interface to align with our premium design
 - **Typography Standardized**: Unified font weights and sizes across the marketing and application layers.
 - **Component Harmony**: Re-aligned the `LaunchBanner` and other layout elements to the new design system for a seamless flow.
 
+### 🛠️ Refinements
+
+- **💬 Revived Learner's Voice**: Our signature feedback widget returns to the Library with smarter daily reset logic. We’re listening to your growth journey!
+- **🧹 System Optimization**: Removed legacy telemetry and unnecessary background tracking for a faster, more private experience.
+
 ---
 
 #### **🚀 Why This Matters?**
