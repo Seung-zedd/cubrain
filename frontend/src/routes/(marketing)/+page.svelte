@@ -456,7 +456,7 @@
     <section id="features" class="py-32 md:py-48 px-6 relative overflow-hidden">
       <!-- Background Radial Gradient -->
       <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(24,24,27,0.5)_0%,_transparent_70%)] pointer-events-none"
+        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(24,24,27,0.5)_0%,transparent_70%)] pointer-events-none"
       ></div>
 
       <div class="max-w-7xl mx-auto relative z-10">
