@@ -30,8 +30,6 @@
   import List from "@lucide/svelte/icons/list";
   import Flashcard from "$lib/components/ui/Flashcard.svelte";
   import { subscribeToJob } from "$lib/sse";
-  import SmartNudge from "$lib/components/SmartNudge.svelte";
-  import { trackEvent } from "$lib/utils/telemetry";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
   interface GeneratedFlashcard {
@@ -63,38 +61,6 @@
   let feedbackSubmitted = $state(false);
   let selectedStruggle = $state<string | null>(null);
   let viewMode = $state<"grid" | "list">("list");
-
-  // Stalling Logic
-  let uploadStallTimer = $state<NodeJS.Timeout | null>(null);
-  let exportStallTimer = $state<NodeJS.Timeout | null>(null);
-  let showExportNudge = $state(false);
-
-  $effect(() => {
-    // upload_stalled: 30s without action on upload page
-    if (files.length === 0 && !isGenerating && !showResults && !isEmptyState) {
-      uploadStallTimer = setTimeout(() => {
-        trackEvent("upload_stalled");
-      }, 30000);
-    }
-
-    return () => {
-      if (uploadStallTimer) clearTimeout(uploadStallTimer);
-    };
-  });
-
-  $effect(() => {
-    // export_stalled: 60s after generation without export
-    if (showResults && !isSaved) {
-      exportStallTimer = setTimeout(() => {
-        trackEvent("export_stalled");
-        showExportNudge = true;
-      }, 60000);
-    }
-
-    return () => {
-      if (exportStallTimer) clearTimeout(exportStallTimer);
-    };
-  });
 
   // Validation Logic
   const MAX_SIZE_MB = 20;
@@ -424,19 +390,6 @@
                   </div>
                 </div>
               </div>
-              <!-- SmartNudge Inline Feedback -->
-              <div class="mt-4">
-                <SmartNudge
-                  type="inline"
-                  message="How is the quality of the flashcards?"
-                  options={[
-                    { label: "Perfect", value: "perfect", primary: true },
-                    { label: "Needs Work", value: "bad" },
-                  ]}
-                  onAction={(val) =>
-                    trackEvent("feedback_quality", { value: val })}
-                />
-              </div>
               <div class="flex items-center gap-4 mt-2">
                 <p class="text-zinc-400 text-sm">
                   Created {generatedCards.length} flashcards
@@ -546,8 +499,6 @@
             </div>
           {/each}
         </div>
-
-        <!-- SmartNudge Inline Feedback moved to top -->
       </div>
     {:else if isEmptyState}
       <div
@@ -611,21 +562,6 @@
 
           {#if isGenerating}
             <div class="flex flex-col items-center justify-center py-12">
-              <!-- SmartNudge Loading Tip -->
-              <div class="mb-8 w-full max-w-md">
-                <SmartNudge
-                  type="loading"
-                  message="Welcome back! What are you studying today?"
-                  options={[
-                    { label: "Textbook", value: "textbook" },
-                    { label: "Lecture Notes", value: "lecture_notes" },
-                    { label: "Certification", value: "certification" },
-                  ]}
-                  onAction={(tag) =>
-                    trackEvent("upload_context", { type: tag })}
-                />
-              </div>
-
               <div class="w-full max-w-md">
                 <ProgressBar progress={jobProgress} status={jobStatus} />
               </div>

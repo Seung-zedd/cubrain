@@ -7,7 +7,7 @@
   import { uiState } from "$lib/stores/ui.svelte";
   import EditDeckModal from "$lib/components/deck/EditDeckModal.svelte";
   import ConfirmModal from "$lib/components/ui/ConfirmModal.svelte";
-  import PostStudyNudge from "$lib/components/ui/PostStudyNudge.svelte";
+  import LearnersVoice from "$lib/components/ui/LearnersVoice.svelte";
   import type { PageData } from "./$types";
   import { IS_DEV_MODE } from "$lib/utils/env";
   import { invalidateAll } from "$app/navigation";
@@ -136,7 +136,7 @@
 {/if}
 
 {#if isSessionEnded}
-  <PostStudyNudge />
+  <LearnersVoice />
 {/if}
 
 <style>

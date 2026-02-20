@@ -62,8 +62,9 @@
 
   // Check history on mount
   onMount(() => {
+    const today = new Date().toDateString();
     const alreadySubmitted =
-      localStorage.getItem("cubrain_survey_submitted") === "true";
+      localStorage.getItem("cubrain_survey_submitted") === today;
     isSubmitted = alreadySubmitted;
     randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     selectedNudge =
@@ -105,7 +106,10 @@
       });
 
       if (response.ok) {
-        localStorage.setItem("cubrain_survey_submitted", "true");
+        localStorage.setItem(
+          "cubrain_survey_submitted",
+          new Date().toDateString(),
+        );
         isSubmitted = true;
         isExpanded = false;
         // Show success state briefly then close or switch to cheer mode

@@ -9,7 +9,6 @@
   import { getRelativeTime, cn } from "$lib/utils";
   import { authFetch } from "$lib/api";
   import SmartNudge from "../SmartNudge.svelte";
-  import { trackEvent } from "$lib/utils/telemetry";
   import AnkiGuideModal from "../ui/AnkiGuideModal.svelte";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
@@ -330,7 +329,6 @@
       { label: "Show Guide", value: "guide", primary: true },
     ]}
     onAction={(val) => {
-      trackEvent("anki_knowledge", { value: val === "known" });
       if (val === "guide") {
         showAnkiGuide = true;
       }
