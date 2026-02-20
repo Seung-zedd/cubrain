@@ -4,7 +4,7 @@ title: "UI Renovation Update"
 description: "A major aesthetic overhaul focusing on glassmorphism consistency and premium interface details."
 date: "2026-02-20"
 version: "v1.5.0"
-type: "Minor"
+type: "Update"
 ---
 
 ## What's New?
