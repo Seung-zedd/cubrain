@@ -78,6 +78,9 @@ public class JobManagerImpl implements JobManager {
     }
 
     private void broadcast(String jobId, String eventName, Object data) {
+        if (eventName == null || data == null) {
+            return;
+        }
         List<SseEmitter> emitters = sseEmitters.get(jobId);
         if (emitters == null || emitters.isEmpty()) {
             return;

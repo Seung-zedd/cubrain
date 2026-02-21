@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.cubrain.springboot_starter_auth.domain.card.QFlashcard.flashcard;
 import static com.cubrain.springboot_starter_auth.domain.member.Role.USER;
@@ -47,19 +48,19 @@ class DeckRepositoryTest {
                 .tier(FREE_USER)
                 .build();
 
-        memberRepository.save(member);
+        memberRepository.save(Objects.requireNonNull(member));
 
         Deck deck1 = Deck.builder()
                 .title("Java Basics")
                 .member(member)
                 .build();
-        deckRepository.save(deck1);
+        deckRepository.save(Objects.requireNonNull(deck1));
 
         Deck deck2 = Deck.builder()
                 .title("Spring Boot")
                 .member(member)
                 .build();
-        deckRepository.save(deck2);
+        deckRepository.save(Objects.requireNonNull(deck2));
 
         Flashcard card1 = Flashcard.builder()
                 .question("What is JVM?")
@@ -67,7 +68,7 @@ class DeckRepositoryTest {
                 .deck(deck1)
                 .build();
 
-        flashcardRepository.save(card1);
+        flashcardRepository.save(Objects.requireNonNull(card1));
 
         Flashcard card2 = Flashcard.builder()
                 .question("What is JRE?")
@@ -75,7 +76,7 @@ class DeckRepositoryTest {
                 .deck(deck1)
                 .build();
 
-        flashcardRepository.save(card2);
+        flashcardRepository.save(Objects.requireNonNull(card2));
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -76,7 +77,7 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).saveAndFlush(freeMember);
+        verify(memberRepository).saveAndFlush(Objects.requireNonNull(freeMember));
     }
 
     @Test
@@ -90,7 +91,7 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).saveAndFlush(proMember);
+        verify(memberRepository).saveAndFlush(Objects.requireNonNull(proMember));
     }
 
     @Test
@@ -110,6 +111,6 @@ class UsageLimitServiceTest {
         usageLimitService.checkAndIncrement(email);
 
         // Then
-        verify(memberRepository).saveAndFlush(freeMember);
+        verify(memberRepository).saveAndFlush(Objects.requireNonNull(freeMember));
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.cubrain.springboot_starter_auth.domain.card.QDeck.deck;
 import static org.springframework.util.StringUtils.hasText;
@@ -38,12 +39,13 @@ public class DeckRepositoryCustomImpl implements DeckRepositoryCustom {
                 .orderBy(deck.studyProgress.asc(), deck.createdAt.desc())
                 .fetch();
 
-        long total = queryFactory
+        Long totalCount = queryFactory
                 .select(deck.count())
                 .from(deck)
                 .where(builder)
                 .fetchOne();
+        long total = totalCount != null ? totalCount : 0L;
 
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(Objects.requireNonNull(content), pageable, total);
     }
 }

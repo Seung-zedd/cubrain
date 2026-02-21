@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/sse")
@@ -48,7 +49,7 @@ public class SseController {
             try {
                 emitter.send(SseEmitter.event()
                         .name("ERROR")
-                        .data(Map.of("message", "Job not found")));
+                        .data(Objects.requireNonNull((Object) Map.of("message", "Job not found"))));
                 emitter.complete();
             } catch (IOException e) {
                 log.error("Failed to send error event for non-existent job: {}", jobId);
@@ -60,12 +61,13 @@ public class SseController {
 
         // Send initial state
         try {
-            emitter.send(SseEmitter.event()
+            SseEmitter.SseEventBuilder event = SseEmitter.event()
                     .name("INIT")
-                    .data(Map.of(
+                    .data(Objects.requireNonNull(Map.of(
                             "jobId", jobId,
                             "status", status,
                             "progress", jobManager.getProgress(jobId))));
+            emitter.send(event);
         } catch (IOException e) {
             log.error("Failed to send INIT event for job: {}", jobId);
             jobManager.removeSseEmitter(jobId, emitter);

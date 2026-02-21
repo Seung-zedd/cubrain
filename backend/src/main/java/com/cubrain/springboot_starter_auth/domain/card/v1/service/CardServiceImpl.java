@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -136,7 +137,7 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public void updateDeckTitle(Long deckId, String newTitle) {
         log.info("📝 [Transaction Start] Updating title for deck ID: {} to '{}'", deckId, newTitle);
-        Deck deck = deckRepository.findById(deckId)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(deckId))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
         deck.updateTitle(newTitle);
         deckRepository.save(deck);
@@ -147,7 +148,7 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public void updateDeckCards(Long deckId, List<FlashcardRequestDto> newCards) {
         log.info("🗂️ [Transaction Start] Updating cards for deck ID: {}. New card count: {}", deckId, newCards.size());
-        Deck deck = deckRepository.findById(deckId)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(deckId))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         // Remove cards not in the new list
@@ -191,8 +192,8 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public void deleteDeck(Long deckId) {
         log.info("🗑️ [Transaction Start] Deleting deck ID: {}", deckId);
-        deckRepository.findById(deckId).ifPresent(deck -> {
-            deckRepository.delete(deck);
+        deckRepository.findById(Objects.requireNonNull(deckId)).ifPresent(deck -> {
+            deckRepository.delete(Objects.requireNonNull(deck));
             deckRepository.flush(); // Ensure deletion is synchronized to DB immediately
             log.info("✅ [Transaction Success] Deck and associated cards deleted: {}", deck.getTitle());
         });
@@ -201,7 +202,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public String exportToAnki(Long deckId) {
         log.info("📤 Exporting deck ID: {} to Anki CSV", deckId);
-        Deck deck = deckRepository.findById(deckId)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(deckId))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         // Prepend UTF-8 BOM (\uFEFF) for Excel compatibility with non-ASCII characters

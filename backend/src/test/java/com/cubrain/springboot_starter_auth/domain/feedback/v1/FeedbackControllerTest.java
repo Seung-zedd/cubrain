@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import java.util.Objects;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,8 +41,9 @@ class FeedbackControllerTest {
                 """;
 
         mockMvc.perform(post("/api/v1/feedback")
-                .with(jwt().jwt(jwt -> jwt.claim("email", "test@example.com").subject("user-123")))
-                .contentType(MediaType.APPLICATION_JSON)
+                .with(Objects
+                        .requireNonNull(jwt().jwt(jwt -> jwt.claim("email", "test@example.com").subject("user-123"))))
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
                 .content(json))
                 .andExpect(status().isOk());
 
@@ -60,7 +62,7 @@ class FeedbackControllerTest {
                 """;
 
         mockMvc.perform(post("/api/v1/feedback")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
                 .content(json))
                 .andExpect(status().isUnauthorized());
     }

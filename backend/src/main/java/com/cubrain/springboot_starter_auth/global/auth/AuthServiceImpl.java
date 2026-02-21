@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -52,7 +53,8 @@ public class AuthServiceImpl implements AuthService {
                 .isVerified(true)
                 .build();
 
-        return UserResponseDto.from(memberRepository.save(newMember));
+        Member savedMember = Objects.requireNonNull(memberRepository.save(newMember));
+        return UserResponseDto.from(savedMember);
     }
 
     @Override

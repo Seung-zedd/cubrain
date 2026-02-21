@@ -12,6 +12,7 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.nio.charset.StandardCharsets;
 import org.springframework.web.util.UriUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -87,7 +88,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -120,7 +121,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -141,7 +142,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -161,7 +162,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -186,7 +187,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -205,7 +206,7 @@ public class DeckController {
             @AuthenticationPrincipal Jwt jwt) {
 
         Member member = getMember(jwt);
-        Deck deck = deckRepository.findById(id)
+        Deck deck = deckRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         if (!deck.getMember().getId().equals(member.getId())) {
@@ -216,7 +217,7 @@ public class DeckController {
         String csv = cardService.exportToAnki(id);
 
         String baseFilename = deck.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_") + "_anki.csv";
-        String encodedFilename = UriUtils.encode(baseFilename, StandardCharsets.UTF_8);
+        String encodedFilename = UriUtils.encode(baseFilename, Objects.requireNonNull(StandardCharsets.UTF_8));
 
         return ResponseEntity.ok()
                 .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
