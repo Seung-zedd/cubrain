@@ -92,8 +92,14 @@
   />
 </svelte:head>
 
-<!-- Atmospheric Background (Rendered immediately for better LCP) -->
-<div class="bg-overlay fixed inset-0 z-0"></div>
+<!-- Atmospheric Background (Rendered immediately with native img tag for faster LCP) -->
+<img
+  src="/images/library-bg.jpg"
+  alt=""
+  class="fixed inset-0 z-0 h-full w-full object-cover"
+  fetchpriority="high"
+/>
+<div class="fixed inset-0 z-0 bg-black/75 pointer-events-none"></div>
 
 {#await data.streamed.decks}
   <LibraryDashboard
@@ -140,11 +146,4 @@
 {/if}
 
 <style>
-  .bg-overlay {
-    background-image: url("/images/library-bg.jpg");
-    background-size: cover;
-    background-position: center;
-    background-color: rgba(0, 0, 0, 0.75);
-    background-blend-mode: overlay;
-  }
 </style>

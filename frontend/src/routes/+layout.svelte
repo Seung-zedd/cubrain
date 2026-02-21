@@ -12,13 +12,13 @@
 
   let { children } = $props();
 
+  if (browser && !dev) {
+    injectSpeedInsights();
+    injectAnalytics();
+  }
+
   onMount(() => {
     fetchUser();
-
-    if (browser && !dev) {
-      injectSpeedInsights();
-      injectAnalytics();
-    }
   });
 
   // SEO Configuration
