@@ -1,0 +1,21 @@
+{
+  "hero_slide1_h": "<span class=\"text-[#FFD700]\">영혼을 갈아넣는</span> 타이핑은 이제 그만.",
+  "hero_slide1_s": "하이라이트를 즉시 플래시카드로 바꾸세요.",
+  "hero_slide2_h": "시험 준비가 <span class=\"text-[#FFD700]\">걸림돌인가요?</span>",
+  "hero_slide2_s": "몇 시간이 아니라 몇 초 만에 플래시카드를 생성하세요.",
+  "hero_slide3_h": "<span class=\"text-[#FFD700]\">무작위의 저품질</span> AI 카드가 지겨우신가요?",
+  "hero_slide3_s": "하이라이트에서 정확한 플래시카드를 생성하세요.",
+  "try_with_pdf": "PDF로 시작하기",
+  "view_pricing": "가격 보기",
+  "watch_demo": "데모 보기",
+  "nav_features": "기능",
+  "nav_pricing": "가격",
+  "nav_whats_new": "새 소식",
+  "nav_library": "라이브러리",
+  "nav_start_learning": "학습 시작하기",
+  "nav_get_started": "시작하기",
+  "library_title": "나의 라이브러리",
+  "library_subtitle": "몰입형 학습 세션을 시작할 컬렉션을 선택하세요.",
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "hello_world": "Hello, {name} from ko!"
+}

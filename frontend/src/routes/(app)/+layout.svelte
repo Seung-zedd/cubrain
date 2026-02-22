@@ -7,6 +7,7 @@
   import { fade, fly } from "svelte/transition";
   import { cn } from "$lib/utils";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
+  import LanguageSwitcher from "$lib/components/layout/LanguageSwitcher.svelte";
 
   let { children } = $props();
   let isSidebarOpen = $state(false); // Default closed to avoid flash on mobile
@@ -36,7 +37,7 @@
 
     // Handle Sidebar Toggle (Ctrl + . or Cmd + .)
     const isTyping = ["INPUT", "TEXTAREA"].includes(
-      (e.target as HTMLElement)?.tagName
+      (e.target as HTMLElement)?.tagName,
     );
     if ((e.ctrlKey || e.metaKey) && e.key === "." && !isTyping) {
       e.preventDefault();
@@ -70,7 +71,7 @@
         "fixed md:relative z-50 h-full bg-zinc-900 border-r border-zinc-800 transition-all duration-300 ease-in-out shrink-0",
         isSidebarOpen
           ? "translate-x-0 w-64"
-          : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden md:border-none"
+          : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden md:border-none",
       )}
     >
       <div class="w-64 h-full">
@@ -122,6 +123,12 @@
             <img src="/logo-gold.png" alt="Cubrain" class="h-8 w-auto" />
           </a>
         {/if}
+
+        <div class="flex-1"></div>
+
+        <div class="flex items-center gap-4">
+          <LanguageSwitcher />
+        </div>
       </header>
     {/if}
 
@@ -129,7 +136,7 @@
     <main
       class={cn(
         "flex-1 overflow-y-auto bg-zinc-950",
-        !uiState.isStudyMode && "p-4 md:p-8"
+        !uiState.isStudyMode && "p-4 md:p-8",
       )}
     >
       <div class={cn("mx-auto", !uiState.isStudyMode && "max-w-7xl")}>
