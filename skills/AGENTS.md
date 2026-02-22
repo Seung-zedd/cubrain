@@ -310,3 +310,9 @@ When adapting external UI code (e.g., from Uiverse) into Cubrain:
   - "Context-Aware" / "Precision" (vs Random AI)
 - **Forbidden Keywords:** "Magic", "Game-changer" (Too cliché).
 - **Tone:** Direct, Empathetic, Efficiency-focused.
+
+## 27. 🧹 Code Cleanup & Dead Code Removal
+
+- **Proactive Cleanup:** When refactoring or adding features, always identify and remove any dead code in the file.
+- **Unused Elements:** Actively delete unused variables, uncalled functions, and long-commented-out blocks of old code rather than leaving them indefinitely.
+- **Rule of Thumb:** Make it a priority to leave the codebase cleaner than you found it.

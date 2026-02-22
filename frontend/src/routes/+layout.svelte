@@ -67,8 +67,6 @@
 
 <div style="display:none">
   {#each availableLanguageTags as locale}
-    <a href={i18n.resolveRoute(i18n.route(page.url.pathname), locale)}
-      >{locale}</a
-    >
+    <a href={i18n.resolveRoute(page.url.pathname, locale)}>{locale}</a>
   {/each}
 </div>
