@@ -21,7 +21,10 @@
   let isOpen = $state(false);
 
   // Use a reactive derivation to track the current language from runtime
-  const currentLangCode = $derived(getLocale());
+  // We include page.url.pathname to ensure the derivation re-runs on navigation
+  const currentLangCode = $derived(
+    page.url.pathname ? getLocale() : getLocale(),
+  );
 
   const currentLang = $derived(
     languages.find((l) => l.code === currentLangCode) || languages[0],
@@ -32,26 +35,13 @@
   }
 
   function selectLanguage(code: any) {
-    const pathname = page.url.pathname;
-    const searchParams = page.url.searchParams.toString();
-    const p = pathname as string;
-    let cleanPath = p;
-    for (const locale of locales) {
-      if (p === `/${locale}` || p.startsWith(`/${locale}/`)) {
-        cleanPath = p.replace(`/${locale}`, "");
-        if (cleanPath === "") cleanPath = "/";
-        break;
-      }
+    if (code === currentLangCode) {
+      isOpen = false;
+      return;
     }
 
-    const newPath = (
-      code === "en"
-        ? cleanPath
-        : `/${code}${cleanPath === "/" ? "" : cleanPath}`
-    ) as any;
-    const fullPath = searchParams ? `${newPath}?${searchParams}` : newPath;
-
-    goto(fullPath);
+    // setLocale will handle the strategy (setting cookie and redirecting to localized URL)
+    setLocale(code);
     isOpen = false;
   }
 </script>
