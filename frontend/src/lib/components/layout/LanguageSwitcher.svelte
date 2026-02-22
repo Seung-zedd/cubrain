@@ -76,7 +76,7 @@
       >
         {#each languages as lang}
           <a
-            href={i18n.resolveRoute(page.url.pathname, lang.code)}
+            href={i18n.resolveRoute(i18n.route(page.url.pathname), lang.code)}
             class="flex items-center justify-between w-full px-4 py-3 text-sm text-left transition-all {currentLangCode ===
             lang.code
               ? 'bg-[#FFD700]/10 text-[#FFD700]'
