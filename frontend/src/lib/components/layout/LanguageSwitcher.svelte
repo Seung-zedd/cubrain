@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { getLocale, setLocale, locales } from "$paraglide/runtime";
+  import { i18n } from "$lib/i18n";
+  import { languageTag } from "$lib/paraglide/runtime";
 
   import Languages from "@lucide/svelte/icons/languages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import { fly, fade } from "svelte/transition";
   import { page } from "$app/state";
-  import { goto } from "$app/navigation";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
   const languages = [
@@ -17,18 +17,13 @@
     { code: "fr", name: "Français", flag: "🇫🇷" },
     { code: "ja", name: "日本語", flag: "🇯🇵" },
     { code: "tr", name: "Türkçe", flag: "🇹🇷" },
-  ];
+  ] as const;
 
   let isOpen = $state(false);
 
-  // Use a reactive derivation to track the current language from runtime
-  // We include page.url.pathname to ensure the derivation re-runs on navigation
-  const currentLangCode = $derived(
-    page.url.pathname ? getLocale() : getLocale(),
-  );
+  const currentLangCode = $derived(languageTag());
 
   $effect(() => {
-    // Following AGENTS.md Rule #12: Wrapped in IS_DEV_MODE check
     if (IS_DEV_MODE) {
       console.log("🌐 Language changed to:", currentLangCode);
     }
@@ -40,17 +35,6 @@
 
   function toggle() {
     isOpen = !isOpen;
-  }
-
-  function selectLanguage(code: any) {
-    if (code === currentLangCode) {
-      isOpen = false;
-      return;
-    }
-
-    // setLocale will handle the strategy (setting cookie and redirecting to localized URL)
-    setLocale(code);
-    isOpen = false;
   }
 </script>
 
@@ -91,12 +75,13 @@
         class="py-1.5 flex flex-col max-h-[400px] overflow-y-auto custom-scrollbar"
       >
         {#each languages as lang}
-          <button
+          <a
+            href={i18n.resolveRoute(page.url.pathname, lang.code)}
             class="flex items-center justify-between w-full px-4 py-3 text-sm text-left transition-all {currentLangCode ===
             lang.code
               ? 'bg-[#FFD700]/10 text-[#FFD700]'
               : 'text-white/60 hover:bg-white/5 hover:text-white'}"
-            onclick={() => selectLanguage(lang.code)}
+            onclick={() => (isOpen = false)}
             role="option"
             aria-selected={currentLangCode === lang.code}
           >
@@ -109,7 +94,7 @@
                 class="w-1.5 h-1.5 rounded-full bg-[#FFD700] shadow-[0_0_8px_#FFD700]"
               ></div>
             {/if}
-          </button>
+          </a>
         {/each}
       </div>
     </div>

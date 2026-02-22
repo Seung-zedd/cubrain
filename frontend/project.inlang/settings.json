@@ -1,18 +1,14 @@
 {
   "$schema": "https://inlang.com/schema/project-settings",
+  "sourceLanguageTag": "en",
+  "languageTags": ["en", "ko", "hi", "es", "zh", "fr", "ja", "tr"],
+  "baseLocale": "en",
+  "locales": ["en", "ko", "hi", "es", "zh", "fr", "ja", "tr"],
   "modules": [
     "https://cdn.jsdelivr.net/npm/@inlang/plugin-message-format@4/dist/index.js",
-    "https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@2/dist/index.js",
-    "https://cdn.jsdelivr.net/npm/@inlang/plugin-paraglide-js@2/dist/index.js"
+    "https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@2/dist/index.js"
   ],
   "plugin.inlang.messageFormat": {
-    "pathPattern": "./messages/{locale}.json"
-  },
-  "plugin.inlang.paraglideJs": {
-    "project": "./project.inlang",
-    "outdir": "./src/lib/paraglide",
-    "strategy": ["url", "cookie", "baseLocale"]
-  },
-  "baseLocale": "en",
-  "locales": ["en", "ko", "hi", "es", "zh", "fr", "ja", "tr"]
+    "pathPattern": "../messages/{languageTag}.json"
+  }
 }

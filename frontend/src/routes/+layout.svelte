@@ -1,8 +1,10 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { locales, localizeHref } from "$lib/paraglide/runtime";
+  import { i18n } from "$lib/i18n";
+  import { availableLanguageTags } from "$lib/paraglide/runtime";
   import "../app.css";
-  import { browser, dev } from "$app/environment";
+  import { browser } from "$app/environment";
+  import { IS_DEV_MODE } from "$lib/utils/env";
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
   import { onMount } from "svelte";
@@ -13,7 +15,7 @@
 
   let { children } = $props();
 
-  if (browser && !dev) {
+  if (browser && !IS_DEV_MODE) {
     injectSpeedInsights();
     injectAnalytics();
   }
@@ -64,7 +66,7 @@
 {@render children()}
 
 <div style="display:none">
-  {#each locales as locale}
-    <a href={localizeHref(page.url.pathname, { locale })}>{locale}</a>
+  {#each availableLanguageTags as locale}
+    <a href={i18n.resolveRoute(page.url.pathname, locale)}>{locale}</a>
   {/each}
 </div>
