@@ -6,6 +6,7 @@
   import { fly, fade } from "svelte/transition";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
+  import { IS_DEV_MODE } from "$lib/utils/env";
 
   const languages = [
     { code: "en", name: "English", flag: "🇺🇸" },
@@ -27,8 +28,8 @@
   );
 
   $effect(() => {
-    // Following AGENTS.md Rule #12: Wrapped in DEV check
-    if (import.meta.env.DEV) {
+    // Following AGENTS.md Rule #12: Wrapped in IS_DEV_MODE check
+    if (IS_DEV_MODE) {
       console.log("🌐 Language changed to:", currentLangCode);
     }
   });
