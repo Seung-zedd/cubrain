@@ -132,12 +132,12 @@
     <div class="hidden md:flex items-center gap-12 lg:gap-16">
       <div class="flex items-center gap-8 lg:gap-10">
         <a
-          href="#features"
+          href="/#features"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
           >{m.nav_features()}</a
         >
         <a
-          href="#pricing"
+          href="/#pricing"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
           >{m.nav_pricing()}</a
         >
@@ -250,7 +250,7 @@
                 <span class="font-medium">Home</span>
               </a>
               <a
-                href="#features"
+                href="/#features"
                 onclick={toggleMobileMenu}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               >
@@ -264,7 +264,7 @@
                 <span class="font-medium">Features</span>
               </a>
               <a
-                href="#pricing"
+                href="/#pricing"
                 onclick={toggleMobileMenu}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               >
@@ -419,7 +419,7 @@
             >
           {/if}
           <a
-            href="#pricing"
+            href="/#pricing"
             class="px-10 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
             >{m.view_pricing()}</a
           >
@@ -798,41 +798,27 @@
     onkeydown={(e) => e.key === "Escape" && (showDemoModal = false)}
     role="button"
     tabindex="0"
-    aria-label="Close modal"
-    transition:fade={{ duration: 200 }}
   >
     <div
-      class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-white/10"
+      class="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/20 shadow-2xl"
       onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="dialog"
-      aria-modal="true"
-      tabindex="-1"
-      transition:fly={{ y: 20, duration: 300 }}
+      role="presentation"
     >
+      <video
+        src="/videos/demo-full.mp4"
+        class="w-full h-full object-cover"
+        controls
+        autoplay
+        playsinline
+      >
+        <track kind="captions" />
+      </video>
       <button
-        class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/20 rounded-full text-white/70 hover:text-white transition-colors"
+        class="absolute top-6 right-6 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
         onclick={() => (showDemoModal = false)}
-        aria-label="Close"
       >
         <X class="w-6 h-6" />
       </button>
-
-      <video
-        src="/videos/demo-full.mp4"
-        controls
-        autoplay
-        crossorigin="anonymous"
-        class="w-full h-full"
-      >
-        <track
-          kind="captions"
-          src="/captions/demo.vtt"
-          srclang="en"
-          label="English"
-          default
-        />
-      </video>
     </div>
   </div>
 {/if}

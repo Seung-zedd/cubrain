@@ -1,11 +1,12 @@
 <script lang="ts">
   import { i18n } from "$lib/i18n";
-  import { languageTag } from "$lib/paraglide/runtime";
+  import { languageTag, availableLanguageTags } from "$lib/paraglide/runtime";
 
   import Languages from "@lucide/svelte/icons/languages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import { fly, fade } from "svelte/transition";
   import { page } from "$app/state";
+  import { building } from "$app/environment";
   import { IS_DEV_MODE } from "$lib/utils/env";
 
   const languages = [
@@ -35,6 +36,15 @@
 
   function toggle() {
     isOpen = !isOpen;
+  }
+
+  function getCanonicalPath(path: string) {
+    const segments = path.split("/");
+    const firstSegment = segments[1];
+    if (availableLanguageTags.includes(firstSegment as any)) {
+      return "/" + segments.slice(2).join("/");
+    }
+    return path;
   }
 </script>
 
@@ -76,7 +86,11 @@
       >
         {#each languages as lang}
           <a
-            href={i18n.resolveRoute(page.url.pathname, lang.code)}
+            href={i18n.resolveRoute(
+              getCanonicalPath(page.url.pathname) +
+                (building ? "" : page.url.search),
+              lang.code,
+            )}
             class="flex items-center justify-between w-full px-4 py-3 text-sm text-left transition-all {currentLangCode ===
             lang.code
               ? 'bg-[#FFD700]/10 text-[#FFD700]'
