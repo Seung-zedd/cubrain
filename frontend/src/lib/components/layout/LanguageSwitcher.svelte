@@ -26,6 +26,13 @@
     page.url.pathname ? getLocale() : getLocale(),
   );
 
+  $effect(() => {
+    // Following AGENTS.md Rule #12: Wrapped in DEV check
+    if (import.meta.env.DEV) {
+      console.log("🌐 Language changed to:", currentLangCode);
+    }
+  });
+
   const currentLang = $derived(
     languages.find((l) => l.code === currentLangCode) || languages[0],
   );
