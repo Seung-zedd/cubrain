@@ -12,28 +12,7 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
-  import { uiState } from "$lib/stores/ui.svelte";
-  import {
-    languageTag,
-    setLanguageTag,
-    isAvailableLanguageTag,
-  } from "$lib/paraglide/runtime";
-
-  $effect(() => {
-    if (browser) {
-      const segments = page.url.pathname.split("/");
-      const urlLang = segments[1];
-      const currentLang = languageTag();
-
-      if (isAvailableLanguageTag(urlLang)) {
-        if (currentLang !== urlLang) {
-          setLanguageTag(urlLang);
-        }
-      } else if (currentLang !== "en") {
-        setLanguageTag("en");
-      }
-    }
-  });
+  import { ParaglideJS } from "@inlang/paraglide-sveltekit";
 
   let { children } = $props();
 
@@ -90,13 +69,13 @@
   <meta property="twitter:image" content={imageUrl} />
 </svelte:head>
 
-{#if IS_LAUNCH_SALE && !isStudyMode && !isPro}
-  <LaunchBanner />
-{/if}
+<ParaglideJS {i18n}>
+  {#if IS_LAUNCH_SALE && !isStudyMode && !isPro}
+    <LaunchBanner />
+  {/if}
 
-{#key uiState.lang}
   {@render children()}
-{/key}
+</ParaglideJS>
 
 <div style="display:none">
   {#each availableLanguageTags as locale}

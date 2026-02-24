@@ -2,7 +2,6 @@
   import { i18n } from "$lib/i18n";
   import { languageTag, availableLanguageTags } from "$lib/paraglide/runtime";
   import * as m from "$lib/paraglide/messages";
-  import { uiState } from "$lib/stores/ui.svelte";
 
   import Languages from "@lucide/svelte/icons/languages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
@@ -24,7 +23,7 @@
 
   let isOpen = $state(false);
 
-  let currentLangCode = $derived(uiState.lang);
+  let currentLangCode = $derived(languageTag());
 
   const currentLang = $derived(
     languages.find((l) => l.code === currentLangCode) || languages[0],
