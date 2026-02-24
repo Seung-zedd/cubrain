@@ -24,6 +24,7 @@
   import { cn } from "$lib/utils";
   import * as m from "$lib/paraglide/messages";
   import LanguageSwitcher from "$lib/components/layout/LanguageSwitcher.svelte";
+  import { uiState } from "$lib/stores/ui.svelte";
 
   let showLoginModal = $state(false);
   let loginRedirectPath = $state("/library");
@@ -79,20 +80,24 @@
     };
   });
 
-  const heroSlides = $derived([
-    {
-      h: m.hero_slide1_h(),
-      s: m.hero_slide1_s(),
-    },
-    {
-      h: m.hero_slide2_h(),
-      s: m.hero_slide2_s(),
-    },
-    {
-      h: m.hero_slide3_h(),
-      s: m.hero_slide3_s(),
-    },
-  ]);
+  const heroSlides = $derived(
+    uiState.lang
+      ? [
+          {
+            h: m.hero_slide1_h({}, { languageTag: uiState.lang as any }),
+            s: m.hero_slide1_s({}, { languageTag: uiState.lang as any }),
+          },
+          {
+            h: m.hero_slide2_h({}, { languageTag: uiState.lang as any }),
+            s: m.hero_slide2_s({}, { languageTag: uiState.lang as any }),
+          },
+          {
+            h: m.hero_slide3_h({}, { languageTag: uiState.lang as any }),
+            s: m.hero_slide3_s({}, { languageTag: uiState.lang as any }),
+          },
+        ]
+      : [],
+  );
 
   let currentSlide = $state(0);
 
@@ -134,19 +139,19 @@
         <a
           href="/#features"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_features()}</a
+          >{m.nav_features({}, { languageTag: uiState.lang as any })}</a
         >
         <a
           href="/#pricing"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_pricing()}</a
+          >{m.nav_pricing({}, { languageTag: uiState.lang as any })}</a
         >
         <a
           href="/whats-new"
           onclick={markAsSeen}
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
         >
-          {m.nav_whats_new()}
+          {m.nav_whats_new({}, { languageTag: uiState.lang as any })}
           {#if hasNewUpdate}
             <span class="relative flex h-2 w-2">
               <span
@@ -160,7 +165,7 @@
         <a
           href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_library()}</a
+          >{m.nav_library({}, { languageTag: uiState.lang as any })}</a
         >
       </div>
       <LanguageSwitcher />
@@ -176,7 +181,7 @@
         <a
           href="/upload"
           class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >{m.nav_get_started()}</a
+          >{m.nav_get_started({}, { languageTag: uiState.lang as any })}</a
         >
       {/if}
     </div>

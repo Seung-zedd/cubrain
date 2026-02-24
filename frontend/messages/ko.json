@@ -17,5 +17,6 @@
   "library_title": "나의 라이브러리",
   "library_subtitle": "몰입형 학습 세션을 시작할 컬렉션을 선택하세요.",
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "hello_world": "Hello, {name} from ko!"
+  "hello_world": "Hello, {name} from ko!",
+  "i18n_test": "I18N 한국어 확인"
 }

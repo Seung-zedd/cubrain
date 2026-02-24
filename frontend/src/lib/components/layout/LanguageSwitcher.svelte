@@ -1,6 +1,8 @@
 <script lang="ts">
   import { i18n } from "$lib/i18n";
   import { languageTag, availableLanguageTags } from "$lib/paraglide/runtime";
+  import * as m from "$lib/paraglide/messages";
+  import { uiState } from "$lib/stores/ui.svelte";
 
   import Languages from "@lucide/svelte/icons/languages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
@@ -22,13 +24,7 @@
 
   let isOpen = $state(false);
 
-  const currentLangCode = $derived(languageTag());
-
-  $effect(() => {
-    if (IS_DEV_MODE) {
-      console.log("🌐 Language changed to:", currentLangCode);
-    }
-  });
+  let currentLangCode = $derived(uiState.lang);
 
   const currentLang = $derived(
     languages.find((l) => l.code === currentLangCode) || languages[0],

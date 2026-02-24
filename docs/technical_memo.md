@@ -193,3 +193,29 @@ I implemented a **Layered Design System** using **Tailwind CSS 4.0** and optimiz
 2. **Neural Network Background**: Created a "Future Tech" background using a subtle, connected texture that sits behind the glass layers, providing depth without adding heavy image assets.
 3. **Gradient Typography**: Used `bg-clip-text` with white-to-slate gradients to make titles pop against the dark theme.
 4. **Performance Tuning**: Applied `will-change: transform` and limited the use of `backdrop-filter` to key interactive elements to ensure smooth transitions and scrolling.
+
+---
+
+### Problem 10: Internationalization (I18n) Routing and State Mismatch
+
+#### Why: What was the challenge?
+
+Integrating `@inlang/paraglide-sveltekit` with Svelte 5 introduced two major hurdles:
+
+1. **Prerendering Loops**: During the build, SvelteKit's crawler encountered "double language prefixes" (e.g., `/ko/ko/demo`). This happened because `i18n.resolveRoute` was called with the current `page.url.pathname`, which already included a locale, causing it to prepend the locale again.
+2. **State Mismatch**: On the client side, the URL would successfully update to `/ko`, but the UI text remained in English. This was because the Paraglide translation runtime (`languageTag()`) was not reactively linked to SvelteKit's routing lifecycle by default in Svelte 5.
+
+#### What: What was the solution?
+
+I implemented a two-fold solution:
+
+1. **Canonical Path Resolution**: Created a utility to strip existing language prefixes before resolving new routes, preventing URL nesting.
+2. **Robust Reactive Sync**: Built a bridge between SvelteKit's URL state and Paraglide's runtime state through a global UI store and a layout-level `$effect`.
+
+#### How: How was it implemented?
+
+1. **Path Normalization**: Implemented `getCanonicalPath()` to ensure all localized links are generated from a base path without existing locale segments.
+2. **Environment Safety**: Wrapped search parameter access in `building` checks from `$app/environment` to prevent build-time crashes.
+3. **Reactive state store**: Added `lang` to the `uiState` store and used `onSetLanguageTag` to create a single source of truth for the active locale.
+4. **URL-to-Runtime Bridge**: Added an `$effect` in `+layout.svelte` that monitors `page.url.pathname`. If the URL segment (e.g., `/ko`) differs from the runtime state, it forcefully updates the runtime using `setLanguageTag`.
+5. **Component Re-hydration**: Wrapped the application content in a `{#key uiState.lang}` block. This ensures that every component re-renders and re-evaluates its `m.hello()` functions whenever the user switches languages, resolving the stale UI issue.

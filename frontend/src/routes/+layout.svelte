@@ -12,6 +12,28 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
+  import { uiState } from "$lib/stores/ui.svelte";
+  import {
+    languageTag,
+    setLanguageTag,
+    isAvailableLanguageTag,
+  } from "$lib/paraglide/runtime";
+
+  $effect(() => {
+    if (browser) {
+      const segments = page.url.pathname.split("/");
+      const urlLang = segments[1];
+      const currentLang = languageTag();
+
+      if (isAvailableLanguageTag(urlLang)) {
+        if (currentLang !== urlLang) {
+          setLanguageTag(urlLang);
+        }
+      } else if (currentLang !== "en") {
+        setLanguageTag("en");
+      }
+    }
+  });
 
   let { children } = $props();
 
@@ -72,7 +94,9 @@
   <LaunchBanner />
 {/if}
 
-{@render children()}
+{#key uiState.lang}
+  {@render children()}
+{/key}
 
 <div style="display:none">
   {#each availableLanguageTags as locale}

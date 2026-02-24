@@ -32,5 +32,6 @@
   "delete_deck_message": "Are you sure you want to delete this deck? All associated flashcards will be permanently removed.",
   "failed_load_library": "Failed to load library",
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "hello_world": "Hello, {name} from en!"
+  "hello_world": "Hello, {name} from en!",
+  "i18n_test": "I18N English OK"
 }
