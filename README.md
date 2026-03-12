@@ -76,24 +76,3 @@
 
 ---
 
-#### **⚡ V3 (The "Quiz & Multi-Modal" Update)**
-
-> **"텍스트를 넘어, 모든 자료를 정복하세요."**
-
-* **Core Feature:**
-  * **Hard Mode (Quiz):** 객관식(Multiple Choice) 및 주관식 입력(Type-in) 문제 생성.
-  * **Multi-Modal Ingestion:** PDF 내의 도표/다이어그램/이미지를 인식하여 문제 생성 (Gemini Vision 활용).
-  * **SRS (Spaced Repetition) Go/No-Go:** 사용자 요청(10건 이상) 시 자체 복습 알고리즘 도입 검토.
-    * **Method:** 설정 메뉴 내 '기능 요청(Feature Request)' 구글 폼/Typeform 연동.
-    * **Trigger:** 사용자 요청 **10건(+10)** 달성 시 즉시 개발 착수 (Lean Approach).
-* **Goal:** 텍스트 위주의 학습 한계를 돌파.
-* **Target:** 의대생(해부학), 공대생(회로도) 등 이미지 학습 필수 유저.
-
-#### **📱 V4 (The "Ecosystem" Platform)**
-
-> **"언제 어디서나, 끊김 없는 학습."**
-
-* **Core Feature:**
-  * **Mobile App:** 이동 중에 PDF를 업로드하고 복습할 수 있는 네이티브 앱.
-  * **Chrome Extension:** 웹페이지 드래그 캡처 기능 부활 ("웹 서핑 중 학습").
-* **Goal:** OS와 포맷을 가리지 않는 완전한 학습 생태계 구축.
