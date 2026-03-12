@@ -12,12 +12,12 @@
     <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=PostgreSQL&logoColor=white"/>
     <img src="https://img.shields.io/badge/Svelte 5-FF3E00?style=flat-square&logo=Svelte&logoColor=white"/>
   </p>
-</div>
+
 
 <br/>
 
 ## 🚀 프로젝트 소개
-대학 전공 공부 시 수백 페이지의 PDF 강의록을 보며 수동으로 플래시카드를 만드는 비효율을 해결하기 위해 기획된 1인 풀스택 SaaS 서비스입니다. 사용자가 형광펜(Highlight) 또는 밑줄(Underline)으로 칠한 내용을 AI가 분석하여 자동으로 복습용 문제와 요약 카드를 생성합니다.
+대학 전공 공부 시 수백 페이지의 PDF 강의록을 보며 수동으로 플래시카드를 만드는 비효율을 해결하기 위해 기획된 1인 풀스택 SaaS 서비스입니다. 사용자가 형광펜(Highlight) 또는 밑줄(Underline)을 친 내용을 AI가 분석하여 자동으로 복습용 문제와 요약 카드를 생성합니다.
 * **개발 및 운영 기간:** 2025.12 ~ 현재 (실서비스 운영 중)
 * **담당 역할:** 1인 풀스택 기획/개발/배포 (Backend 중심)
 
@@ -32,7 +32,7 @@
 - **Backend:** Java 21, Spring Boot 3.5, Spring Data JPA, QueryDSL
 - **AI & Data:** LangChain4j, Google Gemini 2.5 API, Apache PDFBox, pgvector
 - **Database:** PostgreSQL, Flyway
-- **Infra & DevOps:** Docker, Railway, GitHub Actions(keep_alive.yml로 매일 자정마다 실행 Auth 설정 정보를 요청해서 Supabase 서버를 깨웁니다.)
+- **Infra & DevOps:** Docker, Railway, GitHub Actions (정기 크론잡을 통한 Supabase 서버 Cold Start 방지 자동화)
 - **Auth & Architecture:** Supabase (OAuth 2.0 / JWT), SSE (Server-Sent Events) 비동기 스트리밍
 - **Frontend (MVP용):** Svelte 5, TypeScript, Tailwind CSS
 
