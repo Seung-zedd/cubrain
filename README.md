@@ -23,9 +23,8 @@
 
 <br/>
 
-## 🏗 시스템 아키텍처
-<img width="1791" height="880" alt="system architecture diagram" src="https://github.com/user-attachments/assets/b2583e94-2184-4db2-8486-0d3845fa24d2" />
-
+## 🔒 열람 안내 (For Interviewers)
+본 레포지토리는 비즈니스 로직 보호를 위해 프라이빗으로 관리되고 있으며, 면접관님의 리뷰를 목적으로 접근 권한이 부여되었습니다. **소스 코드 열람 시 `backend/src/main/java/` 내의 주요 비즈니스 로직(특히 PDF 처리 및 AI 프롬프트 엔진)을 중점적으로 검토해 주시면 감사하겠습니다.**
 
 <br/>
 
@@ -39,8 +38,19 @@
 
 <br/>
 
+## 🏗 시스템 아키텍처
+<img width="1791" height="880" alt="system architecture diagram" src="https://github.com/user-attachments/assets/b2583e94-2184-4db2-8486-0d3845fa24d2" />
+
+
+<br/>
+
+
+
 ## 💾 데이터베이스 스키마 (ERD)
 서비스의 전체 데이터베이스 구조는 다음과 같습니다.
+
+<br/>
+
 <img width="841" height="990" alt="ERD diagram" src="https://github.com/user-attachments/assets/969c3e53-e90d-4896-a6a5-b2141a688db7" />
 
 
@@ -80,5 +90,4 @@
 
 👉 **[Cubrain 라이브 서비스에서 테스트하기](https://cubrain.app)**
 
-## 🔒 열람 안내 (For Interviewers)
-본 레포지토리는 비즈니스 로직 보호를 위해 프라이빗으로 관리되고 있으며, 면접관님의 리뷰를 목적으로 접근 권한이 부여되었습니다. **소스 코드 열람 시 `backend/src/main/java/` 내의 주요 비즈니스 로직(특히 PDF 처리 및 AI 프롬프트 엔진)을 중점적으로 검토해 주시면 감사하겠습니다.**
+
