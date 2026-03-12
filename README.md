@@ -1,99 +1,82 @@
-[Cubrain Builder mode](https://linear.app/cubrain-app/project/cubrain-builder-mode-04bde422c5ae)
+# 🧠 Cubrain (큐브레인) - AI 기반 PDF 학습 자료(플래시카드/문제) 자동 생성 SaaS 서비스
 
-🔗[API endpoint](https://86o7xvdzj4.apidog.io)
+  > **"공부한 흔적만 넣으세요. 정리는 AI가 합니다."**
+<br/>
+  
+  
+  [🌐 서비스 바로가기 (cubrain.app)](https://cubrain.app)
 
-🟢 On track | Ambition posted an update on Nov 30
+  <p align="center">
+    <img src="https://img.shields.io/badge/Java 21-007396?style=flat-square&logo=Java&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Spring Boot 3.5-6DB33F?style=flat-square&logo=Spring-Boot&logoColor=white"/>
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=PostgreSQL&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Svelte 5-FF3E00?style=flat-square&logo=Svelte&logoColor=white"/>
+  </p>
+</div>
 
-### **🗺️ Finalized Cubrain Product Roadmap (Updated)**
+<br/>
 
-> V1으로 유저들을 모으고(마케팅), V2로 팬덤을 모은다(브랜딩).
+## 🚀 프로젝트 소개
+대학 전공 공부 시 수백 페이지의 PDF 강의록을 보며 수동으로 플래시카드를 만드는 비효율을 해결하기 위해 기획된 1인 풀스택 SaaS 서비스입니다. 사용자가 형광펜(Highlight) 또는 밑줄(Underline)으로 칠한 내용을 AI가 분석하여 자동으로 복습용 문제와 요약 카드를 생성합니다.
+* **개발 및 운영 기간:** 2025.12 ~ 현재 (실서비스 운영 중)
+* **담당 역할:** 1인 풀스택 기획/개발/배포 (Backend 중심)
 
-#### **🚀 V1 (MVP - The "Extractor" Solution)**
+<br/>
 
-> **"공부한 흔적만 넣으세요. 정리는 우리가 합니다."**
+## 🏗 시스템 아키텍처
+<img width="1791" height="880" alt="system architecture diagram" src="https://github.com/user-attachments/assets/b2583e94-2184-4db2-8486-0d3845fa24d2" />
 
-* **Core Feature:**
-  * **PDF Annotation Parser:** 사용자가 업로드한 PDF의 하이라이트/밑줄을 좌표 기반으로 자동 추출.
-  * **Intent-Based Generation (Smart Prompting):**
-    * 🖍️ **Highlight:** 개념/맥락 위주 (Why/How/Summarize).
-    * ✍️ **Underline:** 팩트/키워드 위주 (Cloze/Definition).
-  * **Context-Aware:** 추출된 문장 + 주변 문단(Paragraph)을 AI에게 전달하여 할루시네이션 방지.
-  * **★ Killer Feature:** **Export to Anki (.apkg) / CSV**. (기존 생태계 침투 전략)
-* **Goal:** "복습 자료 만드는 시간"을 0초로 단축.
-* **Target:** 이미 굿노트/아크로뱃으로 공부하고 있는 대학생 & 전문직 수험생.
-* **Why:** 사용자의 기존 습관을 바꾸지 않으면서 가치를 제공함.
 
-* **🛡️ Infra & Security (Early Hardening):**
-  * **Google Cloud Armor:** MVP 런칭 시점부터 DDoS 공격 및 웹 취약점 방어 체계 구축. (이유: 초기 서비스 중단 리스크 원천 차단 및 사용자 신뢰 확보)
+<br/>
 
----
+## 🛠 기술 스택
+- **Backend:** Java 21, Spring Boot 3.5, Spring Data JPA, QueryDSL
+- **AI & Data:** LangChain4j, Google Gemini 2.5 API, Apache PDFBox, pgvector
+- **Database:** PostgreSQL, Flyway
+- **Infra & DevOps:** Docker, Railway, GitHub Actions(keep_alive.yml로 매일 자정마다 실행 Auth 설정 정보를 요청해서 Supabase 서버를 깨웁니다.)
+- **Auth & Architecture:** Supabase (OAuth 2.0 / JWT), SSE (Server-Sent Events) 비동기 스트리밍
+- **Frontend (MVP용):** Svelte 5, TypeScript, Tailwind CSS
 
-#### **📦 V1.1 (Stability & Performance Update)**
+<br/>
 
-> **"더 빠르고, 더 안정적으로."**
+## 💾 데이터베이스 스키마 (ERD)
+서비스의 전체 데이터베이스 구조는 다음과 같습니다.
 
-* **Optimization:**
-  * **Batch Processing:** 하이라이트 5\~10개를 하나의 프롬프트로 묶어서 처리 (API 호출 비용 및 속도 최적화).
-  * **Async Queue:** 대기열 시스템 도입으로 타임아웃 방지 및 프로그레스 바 UX 고도화.
-    * **\[Add\] Visual Progress UX (The Pacer):**
-      * 실시간 처리 상태와 연동된 **캐릭터 애니메이션(Running/Stop/Success)** 적용.
-      * 목적: 기술적 지연 시간(Latency)을 엔터테인먼트 요소로 승화.
-* **Why:** 트래픽 증가 대비 및 사용자 경험(UX) 개선.
 
-#### **🧠 V2 (The "Deep Dive & Dopamine" Solution)**
+## 🔥 핵심 트러블슈팅 및 성능 최적화 (Key Engineering Decisions)
 
-> **"단순 생성을 넘어, 오감으로 학습하세요."**
+> 💡 **단순한 기능 구현을 넘어, 인프라 비용과 서비스 안정성 향상에 집중했습니다.**
 
-* **Core Feature:**
-  * **✨ Golden Celebration (Gamification):**
-    * **4 Elements Effect:** 정답 시 불(Fire), 물(Water), 흙(Earth/Spark), 바람(Wind) 이펙트 랜덤 발동.
-    * **Rarity System:** 플래시카드 중요도에 따라 R / SR / SSR 등급 부여 및 시각적 차별화.
-    * **Earthquake:** 어려운 문제(Hard) 해결 시 화면 흔들림 효과로 타격감 제공.
-  * 
-    > ### **🛠️ 구현 전략**
-    1. **4원소 이펙트 (**`ElementalEffects.svelte`):
-       * **🔥 불 (Fire):** 카드가 붉게 타오르며 위로 승천하는 애니메이션 + 불타는 소리.
-       * **💧 물 (Water):** 화면에 물결이 치고 카드가 파도 타듯 흔들리며 사라짐 + 물소리.
-       * **⛰️ 흙 (Earth/Spark):** 화면이 쿵! 하고 흔들리며(Earthquake) 금색 스파크 폭발 + 타격음. (기존 Golden Spark 강화)
-       * **🌪️ 바람 (Wind):** 카드가 회오리바람에 휘말려 날아가버리는 애니메이션 + 바람 소리.
-    2. **카드 등급 시스템 (**`Rarity`):
-       * **R (Rare):** 기본 (Blue/Silver)
-       * **SR (Super Rare):** 중요 (Purple/Pink)
-       * **SSR (Specially Super Rare):** 핵심/최고 중요도 (Gold/Rainbow)
-       * *유저가 중요도를 선택하면 테두리와 빛나는 효과가 달라집니다.*
-    3. **🗣️ AI Oral Test (Speak Mode) \[NEW!\]**:
-       * **Interaction:** 카드 우측 상단 마이크 버튼 클릭 -> 구술 답변.
-       * **Engine:** Web Speech API (Browser Native) 활용하여 비용 절감.
-       * **Grading Logic (Semantic Match):** 단순 텍스트 비교가 아닌 **LLM 기반 의미 유사도 판별**. (키워드가 포함되었는지, 맥락이 맞는지 판단).
-       * **Threshold:** 의미가 80% 이상 통하면 정답 처리 -> "Close Enough!" 피드백과 함께 4원소 이펙트 발동.
-  * **\[Confirmed\] 🔄 Smart Variations (Multi-Angle Learning):**
-    * **Logic:** 하나의 하이라이트에서 `Definition(정의)`, `Reasoning(이유/Why)`, `Application(사례/Example)` 3가지 유형의 문제 생성.
-    * **Trigger:** SR/SSR 등급 카드에서만 활성화 (비용 절감 및 프리미엄 느낌 부여).
-    * **Lock-in:** "Cubrain 앱 전용" 기능으로 포지셔닝 (Anki Export 불가 항목).
-  * **AI Tutor Chat (RAG):** "이게 왜 정답이야?"라고 물어볼 수 있는 채팅 기능.
-* **Goal:** 사용자를 앱 안에 묶어두고(Lock-in), 학습의 즐거움(Dopamine)을 제공.
-* **Target:** 단순 합격이 아니라 '성취감'과 '재미'를 원하는 유저.
+### 1. 배치 프로세싱(Batch Processing)을 통한 AI 비용 90% 절감
+* **문제:** 초기 모델에서는 사용자가 칠한 하이라이트 영역마다 개별적으로 LLM API를 호출하여 **과도한 트래픽 비용과 응답 지연** 발생.
+* **해결:** 여러 개의 하이라이트 컨텍스트를 묶어 '페이지 단위의 합성 배치(Batch) 처리' 방식으로 백엔드 로직 전면 개편.
+* **결과:** **LLM API 호출 횟수를 획기적으로 줄여 트래픽 비용 약 90% 절감 달성.**
 
----
+### 2. PDFBox 좌표 기반 정밀 추출로 할루시네이션(Hallucination) 제어
+* **문제:** 단순 텍스트 추출 시 문장 잘림이나 줄바꿈으로 인해 문맥이 유실되어 AI가 엉뚱한 문제를 생성.
+* **해결:** `Apache PDFBox`를 활용해 하이라이트 객체의 물리적 좌표(Coordinate)와 주변 패딩 영역을 수학적으로 계산하여 텍스트를 정밀하게 추출하는 전처리 엔진 직접 구현.
+* **결과:** LangChain4j와 연동하여 정확한 문맥(Context)을 프롬프트에 동적으로 주입, **AI 문맥 인식률 대폭 향상 및 할루시네이션 억제.**
 
-#### **⚡ V3 (The "Quiz & Multi-Modal" Update)**
+### 3. 지수 백오프(Exponential Backoff) 기반의 회복 탄력적 장애 격리
+* **문제:** 외부 AI API(Gemini)의 할당량 초과나 간헐적 네트워크 지연 시 서버 스레드가 블로킹되어 서비스 전체의 장애로 전파될 위험.
+* **해결:** 메인 스레드와 AI 생성 스레드를 분리(Async Executor Queue)하고, 외부 장애 발생 시 **지수 백오프 기반의 재시도(Retry) 로직**을 아키텍처에 내재화.
+* **결과:** 단일 장애점(SPOF)을 회피하고 서비스 가용성 및 안정성 극대화.
 
-> **"텍스트를 넘어, 모든 자료를 정복하세요."**
+### 4. SSE(Server-Sent Events)를 활용한 비동기 실시간 UX 구축
+* **문제:** 생성형 AI 특성상 응답 대기 시간이 길어, 일반적인 HTTP 요청-응답 모델에서는 브라우저 타임아웃 또는 사용자 이탈 발생.
+* **해결:** Svelte 5의 Runes 기반 반응성 모델과 백엔드의 SSE 스트리밍을 연동하여, **AI의 생성 진행 상태를 프론트엔드에 실시간으로 시각화**.
+* **결과:** 기존 Polling 방식 대비 서버 부하를 최소화하고, 사용자의 체감 대기 시간을 대폭 단축하여 UX 대폭 향상.
 
-* **Core Feature:**
-  * **Hard Mode (Quiz):** 객관식(Multiple Choice) 및 주관식 입력(Type-in) 문제 생성.
-  * **Multi-Modal Ingestion:** PDF 내의 도표/다이어그램/이미지를 인식하여 문제 생성 (Gemini Vision 활용).
-  * **SRS (Spaced Repetition) Go/No-Go:** 사용자 요청(10건 이상) 시 자체 복습 알고리즘 도입 검토.
-    * **Method:** 설정 메뉴 내 '기능 요청(Feature Request)' 구글 폼/Typeform 연동.
-    * **Trigger:** 사용자 요청 **10건(+10)** 달성 시 즉시 개발 착수 (Lean Approach).
-* **Goal:** 텍스트 위주의 학습 한계를 돌파.
-* **Target:** 의대생(해부학), 공대생(회로도) 등 이미지 학습 필수 유저.
+<br/>
 
-#### **📱 V4 (The "Ecosystem" Platform)**
+## 🚀 로컬 실행 및 테스트 안내 (Notice)
+본 프로젝트는 보안 및 데이터 무결성을 위해 **Supabase Auth**와 **Google Gemini API**, **pgvector**가 강제로 연동되어 구동됩니다. 
 
-> **"언제 어디서나, 끊김 없는 학습."**
+환경 변수(`.env`) 세팅 및 외부 API 키 연동 없이 로컬 환경에서 즉시 빌드 및 실행하는 것은 제한되어 있습니다. 서비스의 전체 기능과 UX 테스트는 아래의 라이브 서버 환경에서 확인해 주시면 감사하겠습니다.
 
-* **Core Feature:**
-  * **Mobile App:** 이동 중에 PDF를 업로드하고 복습할 수 있는 네이티브 앱.
-  * **Chrome Extension:** 웹페이지 드래그 캡처 기능 부활 ("웹 서핑 중 학습").
-* **Goal:** OS와 포맷을 가리지 않는 완전한 학습 생태계 구축.
+<br/>
+
+👉 **[Cubrain 라이브 서비스에서 테스트하기](https://cubrain.app)**
+
+## 🔒 열람 안내 (For Interviewers)
+본 레포지토리는 비즈니스 로직 보호를 위해 프라이빗으로 관리되고 있으며, 면접관님의 리뷰를 목적으로 접근 권한이 부여되었습니다. **소스 코드 열람 시 `backend/src/main/java/` 내의 주요 비즈니스 로직(특히 PDF 처리 및 AI 프롬프트 엔진)을 중점적으로 검토해 주시면 감사하겠습니다.**
