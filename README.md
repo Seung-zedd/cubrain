@@ -41,6 +41,8 @@
 
 ## 💾 데이터베이스 스키마 (ERD)
 서비스의 전체 데이터베이스 구조는 다음과 같습니다.
+<img width="841" height="990" alt="ERD diagram" src="https://github.com/user-attachments/assets/969c3e53-e90d-4896-a6a5-b2141a688db7" />
+
 
 
 ## 🔥 핵심 트러블슈팅 및 성능 최적화 (Key Engineering Decisions)
