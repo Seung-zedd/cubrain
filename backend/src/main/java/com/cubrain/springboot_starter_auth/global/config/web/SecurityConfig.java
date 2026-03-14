@@ -47,9 +47,6 @@ public class SecurityConfig {
     private final SupabaseUserSyncFilter supabaseUserSyncFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    @Value("${springdoc.api-docs.enabled:false}")
-    private boolean isSwaggerEnabled;
-
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
     private String issuerUri;
 
@@ -165,13 +162,9 @@ public class SecurityConfig {
                                     "/api/v1/sse/subscribe/**")
                             .permitAll();
 
-                    if (isSwaggerEnabled) {
-                        log.info("✅ Swagger/OpenAPI is ENABLED. Permitting access to /v3/api-docs");
-                        auth.requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                                .permitAll();
-                    } else {
-                        log.info("❌ Swagger/OpenAPI is DISABLED.");
-                    }
+                    // Swagger/OpenAPI (Access controlled by springdoc.api-docs.enabled in YML)
+                    auth.requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                            .permitAll();
 
                     auth.anyRequest().authenticated();
                 })
@@ -206,9 +199,8 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> {
-            if (isSwaggerEnabled) {
-                web.ignoring().requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html");
-            }
+            // Ignore Swagger/OpenAPI paths to completely bypass security filters
+            web.ignoring().requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html");
         };
     }
 

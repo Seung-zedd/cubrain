@@ -40,6 +40,7 @@ spring:
 springdoc:
   api-docs:
     enabled: true
+    path: /v3/api-docs # Explicitly set for Apidog integration
   swagger-ui:
     enabled: true
 
@@ -56,3 +57,7 @@ langchain4j:
   document-splitter:
     chunk-size: 1000
     chunk-overlap: 200
+
+# Resend API (Local)
+resend:
+  api-key: "${RESEND_API_KEY:}"

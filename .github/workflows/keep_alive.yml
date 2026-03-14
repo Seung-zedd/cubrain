@@ -2,7 +2,7 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 매일 자정 실행
+    - cron: "0 0 * * *" # 매일 자정 실행
   workflow_dispatch:
 
 jobs:
@@ -13,6 +13,6 @@ jobs:
         run: |
           # 실제 DB 테이블을 조회하여 봇이 아닌 '활성 프로젝트'로 인식하게 만듭니다.
           # 주의: 'users' 부분을 실제 존재하는 아무 테이블 이름으로 변경하세요.
-          curl -I -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/flashcards?select=id&limit=1" \
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/flashcards?select=id&limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
           -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"

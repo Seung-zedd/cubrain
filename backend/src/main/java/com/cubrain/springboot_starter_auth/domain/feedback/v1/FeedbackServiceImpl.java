@@ -14,7 +14,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     private final String resendApiKey;
 
-    public FeedbackServiceImpl(@Value("${RESEND_API_KEY}") String resendApiKey) {
+    public FeedbackServiceImpl(@Value("${RESEND_API_KEY:dummy_key}") String resendApiKey) {
         this.resendApiKey = resendApiKey;
     }
 
