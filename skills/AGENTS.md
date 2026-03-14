@@ -303,3 +303,10 @@ When adapting external UI code (e.g., from Uiverse) into Cubrain:
   - "Context-Aware" / "Precision" (vs Random AI)
 - **Forbidden Keywords:** "Magic", "Game-changer" (Too cliché).
 - **Tone:** Direct, Empathetic, Efficiency-focused.
+
+## 27. 🤖 MCP (Model Context Protocol) Utilization & RAG Strategy
+
+- **Rule: Maximize MCP for Context Retrieval.**
+- When dealing with internal logic, APIs, or large codebases in future projects, actively utilize the **Apidog MCP Server** and **GitHub MCP Server** to act as a personal Retrieval-Augmented Generation (RAG) system.
+- **Apidog MCP Server:** Use it to instantly fetch precise OpenAPI specifications, endpoint URLs, and request/response DTO structures. This completely eliminates the need to manually read multiple backend controller and DTO files, vastly reducing AI token consumption and preventing hallucinations. Very useful when syncing frontend fetch logic with backend APIs.
+- **GitHub MCP Server:** Use it to search, navigate, and comprehend repo structures and snippets without blindly loading entire files into the context window.
