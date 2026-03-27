@@ -6,13 +6,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  ping-supabase:
+  ping-supabase-db:
     runs-on: ubuntu-latest
     steps:
-      - name: Query Supabase Database
+      - name: Install PostgreSQL Client
         run: |
-          # 실제 DB 테이블을 조회하여 봇이 아닌 '활성 프로젝트'로 인식하게 만듭니다.
-          # 주의: 'users' 부분을 실제 존재하는 아무 테이블 이름으로 변경하세요.
-          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/flashcards?select=id&limit=1" \
-          -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Query Supabase Database Directly
+        run: |
+          # 수파베이스 DB에 직접 접속하여 봇 필터링을 완벽하게 우회합니다.
+          psql "${{ secrets.SUPABASE_DB_URL }}" -c "SELECT 1;"
