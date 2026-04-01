@@ -8,6 +8,7 @@ import com.cubrain.springboot_starter_auth.domain.member.Member;
 import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -86,9 +87,17 @@ public class PdfIngestionController {
             }
         }
 
+        byte[] fileData;
+        try {
+            fileData = file.getBytes();
+        } catch (IOException e) {
+            log.error("Failed to read upload file bytes", e);
+            return status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to read uploaded file"));
+        }
+
         // 1. Validate Page Count (Log for analytics)
         try {
-            int pageCount = pdfAnnotationService.getPageCount(file);
+            int pageCount = pdfAnnotationService.getPageCount(fileData);
             log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
         } catch (Exception e) {
             log.warn("Could not read PDF page count for logging", e);
@@ -108,7 +117,7 @@ public class PdfIngestionController {
             return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
         }
 
-        String jobId = cardService.generateCardsAsync(file, userTier, ownerId);
+        String jobId = cardService.generateCardsAsync(fileData, originalFilename, userTier, ownerId);
         return ok(JobStartResponseDto.of(jobId));
     }
 

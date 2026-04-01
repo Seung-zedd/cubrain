@@ -16,8 +16,6 @@ import dev.langchain4j.model.output.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,12 +87,12 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
     }
 
     @Override
-    public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier) {
-        return generateCardsFromPdf(file, userTier, null);
+    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier) {
+        return generateCardsFromPdf(fileData, userTier, null);
     }
 
     @Override
-    public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
+    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier, String jobId) {
         try {
             int pageLimit = switch (userTier) {
                 case PRO_USER -> 1000;
@@ -108,7 +106,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                 case GUEST -> 50;
             };
 
-            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(file, pageLimit);
+            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(fileData, pageLimit);
             List<AnnotationResultDto> allAnnotations = extractionResult.annotations();
 
             // Limit annotations to prevent token skyrocketing
@@ -128,7 +126,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             String firstPageText = extractionResult.detectionText();
 
             String targetLanguage = detectLanguage(firstPageText);
-            log.debug("Detected Language for PDF {}: {}", file.getOriginalFilename(), targetLanguage);
+            log.debug("Detected Language: {}", targetLanguage);
 
             try {
                 Thread.sleep(1000);
@@ -189,9 +187,8 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             return allFlashcards;
 
         } catch (IOException e) {
-            String filename = file.getOriginalFilename();
-            log.error("Failed to process PDF file: {} - {}", filename, e.getMessage(), e);
-            throw new RuntimeException("Failed to process PDF file: " + filename + " - " + e.getMessage(), e);
+            log.error("Failed to process PDF file data: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to process PDF data - " + e.getMessage(), e);
         }
     }
 

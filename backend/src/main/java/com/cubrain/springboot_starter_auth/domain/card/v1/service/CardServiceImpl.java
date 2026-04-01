@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -38,22 +36,18 @@ public class CardServiceImpl implements CardService {
     private final Executor pdfProcessingExecutor;
 
     @Override
-    public String generateCardsAsync(MultipartFile file, UserTier userTier, String ownerId) {
+    public String generateCardsAsync(byte[] fileData, String fileName, UserTier userTier, String ownerId) {
         String jobId = jobManager.createJob(ownerId);
 
-        // Set initial metadata: use filename (without .pdf) as default title
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null) {
-            // Normalize to NFC (composed) to handle different OS filename encodings (e.g.,
-            // macOS NFD)
-            String normalized = java.text.Normalizer.normalize(originalFilename, java.text.Normalizer.Form.NFC);
+        if (fileName != null) {
+            String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFC);
             String title = normalized.replaceAll("(?i)\\.pdf$", "");
             jobManager.updateMetadata(jobId, "title", title);
         }
 
         CompletableFuture.runAsync(() -> {
             try {
-                List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(file, userTier, jobId);
+                List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(fileData, userTier, jobId);
                 if (results.isEmpty()) {
                     log.info("No cards generated for job {}, refunding usage", jobId);
                     refundUsage(userTier, ownerId);
@@ -100,14 +94,14 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier) {
-        return flashcardGenerator.generateCardsFromPdf(file, userTier);
+    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier) {
+        return flashcardGenerator.generateCardsFromPdf(fileData, userTier);
     }
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId) {
-        return flashcardGenerator.generateCardsFromPdf(file, userTier, jobId);
+    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier, String jobId) {
+        return flashcardGenerator.generateCardsFromPdf(fileData, userTier, jobId);
     }
 
     @Override

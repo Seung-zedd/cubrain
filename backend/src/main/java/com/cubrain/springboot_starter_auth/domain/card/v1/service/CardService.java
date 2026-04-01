@@ -5,12 +5,10 @@ import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.DeckResponseDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardRequestDto;
 import com.cubrain.springboot_starter_auth.domain.card.v1.dto.FlashcardResponseDto;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 public interface CardService {
-        String generateCardsAsync(MultipartFile file, UserTier userTier, String ownerId);
+        String generateCardsAsync(byte[] fileData, String fileName, UserTier userTier, String ownerId);
 
         FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext);
 
@@ -20,9 +18,9 @@ public interface CardService {
         FlashcardResponseDto generateCardDemo(String selection, String localContext, String globalContext,
                         String annotationType, String targetLanguage);
 
-        List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier);
+        List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier);
 
-        List<FlashcardResponseDto> generateCardsFromPdf(MultipartFile file, UserTier userTier, String jobId);
+        List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier, String jobId);
 
         DeckResponseDto saveDeck(String title, List<FlashcardResponseDto> cards, Member member);
 

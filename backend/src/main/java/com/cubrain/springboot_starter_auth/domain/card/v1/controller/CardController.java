@@ -9,6 +9,7 @@ import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -63,15 +64,22 @@ public class CardController {
             clientIp = request.getRemoteAddr();
         }
 
+        byte[] fileData;
+        try {
+            fileData = file.getBytes();
+        } catch (IOException e) {
+            return badRequest().build();
+        }
+
         if (email != null) {
             usageLimitService.checkAndIncrement(email);
             Member member = memberRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, member.getTier());
+            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(fileData, member.getTier());
             return ok(results);
         } else {
             usageLimitService.checkAndIncrementGuest(clientIp);
-            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(file, GUEST);
+            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(fileData, GUEST);
             return ok(results);
         }
     }

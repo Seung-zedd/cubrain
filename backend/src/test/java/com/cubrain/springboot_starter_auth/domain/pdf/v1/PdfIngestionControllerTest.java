@@ -64,7 +64,7 @@ class PdfIngestionControllerTest {
                 MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
                                 "test content".getBytes());
                 when(pdfAnnotationService.getPageCount(any())).thenReturn(51);
-                when(cardService.generateCardsAsync(any(), any(), any())).thenReturn("job-123");
+                when(cardService.generateCardsAsync(any(), any(), any(), any())).thenReturn("job-123");
 
                 // When & Then
                 mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
@@ -79,7 +79,7 @@ class PdfIngestionControllerTest {
                 MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
                                 "test content".getBytes());
                 when(pdfAnnotationService.getPageCount(any())).thenReturn(50);
-                when(cardService.generateCardsAsync(any(), any(), any())).thenReturn("job-123");
+                when(cardService.generateCardsAsync(any(), any(), any(), any())).thenReturn("job-123");
 
                 // When & Then
                 mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))

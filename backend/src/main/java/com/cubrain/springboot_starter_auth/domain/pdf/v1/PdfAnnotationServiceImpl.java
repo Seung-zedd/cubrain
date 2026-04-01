@@ -10,8 +10,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,12 +24,11 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
     private int minTextLength;
 
     @Override
-    public PdfExtractionResultDto extractAnnotations(MultipartFile file, int maxPages) throws IOException {
-        log.debug("Processing PDF file: {}", file.getOriginalFilename());
+    public PdfExtractionResultDto extractAnnotations(byte[] fileData, int maxPages) throws IOException {
         List<AnnotationResultDto> results = new ArrayList<>();
         String detectionText = "";
 
-        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(fileData))) {
             int pageCount = document.getNumberOfPages();
 
             int maxScanPages = Math.min(pageCount, 5);
@@ -158,8 +156,8 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
     }
 
     @Override
-    public int getPageCount(MultipartFile file) throws IOException {
-        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+    public int getPageCount(byte[] fileData) throws IOException {
+        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(fileData))) {
             return document.getNumberOfPages();
         }
     }
