@@ -9,7 +9,7 @@
   const posts = data.posts;
   const teasers = data.teasers;
 
-  let fromApp = $state(false);
+  const fromApp = $derived(page.url.searchParams.get("from") === "app");
   const backHref = $derived(fromApp ? "/library" : "/");
   const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
 
@@ -25,10 +25,6 @@
       showToast = false;
     }, 3000);
   }
-
-  $effect(() => {
-    fromApp = page.url.searchParams.get("from") === "app";
-  });
 </script>
 
 <svelte:head>
@@ -76,52 +72,101 @@
 
     <!-- Posts List -->
     <div class="space-y-8">
-      {#each teasers as teaser}
+      {#each teasers as teaser (teaser.id)}
         <div in:fly={{ y: 30, duration: 800, delay: 300 }}>
-          <button
-            onclick={() => triggerToast(teaser.toast)}
-            class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl {teaser
-              .theme
-              .hover} transition-all duration-500 cursor-pointer overflow-hidden"
-          >
-            <!-- Animated Background Layer -->
-            <img
-              src={teaser.bgImage}
-              alt=""
-              class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
-            />
-
-            <div
-              class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          {#if teaser.href}
+            <a
+              href={teaser.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl {teaser
+                .theme
+                .hover} transition-all duration-500 cursor-pointer overflow-hidden"
             >
-              <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <span
-                    class="px-2.5 py-0.5 rounded-full {teaser.theme
-                      .badge} text-[10px] font-bold uppercase tracking-wider"
+              <!-- Animated Background Layer -->
+              <img
+                src={teaser.bgImage}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
+              />
+
+              <div
+                class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+              >
+                <div class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="px-2.5 py-0.5 rounded-full {teaser.theme
+                        .badge} text-[10px] font-bold uppercase tracking-wider"
+                    >
+                      {teaser.badge}
+                    </span>
+                  </div>
+                  <h2
+                    class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r {teaser
+                      .theme.title}"
                   >
-                    {teaser.badge}
+                    {teaser.title}
+                  </h2>
+                  <p class="text-zinc-400">
+                    {teaser.description}
+                  </p>
+                </div>
+                <div class="shrink-0 self-end md:self-center">
+                  <span
+                    class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
+                  >
+                    {teaser.cta}
                   </span>
                 </div>
-                <h2
-                  class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r {teaser
-                    .theme.title}"
-                >
-                  {teaser.title}
-                </h2>
-                <p class="text-zinc-400">
-                  {teaser.description}
-                </p>
               </div>
-              <div class="shrink-0 self-end md:self-center">
-                <span
-                  class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
-                >
-                  {teaser.cta}
-                </span>
+            </a>
+          {:else}
+            <button
+              onclick={() => teaser.toast && triggerToast(teaser.toast)}
+              class="w-full text-left group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl {teaser
+                .theme
+                .hover} transition-all duration-500 cursor-pointer overflow-hidden"
+            >
+              <!-- Animated Background Layer -->
+              <img
+                src={teaser.bgImage}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-0 pointer-events-none"
+              />
+
+              <div
+                class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+              >
+                <div class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="px-2.5 py-0.5 rounded-full {teaser.theme
+                        .badge} text-[10px] font-bold uppercase tracking-wider"
+                    >
+                      {teaser.badge}
+                    </span>
+                  </div>
+                  <h2
+                    class="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r {teaser
+                      .theme.title}"
+                  >
+                    {teaser.title}
+                  </h2>
+                  <p class="text-zinc-400">
+                    {teaser.description}
+                  </p>
+                </div>
+                <div class="shrink-0 self-end md:self-center">
+                  <span
+                    class="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors"
+                  >
+                    {teaser.cta}
+                  </span>
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          {/if}
         </div>
       {/each}
 
@@ -131,10 +176,10 @@
         <div class="h-4"></div>
       {/if}
 
-      {#each posts as post, i}
+      {#each posts as post, i (post.slug)}
         <div in:fly={{ y: 30, duration: 800, delay: 300 + i * 100 }}>
           <a
-            href="/whats-new/{post.slug}{fromApp ? '?from=app' : ''}"
+            href={`/whats-new/${post.slug}${fromApp ? "?from=app" : ""}`}
             class="group block relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl hover:bg-white/10 hover:border-white/20 transition-all duration-300"
           >
             <div

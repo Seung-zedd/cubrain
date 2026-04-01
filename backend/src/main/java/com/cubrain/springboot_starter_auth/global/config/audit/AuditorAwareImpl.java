@@ -14,7 +14,6 @@ import java.util.Optional;
 public class AuditorAwareImpl implements AuditorAware<String> {
     @Override
     @NonNull
-    @SuppressWarnings("null")
     public Optional<String> getCurrentAuditor() {
         // 1. Get Authentication object from SecurityContextHolder
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())

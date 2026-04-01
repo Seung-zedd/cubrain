@@ -156,7 +156,7 @@
           {/if}
         </a>
         <a
-          href="/library"
+          href={"/library"}
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
           >Library</a
         >
@@ -374,6 +374,7 @@
               <h1
                 class="text-5xl sm:text-7xl lg:text-8xl font-black leading-[1.1] text-white tracking-tight"
               >
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html heroSlides[currentSlide].h}
               </h1>
               <p

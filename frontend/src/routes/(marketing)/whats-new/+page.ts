@@ -16,7 +16,8 @@ interface Teaser {
   title: string;
   description: string;
   cta: string;
-  toast: string;
+  toast?: string;
+  href?: string;
   bgImage: string;
   theme: {
     badge: string;
@@ -59,12 +60,12 @@ export async function load() {
   const teasers: Teaser[] = [
     {
       id: "lucidify",
-      badge: "Project in Progress",
+      badge: "Released",
       title: "Lucidify: Visualizing your dreams",
       description:
         "Turn your subconscious memories into cinematic AI videos. Powered by Gemini 3 & Google Veo.",
-      cta: "Coming Feb 2026 🔒",
-      toast: "🚀 Preparing for launch. Stay tuned for Feb 2026!",
+      cta: "Explore Now →",
+      href: "https://lucidify-dream.vercel.app/",
       bgImage: "/images/purple-dream.gif",
       theme: {
         badge: "bg-violet-500/20 text-violet-300 border-violet-500/30",
