@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
@@ -9,7 +10,7 @@
   const posts = data.posts;
   const teasers = data.teasers;
 
-  const fromApp = $derived(page.url.searchParams.get("from") === "app");
+  let fromApp = $state(false);
   const backHref = $derived(fromApp ? "/library" : "/");
   const backLabel = $derived(fromApp ? "Go to My Library" : "Back to Home");
 
@@ -25,6 +26,10 @@
       showToast = false;
     }, 3000);
   }
+
+  onMount(() => {
+    fromApp = page.url.searchParams.get("from") === "app";
+  });
 </script>
 
 <svelte:head>
