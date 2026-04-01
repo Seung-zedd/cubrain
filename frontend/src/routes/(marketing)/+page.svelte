@@ -156,7 +156,7 @@
           {/if}
         </a>
         <a
-          href={"/library"}
+          href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
           >Library</a
         >
