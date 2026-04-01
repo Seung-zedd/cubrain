@@ -25,7 +25,6 @@
   import TierUpgradeModal from "$lib/components/ui/TierUpgradeModal.svelte";
   import SaveDeckModal from "$lib/components/deck/SaveDeckModal.svelte";
   import { cn } from "$lib/utils";
-  import Markdown from "$lib/components/ui/Markdown.svelte";
   import LayoutGrid from "@lucide/svelte/icons/layout-grid";
   import List from "@lucide/svelte/icons/list";
   import Flashcard from "$lib/components/ui/Flashcard.svelte";
@@ -36,6 +35,19 @@
     question: string;
     answer: string;
     page?: number;
+  }
+
+  interface JobMetadata {
+    title?: string;
+    isAnnotationLimited?: boolean;
+    annotationLimit?: number;
+    [key: string]: unknown;
+  }
+
+  interface RecentJobResult {
+    status: string;
+    results?: GeneratedFlashcard[];
+    metadata?: JobMetadata;
   }
 
   let files = $state<File[]>([]);
@@ -52,14 +64,12 @@
   let proModalType = $state<"daily_limit">("daily_limit");
   let unsubscribe: (() => void) | null = null;
   let errorMessage = $state<string | null>(null);
-  let jobMetadata = $state<Record<string, any>>({});
+  let jobMetadata = $state<JobMetadata>({});
   let sourceFileName = $state<string | null>(null);
   let isSavingDeck = $state(false);
   let isSaved = $state(false);
   let currentFileIndex = $state(0);
   let totalFiles = $state(0);
-  let feedbackSubmitted = $state(false);
-  let selectedStruggle = $state<string | null>(null);
   let viewMode = $state<"grid" | "list">("list");
 
   // Validation Logic
@@ -101,8 +111,8 @@
   let { data } = $props<{ data: PageData }>();
 
   $effect(() => {
-    data.streamed.recentJob.then((res: any) => {
-      if (res && res.status === "COMPLETED" && res.results) {
+    data.streamed.recentJob.then((res: RecentJobResult) => {
+      if (res && res.status === "COMPLETED" && Array.isArray(res.results)) {
         generatedCards = res.results;
         showResults = true;
         if (res.metadata) {
@@ -156,8 +166,6 @@
     errorMessage = null;
     totalFiles = files.length;
     currentFileIndex = 0;
-    feedbackSubmitted = false;
-    selectedStruggle = null;
 
     const filesToProcess = [...files]; // Copy the files array to process
 
@@ -218,6 +226,9 @@
                   onInit: (data) => {
                     jobStatus = data.status;
                     jobProgress = data.progress;
+                    if (data.metadata) {
+                      jobMetadata = { ...jobMetadata, ...data.metadata };
+                    }
                   },
                   onProgress: (data) => {
                     jobStatus = data.status;
@@ -231,12 +242,17 @@
                     // Refresh usage count after each successful job
                     if (user.current) await fetchUser();
                     else await fetchGuestUsage();
+
+                    if (data.metadata) {
+                      jobMetadata = { ...jobMetadata, ...data.metadata };
+                    }
+
                     const results =
                       (data.results as GeneratedFlashcard[]) ?? [];
                     resolve(results);
                   },
                   onError: (error: unknown) => {
-                    const err = error as any;
+                    const err = error as Error;
                     if (unsubscribe) {
                       unsubscribe();
                       unsubscribe = null;
@@ -266,9 +282,10 @@
       } else if (!errorMessage) {
         isEmptyState = true;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       isGenerating = false;
-      errorMessage = error.message || "An error occurred during generation.";
+      errorMessage = err.message || "An error occurred during generation.";
       if (generatedCards.length > 0) {
         showResults = true;
       }
@@ -493,7 +510,7 @@
               : "flex flex-col gap-4 max-w-3xl mx-auto w-full",
           )}
         >
-          {#each generatedCards as card, i}
+          {#each generatedCards as card, i (card.question + i)}
             <div in:fly={{ y: 20, duration: 300, delay: i * 50 }}>
               <Flashcard {card} {viewMode} />
             </div>
