@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -87,12 +88,12 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
     }
 
     @Override
-    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier) {
-        return generateCardsFromPdf(fileData, userTier, null);
+    public List<FlashcardResponseDto> generateCardsFromPdf(Path filePath, UserTier userTier) {
+        return generateCardsFromPdf(filePath, userTier, null);
     }
 
     @Override
-    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier, String jobId) {
+    public List<FlashcardResponseDto> generateCardsFromPdf(Path filePath, UserTier userTier, String jobId) {
         try {
             int pageLimit = switch (userTier) {
                 case PRO_USER -> 1000;
@@ -106,7 +107,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                 case GUEST -> 50;
             };
 
-            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(fileData, pageLimit);
+            PdfExtractionResultDto extractionResult = pdfAnnotationService.extractAnnotations(filePath, pageLimit);
             List<AnnotationResultDto> allAnnotations = extractionResult.annotations();
 
             // Limit annotations to prevent token skyrocketing

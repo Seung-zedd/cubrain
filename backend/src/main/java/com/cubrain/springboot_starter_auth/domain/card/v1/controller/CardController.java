@@ -10,7 +10,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -30,6 +34,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/api/v1/cards")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Cards", description = "Flashcard generation APIs")
 public class CardController {
 
@@ -64,23 +69,36 @@ public class CardController {
             clientIp = request.getRemoteAddr();
         }
 
-        byte[] fileData;
+        Path tempFile;
         try {
-            fileData = file.getBytes();
+            tempFile = Files.createTempFile("pdf-sync-", ".pdf");
+            file.transferTo(tempFile.toFile());
         } catch (IOException e) {
-            return badRequest().build();
+            log.error("Failed to save uploaded file to disk", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        if (email != null) {
-            usageLimitService.checkAndIncrement(email);
-            Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(fileData, member.getTier());
-            return ok(results);
-        } else {
-            usageLimitService.checkAndIncrementGuest(clientIp);
-            List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(fileData, GUEST);
-            return ok(results);
+        try {
+            if (email != null) {
+                usageLimitService.checkAndIncrement(email);
+                Member member = memberRepository.findByEmail(email)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(tempFile, member.getTier());
+                return ok(results);
+            } else {
+                usageLimitService.checkAndIncrementGuest(clientIp);
+                List<FlashcardResponseDto> results = cardService.generateCardsFromPdf(tempFile, GUEST);
+                return ok(results);
+            }
+        } catch (Exception e) {
+            log.error("Error generating cards from PDF for {}", email != null ? email : clientIp, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            try {
+                Files.deleteIfExists(tempFile);
+            } catch (IOException e) {
+                log.error("Failed to delete temporary file: {}", tempFile, e);
+            }
         }
     }
 }

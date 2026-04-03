@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +38,7 @@ public class CardServiceImpl implements CardService {
     private final Executor pdfProcessingExecutor;
 
     @Override
-    public String generateCardsAsync(byte[] fileData, String fileName, UserTier userTier, String ownerId) {
+    public String generateCardsAsync(Path filePath, String fileName, UserTier userTier, String ownerId) {
         String jobId = jobManager.createJob(ownerId);
 
         if (fileName != null) {
@@ -47,16 +49,23 @@ public class CardServiceImpl implements CardService {
 
         CompletableFuture.runAsync(() -> {
             try {
-                List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(fileData, userTier, jobId);
+                List<FlashcardResponseDto> results = flashcardGenerator.generateCardsFromPdf(filePath, userTier, jobId);
                 if (results.isEmpty()) {
                     log.info("No cards generated for job {}, refunding usage", jobId);
                     refundUsage(userTier, ownerId);
                 }
                 jobManager.completeJob(jobId, results);
             } catch (Exception e) {
-                log.error("Async job failed, refunding usage", e);
+                log.error("Async job failed for file {}, refunding usage", filePath, e);
                 refundUsage(userTier, ownerId);
                 jobManager.failJob(jobId);
+            } finally {
+                try {
+                    Files.deleteIfExists(filePath);
+                    log.info("🗑️ Temporary file deleted: {}", filePath);
+                } catch (Exception e) {
+                    log.error("❌ Failed to delete temporary file: {}", filePath, e);
+                }
             }
         }, pdfProcessingExecutor);
 
@@ -94,14 +103,14 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier) {
-        return flashcardGenerator.generateCardsFromPdf(fileData, userTier);
+    public List<FlashcardResponseDto> generateCardsFromPdf(Path filePath, UserTier userTier) {
+        return flashcardGenerator.generateCardsFromPdf(filePath, userTier);
     }
 
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public List<FlashcardResponseDto> generateCardsFromPdf(byte[] fileData, UserTier userTier, String jobId) {
-        return flashcardGenerator.generateCardsFromPdf(fileData, userTier, jobId);
+    public List<FlashcardResponseDto> generateCardsFromPdf(Path filePath, UserTier userTier, String jobId) {
+        return flashcardGenerator.generateCardsFromPdf(filePath, userTier, jobId);
     }
 
     @Override

@@ -9,6 +9,8 @@ import com.cubrain.springboot_starter_auth.domain.member.MemberRepository;
 import com.cubrain.springboot_starter_auth.global.usage.UsageLimitService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -87,24 +89,25 @@ public class PdfIngestionController {
             }
         }
 
-        byte[] fileData;
+        Path tempFile;
         try {
-            fileData = file.getBytes();
+            tempFile = Files.createTempFile("pdf-upload-", ".pdf");
+            file.transferTo(tempFile.toFile());
         } catch (IOException e) {
-            log.error("Failed to read upload file bytes", e);
-            return status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to read uploaded file"));
+            log.error("Failed to save uploaded file to disk", e);
+            return status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to process uploaded file"));
         }
 
-        // 1. Validate Page Count (Log for analytics)
         try {
-            int pageCount = pdfAnnotationService.getPageCount(fileData);
-            log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
-        } catch (Exception e) {
-            log.warn("Could not read PDF page count for logging", e);
-        }
+            // 1. Validate Page Count (Log for analytics)
+            try {
+                int pageCount = pdfAnnotationService.getPageCount(tempFile);
+                log.info("Processing PDF: {} ({} pages) for user: {}", originalFilename, pageCount, ownerId);
+            } catch (Exception e) {
+                log.warn("Could not read PDF page count for logging", e);
+            }
 
-        // 2. Check and Increment Usage (Cost Defense)
-        try {
+            // 2. Check and Increment Usage (Cost Defense)
             if (jwt != null && email != null) {
                 log.info("[UsageLimit] Checking limit for AUTH_USER: {}", ownerId);
                 usageLimitService.checkAndIncrement(ownerId);
@@ -112,13 +115,28 @@ public class PdfIngestionController {
                 log.info("[UsageLimit] Checking limit for GUEST: {}", ownerId);
                 usageLimitService.checkAndIncrementGuest(ownerId);
             }
+
+            String jobId = cardService.generateCardsAsync(tempFile, originalFilename, userTier, ownerId);
+            return ok(JobStartResponseDto.of(jobId));
+
         } catch (IllegalStateException e) {
             log.warn("[UsageLimit] Limit reached for {}: {}", ownerId, e.getMessage());
+            cleanupTempFile(tempFile);
             return status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during PDF ingestion for {}", ownerId, e);
+            cleanupTempFile(tempFile);
+            return status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "An unexpected error occurred"));
         }
+    }
 
-        String jobId = cardService.generateCardsAsync(fileData, originalFilename, userTier, ownerId);
-        return ok(JobStartResponseDto.of(jobId));
+    private void cleanupTempFile(Path path) {
+        try {
+            Files.deleteIfExists(path);
+            log.info("🗑️ Cleanup: Temporary file deleted due to error: {}", path);
+        } catch (IOException e) {
+            log.error("❌ Cleanup: Failed to delete temporary file: {}", path, e);
+        }
     }
 
     @Operation(summary = "Get Recent Job", description = "Retrieves the most recent job for the current user or guest.")

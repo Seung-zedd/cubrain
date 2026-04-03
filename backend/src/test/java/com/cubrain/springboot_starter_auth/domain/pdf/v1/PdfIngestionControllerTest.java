@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,7 +65,7 @@ class PdfIngestionControllerTest {
                 MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
                                 "test content".getBytes());
                 when(pdfAnnotationService.getPageCount(any())).thenReturn(51);
-                when(cardService.generateCardsAsync(any(), any(), any(), any())).thenReturn("job-123");
+                when(cardService.generateCardsAsync(any(), anyString(), any(), anyString())).thenReturn("job-123");
 
                 // When & Then
                 mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))
@@ -79,7 +80,7 @@ class PdfIngestionControllerTest {
                 MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf",
                                 "test content".getBytes());
                 when(pdfAnnotationService.getPageCount(any())).thenReturn(50);
-                when(cardService.generateCardsAsync(any(), any(), any(), any())).thenReturn("job-123");
+                when(cardService.generateCardsAsync(any(), anyString(), any(), anyString())).thenReturn("job-123");
 
                 // When & Then
                 mockMvc.perform(multipart("/api/v1/pdf/generate-cards").file(file))

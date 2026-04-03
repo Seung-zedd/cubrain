@@ -10,8 +10,8 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,11 +24,11 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
     private int minTextLength;
 
     @Override
-    public PdfExtractionResultDto extractAnnotations(byte[] fileData, int maxPages) throws IOException {
+    public PdfExtractionResultDto extractAnnotations(Path filePath, int maxPages) throws IOException {
         List<AnnotationResultDto> results = new ArrayList<>();
         String detectionText = "";
 
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(fileData))) {
+        try (PDDocument document = PDDocument.load(filePath.toFile())) {
             int pageCount = document.getNumberOfPages();
 
             int maxScanPages = Math.min(pageCount, 5);
@@ -156,8 +156,8 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
     }
 
     @Override
-    public int getPageCount(byte[] fileData) throws IOException {
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(fileData))) {
+    public int getPageCount(Path filePath) throws IOException {
+        try (PDDocument document = PDDocument.load(filePath.toFile())) {
             return document.getNumberOfPages();
         }
     }
