@@ -121,3 +121,6 @@ package-lock.json
 # 에이전트한테 word 파일을 읽게 하기 위한 설정 파일
 *.doc
 *.docx
+
+# my API key stored
+.openclaude-profile.json
