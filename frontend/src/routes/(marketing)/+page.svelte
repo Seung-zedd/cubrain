@@ -751,6 +751,11 @@
 
         <div class="flex gap-8">
           <a
+            href="/help"
+            class="text-white/40 hover:text-white/80 text-sm transition-colors"
+            >Help Center</a
+          >
+          <a
             href="/terms"
             class="text-white/40 hover:text-[#FFD700] text-sm transition-colors"
             >Terms of Service</a
