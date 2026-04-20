@@ -28,3 +28,7 @@ To ensure your session is secure and synchronized with our new infrastructure, p
 ### 🚀 Why This Matters?
 
 While we have no evidence of any data breach within Cubrain specifically, we believe in **Total Transparency and Proactive Security**. By rotating our keys immediately, we ensure that even the theoretical possibility of unauthorized access is eliminated, keeping your study data and personal information safe under the highest modern standards.
+
+### 💅 Minor UX Polish
+
+- **Promotional Banner**: Fixed an issue where the "Early Bird" discount counter appeared unauthorized for guest users due to strictly applied security filters.
