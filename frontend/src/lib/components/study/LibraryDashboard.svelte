@@ -3,7 +3,6 @@
   import DeckCard from "../deck/DeckCard.svelte";
   import { fade } from "svelte/transition";
   import { IS_DEV_MODE } from "$lib/utils/env";
-  import * as m from "$paraglide/messages";
 
   let {
     decks,
@@ -39,10 +38,10 @@
   <div class="relative z-10 p-8 md:p-16 max-w-7xl mx-auto">
     <header class="mb-12">
       <h1 class="text-5xl font-bold text-amber-400 tracking-tight mb-4">
-        {m.library_title()}
+        Library
       </h1>
       <p class="text-zinc-300 text-lg max-w-2xl">
-        {m.library_subtitle()}
+        Your collection of decks and study materials.
       </p>
     </header>
 
