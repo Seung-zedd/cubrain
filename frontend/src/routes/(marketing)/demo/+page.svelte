@@ -95,7 +95,7 @@
 
           <p class="text-center mt-4 text-white/40 text-sm">
             Want to process the whole file? <a
-              href="/#waitlist"
+              href="/"
               class="text-[#FFD700] hover:underline">Join the waitlist</a
             >
           </p>

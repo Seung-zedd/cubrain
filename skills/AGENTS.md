@@ -177,10 +177,13 @@ To maintain consistency, readability, and encapsulation, we will distinguish how
 ### 12. Frontend Logging & Environment Checks
 
 - **Logging:** All `console.log`, `console.error`, and other debug logs MUST be wrapped in an environment check to prevent leaking information in production.
-- **Environment Check:** Use `import.meta.env.DEV` (Vite standard) to check if the app is running in development mode.
+- **Environment Check:** Use `IS_DEV_MODE` from `$lib/utils/env` to check if the app is running in development or staging mode.
 - **Example:**
+
   ```javascript
-  if (import.meta.env.DEV) {
+  import { IS_DEV_MODE } from "$lib/utils/env";
+
+  if (IS_DEV_MODE) {
     console.log("Debug info:", data);
   }
   ```
@@ -247,11 +250,15 @@ Rule: Whenever you create or modify a Controller or DTO class, you MUST immediat
 ## 21. 📊 Vercel Insights & Analytics
 
 - **Rule: Wrap Injection in Environment Checks.**
-- Always wrap `injectSpeedInsights()` and `injectAnalytics()` in a check for `browser && !dev` from `$app/environment`.
+- Always wrap `injectSpeedInsights()` and `injectAnalytics()` in a check for `browser && !IS_DEV_MODE`.
 - This prevents 404 errors and console noise in local development and non-production environments where these services might not be enabled.
 - **Example:**
+
   ```javascript
-  if (browser && !dev) {
+  import { browser } from "$app/environment";
+  import { IS_DEV_MODE } from "$lib/utils/env";
+
+  if (browser && !IS_DEV_MODE) {
     injectSpeedInsights();
     injectAnalytics();
   }
@@ -330,3 +337,11 @@ To protect the project from supply chain attacks and unauthorized access, agents
 ### 28.3 Git Safety
 
 - **.env Protection**: If you see a `.env` file not listed in `.gitignore`, your first priority is to fix the ignore file.
+
+---
+
+## 29. 🧹 Code Cleanup & Dead Code Removal
+
+- **Proactive Cleanup:** When refactoring or adding features, always identify and remove any dead code in the file.
+- **Unused Elements:** Actively delete unused variables, uncalled functions, and long-commented-out blocks of old code rather than leaving them indefinitely.
+- **Rule of Thumb:** Make it a priority to leave the codebase cleaner than you found it.

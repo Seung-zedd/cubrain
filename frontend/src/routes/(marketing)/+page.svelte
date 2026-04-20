@@ -22,6 +22,8 @@
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import Play from "@lucide/svelte/icons/play";
   import { cn } from "$lib/utils";
+  import * as m from "$lib/paraglide/messages";
+  import LanguageSwitcher from "$lib/components/layout/LanguageSwitcher.svelte";
 
   let showLoginModal = $state(false);
   let loginRedirectPath = $state("/library");
@@ -77,20 +79,20 @@
     };
   });
 
-  const heroSlides = [
+  const heroSlides = $derived([
     {
-      h: 'Stop <span class="text-[#FFD700]">soul-crushing</span> typing.',
-      s: "Turn highlights into flashcards instantly.",
+      h: m.hero_slide1_h(),
+      s: m.hero_slide1_s(),
     },
     {
-      h: 'Is prep your <span class="text-[#FFD700]">bottleneck</span>?',
-      s: "Generate flashcards in seconds, not hours.",
+      h: m.hero_slide2_h(),
+      s: m.hero_slide2_s(),
     },
     {
-      h: 'Tired of <span class="text-[#FFD700]">random, low-quality</span> AI cards?',
-      s: "Generate precise flashcards strictly from highlights.",
+      h: m.hero_slide3_h(),
+      s: m.hero_slide3_s(),
     },
-  ];
+  ]);
 
   let currentSlide = $state(0);
 
@@ -130,21 +132,21 @@
     <div class="hidden md:flex items-center gap-12 lg:gap-16">
       <div class="flex items-center gap-8 lg:gap-10">
         <a
-          href="#features"
+          href="/#features"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >Features</a
+          >{m.nav_features()}</a
         >
         <a
-          href="#pricing"
+          href="/#pricing"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >Pricing</a
+          >{m.nav_pricing()}</a
         >
         <a
           href="/whats-new"
           onclick={markAsSeen}
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
         >
-          What's New
+          {m.nav_whats_new()}
           {#if hasNewUpdate}
             <span class="relative flex h-2 w-2">
               <span
@@ -158,20 +160,23 @@
         <a
           href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >Library</a
+          >{m.nav_library()}</a
         >
       </div>
+      <LanguageSwitcher />
+      <div class="h-6 w-px bg-white/10 hidden lg:block"></div>
+
       {#if user.current}
         <a
           href="/library"
           class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >Start Learning</a
+          >{m.nav_start_learning()}</a
         >
       {:else}
         <a
           href="/upload"
           class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >Get Started</a
+          >{m.nav_get_started()}</a
         >
       {/if}
     </div>
@@ -245,7 +250,7 @@
                 <span class="font-medium">Home</span>
               </a>
               <a
-                href="#features"
+                href="/#features"
                 onclick={toggleMobileMenu}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               >
@@ -259,7 +264,7 @@
                 <span class="font-medium">Features</span>
               </a>
               <a
-                href="#pricing"
+                href="/#pricing"
                 onclick={toggleMobileMenu}
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               >
@@ -315,6 +320,18 @@
                 </div>
                 <span class="font-medium">My Library</span>
               </a>
+            </div>
+          </div>
+
+          <!-- Language Section -->
+          <div class="mt-8">
+            <p
+              class="px-4 text-[10px] font-bold tracking-widest text-white/30 uppercase mb-4"
+            >
+              Language
+            </p>
+            <div class="px-4">
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
@@ -393,19 +410,19 @@
             <a
               href="/library"
               class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >Start Learning</a
+              >{m.nav_start_learning()}</a
             >
           {:else}
             <a
               href="/upload"
               class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >Try with your PDF</a
+              >{m.try_with_pdf()}</a
             >
           {/if}
           <a
-            href="#pricing"
+            href="/#pricing"
             class="px-10 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
-            >View Pricing</a
+            >{m.view_pricing()}</a
           >
           <button
             class="flex items-center justify-center gap-3 px-10 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all group text-white font-bold text-lg"
@@ -416,7 +433,7 @@
             >
               <Play class="w-4 h-4" fill="currentColor" />
             </div>
-            <span>Watch Demo</span>
+            <span>{m.watch_demo()}</span>
           </button>
         </div>
       </div>
@@ -465,11 +482,10 @@
           <h2
             class="text-5xl md:text-6xl font-bold mb-8 text-white tracking-tight"
           >
-            Why <span class="text-[#FFD700]">Cubrain</span>?
+            {@html m.why_cubrain()}
           </h2>
           <p class="text-white/60 max-w-2xl mx-auto text-xl leading-relaxed">
-            Experience the next generation of study tools designed for
-            efficiency and retention.
+            {m.experience_next_gen()}
           </p>
         </div>
 
@@ -491,10 +507,11 @@
             >
               <Zap class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">
+              {m.feature_instant_capture()}
+            </h3>
             <p class="text-white/60 leading-relaxed">
-              Upload your PDFs and instantly turn them into flashcards. No
-              context switching required.
+              {m.feature_instant_capture_desc()}
             </p>
           </div>
 
@@ -512,10 +529,11 @@
             >
               <GraduationCap class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">
+              {m.feature_smart_study()}
+            </h3>
             <p class="text-white/60 leading-relaxed">
-              Practice directly in your browser with our built-in flashcard
-              player. Track your progress and master concepts faster.
+              {m.feature_smart_study_desc()}
             </p>
           </div>
 
@@ -533,10 +551,11 @@
             >
               <FileText class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">
+              {m.feature_easy_export()}
+            </h3>
             <p class="text-white/60 leading-relaxed">
-              Export your generated flashcards to .csv format instantly.
-              Perfectly formatted for Anki and other major study tools.
+              {m.feature_easy_export_desc()}
             </p>
           </div>
         </div>
@@ -551,12 +570,12 @@
       <FlashcardDemo />
 
       <div class="mt-12 text-center">
-        <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
+        <p class="text-white/60 mb-6 text-lg">{m.ready_to_process()}</p>
         <a
           href="/upload"
           class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
         >
-          Upload Now
+          {m.upload_now()}
           <ArrowRight class="w-5 h-5" />
         </a>
       </div>
@@ -571,10 +590,10 @@
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
-            Simple, <span class="text-[#FFD700]">Transparent</span> Pricing
+            {@html m.pricing_title()}
           </h2>
           <p class="text-white/60 max-w-2xl mx-auto text-lg">
-            Choose the plan that fits your study needs.
+            {m.pricing_subtitle()}
           </p>
         </div>
 
@@ -785,41 +804,27 @@
     onkeydown={(e) => e.key === "Escape" && (showDemoModal = false)}
     role="button"
     tabindex="0"
-    aria-label="Close modal"
-    transition:fade={{ duration: 200 }}
   >
     <div
-      class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-white/10"
+      class="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/20 shadow-2xl"
       onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="dialog"
-      aria-modal="true"
-      tabindex="-1"
-      transition:fly={{ y: 20, duration: 300 }}
+      role="presentation"
     >
+      <video
+        src="/videos/demo-full.mp4"
+        class="w-full h-full object-cover"
+        controls
+        autoplay
+        playsinline
+      >
+        <track kind="captions" />
+      </video>
       <button
-        class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/20 rounded-full text-white/70 hover:text-white transition-colors"
+        class="absolute top-6 right-6 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
         onclick={() => (showDemoModal = false)}
-        aria-label="Close"
       >
         <X class="w-6 h-6" />
       </button>
-
-      <video
-        src="/videos/demo-full.mp4"
-        controls
-        autoplay
-        crossorigin="anonymous"
-        class="w-full h-full"
-      >
-        <track
-          kind="captions"
-          src="/captions/demo.vtt"
-          srclang="en"
-          label="English"
-          default
-        />
-      </video>
     </div>
   </div>
 {/if}

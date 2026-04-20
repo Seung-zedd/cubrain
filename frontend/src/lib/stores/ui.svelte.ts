@@ -1,7 +1,5 @@
-/**
- * Svelte 5 UI State Store
- * Manages global UI states like study mode and transitions.
- */
+// Svelte 5 UI State Store
+// Manages global UI states like study mode and transitions.
 class UIState {
   isStudyMode = $state(false);
   isTransitioning = $state(false);

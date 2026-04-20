@@ -11,6 +11,7 @@
   import type { PageData } from "./$types";
   import { IS_DEV_MODE } from "$lib/utils/env";
   import { invalidateAll } from "$app/navigation";
+  import * as m from "$paraglide/messages";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -119,7 +120,7 @@
   />
 {:catch error}
   <div class="flex items-center justify-center min-h-[60vh] text-red-500">
-    Failed to load library: {error.message}
+    {m.failed_load_library()}: {error.message}
   </div>
 {/await}
 
@@ -133,9 +134,9 @@
 
 {#if deckToDelete !== null}
   <ConfirmModal
-    title="Delete Deck"
-    message="Are you sure you want to delete this deck? All associated flashcards will be permanently removed."
-    confirmText="Delete Deck"
+    title={m.delete_deck_title()}
+    message={m.delete_deck_message()}
+    confirmText={m.delete_deck_title()}
     onconfirm={confirmDelete}
     oncancel={() => (deckToDelete = null)}
   />
