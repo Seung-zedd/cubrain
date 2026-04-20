@@ -86,15 +86,16 @@ When tagging a release (`vX.Y.Z`), determine the version number as follows:
 
 #### 🚀 Release Process
 
-1.  **Update "What's New"**: For every release (except minor patches), create a new directory and `+page.md` in `frontend/src/routes/(marketing)/whats-new/vX-Y-Z/` following the existing format.
-2.  **Merge dev to main**:
+1.  **Update package.json Version**: ALWAYS bump the `version` field in `frontend/package.json` to match the intended release. This is the single source of truth for the app's version.
+2.  **Update "What's New"**: Create a new directory and `+page.md` in `frontend/src/routes/(marketing)/whats-new/vX-Y-Z/`. **The version in the Markdown frontmatter MUST exactly match the version in `package.json`.**
+3.  **Merge dev to main**:
     ```bash
     git checkout main
     git pull origin main
     git merge dev
     git push origin main
     ```
-3.  **Tagging**:
+4.  **Tagging**:
     ```bash
     # Example: git tag -a v1.1.0 -m "Release version 1.1.0"
     git tag -a v[VERSION] -m "Release version [VERSION]"

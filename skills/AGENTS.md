@@ -310,3 +310,23 @@ When adapting external UI code (e.g., from Uiverse) into Cubrain:
 - When dealing with internal logic, APIs, or large codebases in future projects, actively utilize the **Apidog MCP Server** and **GitHub MCP Server** to act as a personal Retrieval-Augmented Generation (RAG) system.
 - **Apidog MCP Server:** Use it to instantly fetch precise OpenAPI specifications, endpoint URLs, and request/response DTO structures. This completely eliminates the need to manually read multiple backend controller and DTO files, vastly reducing AI token consumption and preventing hallucinations. Very useful when syncing frontend fetch logic with backend APIs.
 - **GitHub MCP Server:** Use it to search, navigate, and comprehend repo structures and snippets without blindly loading entire files into the context window.
+
+---
+
+## 28. 🛡️ Security & Secret Management (Mandatory Protocol)
+
+To protect the project from supply chain attacks and unauthorized access, agents follow a strict **Zero-Trust Secret Management** policy.
+
+### 28.1 Zero-Trust Interaction
+
+- **No Secrets to AI**: NEVER request OR read real API keys, passwords, or secrets from the user or `.env` files if they are meant for production. If you encounter them, immediately suggest rotation if they've been leaked to the chat.
+- **Blind CLI Updates**: When guiding a user to add environment variables via CLI (Vercel, Railway), never include the secret value in the command string. Use the interactive prompt method to ensure values are not saved in terminal history (`.bash_history`).
+
+### 28.2 Deployment Configuration
+
+- **Sensitive Flag**: On Vercel, all environment variables **MUST** be marked as **"Sensitive"**.
+- **Modern Authentication**: Prefer **OIDC Discovery (`ISSUER_URI`)** over shared secrets (`JWT_SECRET`) for JWT verification between Supabase and the Backend. This enables asymmetric encryption (ECC) and automatic key rotation.
+
+### 28.3 Git Safety
+
+- **.env Protection**: If you see a `.env` file not listed in `.gitignore`, your first priority is to fix the ignore file.
