@@ -229,6 +229,23 @@
                     if (data.metadata) {
                       jobMetadata = { ...jobMetadata, ...data.metadata };
                     }
+
+                    // Check if job is already in a terminal state
+                    if (data.status === "COMPLETED") {
+                      if (unsubscribe) {
+                        unsubscribe();
+                        unsubscribe = null;
+                      }
+                      const results =
+                        (data.results as GeneratedFlashcard[]) ?? [];
+                      resolve(results);
+                    } else if (data.status === "FAILED") {
+                      if (unsubscribe) {
+                        unsubscribe();
+                        unsubscribe = null;
+                      }
+                      reject(new Error(data.message || "Job failed"));
+                    }
                   },
                   onProgress: (data) => {
                     jobStatus = data.status;

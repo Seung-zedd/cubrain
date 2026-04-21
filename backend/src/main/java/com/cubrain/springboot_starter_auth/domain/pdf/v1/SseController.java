@@ -61,12 +61,26 @@ public class SseController {
 
         // Send initial state
         try {
+            Map<String, Object> data = new java.util.HashMap<>();
+            data.put("jobId", jobId);
+            data.put("status", status);
+            data.put("progress", jobManager.getProgress(jobId));
+
+            // Enrich with results/metadata if already finished
+            if (status == JobStatus.COMPLETED) {
+                data.put("results", jobManager.getResults(jobId));
+            } else if (status == JobStatus.FAILED) {
+                data.put("message", "Job failed during processing");
+            }
+
+            Map<String, Object> metadata = jobManager.getMetadata(jobId);
+            if (!metadata.isEmpty()) {
+                data.put("metadata", metadata);
+            }
+
             SseEmitter.SseEventBuilder event = SseEmitter.event()
                     .name("INIT")
-                    .data(Objects.requireNonNull(Map.of(
-                            "jobId", jobId,
-                            "status", status,
-                            "progress", jobManager.getProgress(jobId))));
+                    .data(data);
             emitter.send(event);
         } catch (IOException e) {
             log.error("Failed to send INIT event for job: {}", jobId);
