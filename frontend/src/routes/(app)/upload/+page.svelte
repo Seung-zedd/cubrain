@@ -111,6 +111,7 @@
   let { data } = $props<{ data: PageData }>();
 
   $effect(() => {
+    // 1. Initial load from server-side streamed result
     data.streamed.recentJob.then((res: RecentJobResult) => {
       if (res && res.status === "COMPLETED" && Array.isArray(res.results)) {
         generatedCards = res.results;
@@ -120,6 +121,22 @@
         }
       }
     });
+
+    // 2. Client-side fallback for OAuth landing/state sync
+    if (user.current && !showResults && !isGenerating) {
+      authFetch("/api/v1/pdf/recent").then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "COMPLETED" && Array.isArray(data.results)) {
+            generatedCards = data.results;
+            showResults = true;
+            if (data.metadata) {
+              jobMetadata = data.metadata;
+            }
+          }
+        }
+      });
+    }
   });
 
   onMount(async () => {
