@@ -22,8 +22,6 @@
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import Play from "@lucide/svelte/icons/play";
   import { cn } from "$lib/utils";
-  import * as m from "$lib/paraglide/messages";
-  import LanguageSwitcher from "$lib/components/layout/LanguageSwitcher.svelte";
 
   let showLoginModal = $state(false);
   let loginRedirectPath = $state("/library");
@@ -81,16 +79,16 @@
 
   const heroSlides = $derived([
     {
-      h: m.hero_slide1_h(),
-      s: m.hero_slide1_s(),
+      h: 'Stop <span class="text-[#FFD700]">soul-crushing</span> typing.',
+      s: "Turn highlights into flashcards instantly.",
     },
     {
-      h: m.hero_slide2_h(),
-      s: m.hero_slide2_s(),
+      h: 'Is prep your <span class="text-[#FFD700]">bottleneck</span>?',
+      s: "Generate flashcards in seconds, not hours.",
     },
     {
-      h: m.hero_slide3_h(),
-      s: m.hero_slide3_s(),
+      h: 'Tired of <span class="text-[#FFD700]">random, low-quality</span> AI cards?',
+      s: "Generate precise flashcards strictly from highlights.",
     },
   ]);
 
@@ -134,19 +132,19 @@
         <a
           href="/#features"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_features()}</a
+          >Features</a
         >
         <a
           href="/#pricing"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_pricing()}</a
+          >Pricing</a
         >
         <a
           href="/whats-new"
           onclick={markAsSeen}
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors flex items-center gap-2"
         >
-          {m.nav_whats_new()}
+          What's New
           {#if hasNewUpdate}
             <span class="relative flex h-2 w-2">
               <span
@@ -160,23 +158,22 @@
         <a
           href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
-          >{m.nav_library()}</a
+          >Library</a
         >
       </div>
-      <LanguageSwitcher />
       <div class="h-6 w-px bg-white/10 hidden lg:block"></div>
 
       {#if user.current}
         <a
           href="/library"
           class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >{m.nav_start_learning()}</a
+          >Start Learning</a
         >
       {:else}
         <a
           href="/upload"
           class="px-5 py-2.5 text-lg rounded-full font-bold bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-0.5"
-          >{m.nav_get_started()}</a
+          >Get Started</a
         >
       {/if}
     </div>
@@ -324,15 +321,8 @@
           </div>
 
           <!-- Language Section -->
-          <div class="mt-8">
-            <p
-              class="px-4 text-[10px] font-bold tracking-widest text-white/30 uppercase mb-4"
-            >
-              Language
-            </p>
-            <div class="px-4">
-              <LanguageSwitcher />
-            </div>
+          <div>
+            <!-- Removed Language Switching -->
           </div>
         </div>
 
@@ -410,19 +400,19 @@
             <a
               href="/library"
               class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >{m.nav_start_learning()}</a
+              >Start Learning</a
             >
           {:else}
             <a
               href="/upload"
               class="px-10 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_30px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] transition-all transform hover:-translate-y-1 text-center"
-              >{m.try_with_pdf()}</a
+              >Try with your PDF</a
             >
           {/if}
           <a
             href="/#pricing"
             class="px-10 py-4 rounded-xl font-bold text-lg bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all text-center"
-            >{m.view_pricing()}</a
+            >View Pricing</a
           >
           <button
             class="flex items-center justify-center gap-3 px-10 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all group text-white font-bold text-lg"
@@ -433,7 +423,7 @@
             >
               <Play class="w-4 h-4" fill="currentColor" />
             </div>
-            <span>{m.watch_demo()}</span>
+            <span>Watch Demo</span>
           </button>
         </div>
       </div>
@@ -482,10 +472,11 @@
           <h2
             class="text-5xl md:text-6xl font-bold mb-8 text-white tracking-tight"
           >
-            {@html m.why_cubrain()}
+            Why <span class="text-[#FFD700]">Cubrain</span>?
           </h2>
           <p class="text-white/60 max-w-2xl mx-auto text-xl leading-relaxed">
-            {m.experience_next_gen()}
+            Experience the next generation of study tools designed for
+            efficiency and retention.
           </p>
         </div>
 
@@ -507,11 +498,10 @@
             >
               <Zap class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">
-              {m.feature_instant_capture()}
-            </h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
             <p class="text-white/60 leading-relaxed">
-              {m.feature_instant_capture_desc()}
+              Upload your PDFs and instantly turn them into flashcards. No
+              context switching required.
             </p>
           </div>
 
@@ -529,11 +519,10 @@
             >
               <GraduationCap class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">
-              {m.feature_smart_study()}
-            </h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
             <p class="text-white/60 leading-relaxed">
-              {m.feature_smart_study_desc()}
+              Practice directly in your browser with our built-in flashcard
+              player. Track your progress and master concepts faster.
             </p>
           </div>
 
@@ -551,11 +540,10 @@
             >
               <FileText class="w-6 h-6 text-[#FFD700]" />
             </div>
-            <h3 class="text-2xl font-bold mb-3 text-white">
-              {m.feature_easy_export()}
-            </h3>
+            <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
             <p class="text-white/60 leading-relaxed">
-              {m.feature_easy_export_desc()}
+              Export your generated flashcards to .csv format instantly.
+              Perfectly formatted for Anki and other major study tools.
             </p>
           </div>
         </div>
@@ -570,12 +558,12 @@
       <FlashcardDemo />
 
       <div class="mt-12 text-center">
-        <p class="text-white/60 mb-6 text-lg">{m.ready_to_process()}</p>
+        <p class="text-white/60 mb-6 text-lg">Ready to process your own PDF?</p>
         <a
           href="/upload"
           class="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-[#FFD700] to-[#FDB931] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all transform hover:-translate-y-1"
         >
-          {m.upload_now()}
+          Upload Now
           <ArrowRight class="w-5 h-5" />
         </a>
       </div>
@@ -590,10 +578,10 @@
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">
-            {@html m.pricing_title()}
+            Simple, <span class="text-[#FFD700]">Transparent</span> Pricing
           </h2>
           <p class="text-white/60 max-w-2xl mx-auto text-lg">
-            {m.pricing_subtitle()}
+            Choose the plan that fits your study needs.
           </p>
         </div>
 
