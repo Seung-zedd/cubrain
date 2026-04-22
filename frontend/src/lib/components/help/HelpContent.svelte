@@ -1,7 +1,9 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
 
+  let { showBackButton = false } = $props();
   let openIndex = $state<number | null>(null);
   let copied = $state(false);
 
@@ -33,7 +35,23 @@
   }
 </script>
 
-<div class="max-w-3xl mx-auto">
+<div class="max-w-3xl mx-auto relative">
+  {#if showBackButton}
+    <div class="absolute -top-12 left-0 md:-left-20">
+      <a
+        href="/"
+        class="group flex items-center gap-2 text-zinc-500 hover:text-white transition-colors"
+      >
+        <div
+          class="p-2 rounded-full bg-zinc-900 border border-zinc-800 group-hover:border-zinc-700 transition-all"
+        >
+          <ArrowLeft class="w-5 h-5" />
+        </div>
+        <span class="text-sm font-medium">Back to Home</span>
+      </a>
+    </div>
+  {/if}
+
   <!-- Header -->
   <div class="text-center mb-16">
     <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">

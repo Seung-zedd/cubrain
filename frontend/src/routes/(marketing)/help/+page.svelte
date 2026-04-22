@@ -13,5 +13,5 @@
 <div
   class="min-h-screen bg-black text-white/80 font-light tracking-tight py-20 px-6"
 >
-  <HelpContent />
+  <HelpContent showBackButton={true} />
 </div>
