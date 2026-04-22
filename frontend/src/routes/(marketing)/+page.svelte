@@ -21,6 +21,7 @@
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import Play from "@lucide/svelte/icons/play";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
@@ -155,6 +156,11 @@
             </span>
           {/if}
         </a>
+        <a
+          href="/help"
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+          >Help</a
+        >
         <a
           href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
@@ -316,6 +322,20 @@
                   />
                 </div>
                 <span class="font-medium">My Library</span>
+              </a>
+              <a
+                href="/help"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <HelpCircle
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Help Center</span>
               </a>
             </div>
           </div>
