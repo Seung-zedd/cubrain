@@ -38,8 +38,8 @@
 
   const navItems = [
     { href: "/upload", label: "Upload PDF", icon: CloudUpload },
-    { href: "/library", label: "My Library", icon: Library },
     { href: "/help", label: "Help Center", icon: HelpCircle },
+    { href: "/library", label: "My Library", icon: Library },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 
