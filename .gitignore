@@ -124,3 +124,7 @@ package-lock.json
 
 # my API key stored
 .openclaude-profile.json
+
+# Portfolio & Sensitive Reports
+TROUBLE_SHOOTING.md
+
