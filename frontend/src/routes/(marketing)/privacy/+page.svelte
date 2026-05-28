@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto py-20 px-6 text-white/80 leading-relaxed">
   <h1 class="text-4xl font-bold text-white mb-8">Privacy Policy</h1>
-  <p class="mb-8 text-zinc-400">Last updated: January 12, 2026</p>
+  <p class="mb-8 text-zinc-400">Last updated: May 28, 2026</p>
 
   <section class="mb-12">
     <h2 class="text-2xl font-semibold text-[#FFD700] mb-4">1. Introduction</h2>
@@ -22,9 +22,11 @@
         address and authentication data via Firebase.
       </li>
       <li>
-        <strong>Uploaded Content:</strong> We process the PDF documents you upload
-        to generate flashcards. These documents are stored securely and processed
-        solely for your study needs.
+        <strong>Uploaded Content (Zero-Storage Policy):</strong> We process the PDF documents you upload
+        to generate flashcards. Under our Zero-Storage policy, uploaded PDF files are temporarily
+        cached in a secure local directory during processing and are immediately and permanently deleted
+        upon completion (regardless of success or failure). We do not store or retain your original PDF
+        documents on our servers or any external storage.
       </li>
       <li>
         <strong>Usage Data:</strong> We may collect information about how you interact
@@ -61,9 +63,10 @@
     </h2>
     <p>
       We implement industry-standard security measures to protect your data.
-      Your PDFs and generated flashcards are stored in secure environments.
-      However, no method of transmission over the Internet or electronic storage
-      is 100% secure, and we cannot guarantee absolute security.
+      Since we do not store your original PDF files, only the generated flashcards and associated study metadata
+      are stored in secure environments, using PostgreSQL with Row-Level Security (RLS) policies to ensure data
+      isolation. However, no method of transmission over the Internet or electronic storage is 100% secure, and
+      we cannot guarantee absolute security.
     </p>
   </section>
 
