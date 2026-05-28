@@ -19,7 +19,7 @@
     <ul class="list-disc ml-6 mt-4 space-y-2">
       <li>
         <strong>Account Information:</strong> When you sign up, we collect your email
-        address and authentication data via Supabase.
+        address and authentication data via Firebase.
       </li>
       <li>
         <strong>Uploaded Content:</strong> We process the PDF documents you upload
@@ -74,7 +74,7 @@
     <p>We use trusted third-party services to power Cubrain:</p>
     <ul class="list-disc ml-6 mt-4 space-y-2">
       <li>
-        <strong>Supabase:</strong> For user authentication and database management.
+        <strong>Firebase:</strong> For user authentication.
       </li>
       <li>
         <strong>Lemon Squeezy:</strong> For secure payment processing and subscription

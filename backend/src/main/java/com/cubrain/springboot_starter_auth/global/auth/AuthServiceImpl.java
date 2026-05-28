@@ -22,23 +22,23 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public UserResponseDto syncUser(String email, String supabaseId) {
+    public UserResponseDto syncUser(String email, String firebaseUid) {
         String normalizedEmail = email.toLowerCase();
 
-        // 1. Try finding by supabaseId
-        Optional<Member> memberBySupabaseId = memberRepository.findBySupabaseId(supabaseId);
-        if (memberBySupabaseId.isPresent()) {
-            return UserResponseDto.from(memberBySupabaseId.get());
+        // 1. Try finding by firebaseUid
+        Optional<Member> memberByFirebaseUid = memberRepository.findByFirebaseUid(firebaseUid);
+        if (memberByFirebaseUid.isPresent()) {
+            return UserResponseDto.from(memberByFirebaseUid.get());
         }
 
         // 2. Try finding by email
         Optional<Member> memberByEmail = memberRepository.findByEmail(normalizedEmail);
         if (memberByEmail.isPresent()) {
             Member member = memberByEmail.get();
-            // Update supabaseId if null
-            if (member.getSupabaseId() == null) {
-                log.info("[Auth] Updating supabaseId for existing user: {}", normalizedEmail);
-                member.updateSupabaseId(supabaseId);
+            // Update firebaseUid if null
+            if (member.getFirebaseUid() == null) {
+                log.info("[Auth] Updating firebaseUid for existing user: {}", normalizedEmail);
+                member.updateFirebaseUid(firebaseUid);
             }
             return UserResponseDto.from(member);
         }
@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("[Auth] Creating new member for: {}", normalizedEmail);
         Member newMember = Member.builder()
                 .email(normalizedEmail)
-                .supabaseId(supabaseId)
+                .firebaseUid(firebaseUid)
                 .role(Role.USER)
                 .tier(UserTier.FREE_USER)
                 .isVerified(true)
@@ -59,15 +59,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void deleteMember(String email, String supabaseId) {
-        log.info("[Auth] Deleting member: {} (sub: {})", email, supabaseId);
+    public void deleteMember(String email, String firebaseUid) {
+        log.info("[Auth] Deleting member: {} (sub: {})", email, firebaseUid);
 
-        // 1. Try finding by supabaseId
-        Optional<Member> memberOpt = memberRepository.findBySupabaseId(supabaseId);
+        // 1. Try finding by firebaseUid
+        Optional<Member> memberOpt = memberRepository.findByFirebaseUid(firebaseUid);
 
-        // 2. Fallback to email if not found by supabaseId
+        // 2. Fallback to email if not found by firebaseUid
         if (memberOpt.isEmpty() && email != null) {
-            log.info("[Auth] Member not found by supabaseId, trying email: {}", email);
+            log.info("[Auth] Member not found by firebaseUid, trying email: {}", email);
             memberOpt = memberRepository.findByEmail(email.toLowerCase());
         }
 
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
             memberRepository.flush(); // Force flush to ensure deletion is executed and catch any FK issues
             log.info("[Auth] Member deleted and flushed: {}", member.getEmail());
         }, () -> {
-            log.warn("[Auth] No member found to delete for email: {} or sub: {}", email, supabaseId);
+            log.warn("[Auth] No member found to delete for email: {} or sub: {}", email, firebaseUid);
         });
     }
 }

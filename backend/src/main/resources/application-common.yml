@@ -27,13 +27,11 @@ spring:
     baseline-on-migrate: true # Create baseline when first migration runs
     baseline-version: 0 # Starting version (0 ensures V1 runs)
 
-  # Security: Supabase OAuth2 Resource Server
+  # Security: Firebase OAuth2 Resource Server
   security:
     oauth2:
       resourceserver:
         jwt:
-          # Supabase uses HS256 by default for JS client tokens.
-          # Provide the JWT Secret via SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_SECRET_KEY
-          # or the legacy JWT_SECRET environment variable.
-          issuer-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1
-          jwk-set-uri: https://nsnbzlzttvvxdlhsuskt.supabase.co/auth/v1/get_jwks
+          project-id: ${FIREBASE_PROJECT_ID}
+          issuer-uri: https://securetoken.google.com/${FIREBASE_PROJECT_ID}
+          jwk-set-uri: https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com

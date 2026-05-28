@@ -1,6 +1,6 @@
 package com.cubrain.springboot_starter_auth.global.config.web;
 
-import com.cubrain.springboot_starter_auth.global.security.SupabaseUserSyncFilter;
+import com.cubrain.springboot_starter_auth.global.security.FirebaseUserSyncFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +44,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Slf4j
 public class SecurityConfig {
 
-    private final SupabaseUserSyncFilter supabaseUserSyncFilter;
+    private final FirebaseUserSyncFilter firebaseUserSyncFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
     private String issuerUri;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.project-id:}")
+    private String projectId;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key:${jwt.secret:}}")
     private String jwtSecret;
@@ -88,9 +91,9 @@ public class SecurityConfig {
                     if (aud == null)
                         return false;
                     if (aud instanceof String s)
-                        return s.equals("authenticated");
+                        return s.equals("authenticated") || (projectId != null && !projectId.isBlank() && s.equals(projectId));
                     if (aud instanceof List<?> l)
-                        return l.contains("authenticated");
+                        return l.contains("authenticated") || (projectId != null && !projectId.isBlank() && l.contains(projectId));
                     return false;
                 });
 
@@ -171,7 +174,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .bearerTokenResolver(bearerTokenResolver())
                         .jwt(jwt -> jwt.decoder(jwtDecoder())))
-                .addFilterAfter(supabaseUserSyncFilter, BearerTokenAuthenticationFilter.class);
+                .addFilterAfter(firebaseUserSyncFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }
@@ -187,7 +190,7 @@ public class SecurityConfig {
             jakarta.servlet.http.Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (jakarta.servlet.http.Cookie cookie : cookies) {
-                    if ("sb-access-token".equals(cookie.getName())) {
+                    if ("fb-access-token".equals(cookie.getName())) {
                         return cookie.getValue();
                     }
                 }

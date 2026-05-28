@@ -1,14 +1,15 @@
-import { supabase } from "./supabaseClient";
+import { auth } from "./firebaseClient";
 import { API_BASE_URL } from "./config/config";
 
 export async function authFetch(path: string, options: RequestInit = {}) {
   let token: string | undefined;
 
-  if (supabase) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    token = session?.access_token;
+  if (auth && auth.currentUser) {
+    try {
+      token = await auth.currentUser.getIdToken();
+    } catch (e) {
+      console.error("Failed to get ID token", e);
+    }
   }
 
   const headers = new Headers(options.headers);

@@ -19,11 +19,11 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class SupabaseUserSyncFilter extends OncePerRequestFilter {
+public class FirebaseUserSyncFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
 
-    public SupabaseUserSyncFilter(@Lazy AuthService authService) {
+    public FirebaseUserSyncFilter(@Lazy AuthService authService) {
         this.authService = authService;
     }
 
@@ -48,15 +48,15 @@ public class SupabaseUserSyncFilter extends OncePerRequestFilter {
         if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
             Jwt jwt = jwtAuthenticationToken.getToken();
             String email = jwt.getClaimAsString("email");
-            String supabaseId = jwt.getSubject();
+            String firebaseUid = jwt.getSubject();
 
-            if (email != null && supabaseId != null) {
+            if (email != null && firebaseUid != null) {
                 long now = System.currentTimeMillis();
-                Long lastSync = lastSyncTime.get(supabaseId);
+                Long lastSync = lastSyncTime.get(firebaseUid);
 
                 if (lastSync == null || (now - lastSync) > SYNC_INTERVAL_MS) {
-                    authService.syncUser(email, supabaseId);
-                    lastSyncTime.put(supabaseId, now);
+                    authService.syncUser(email, firebaseUid);
+                    lastSyncTime.put(firebaseUid, now);
                 }
             }
         }

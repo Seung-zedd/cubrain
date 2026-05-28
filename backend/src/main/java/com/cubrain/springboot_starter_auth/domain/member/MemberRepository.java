@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
     Optional<Member> findByEmail(String email);
 
-    Optional<Member> findBySupabaseId(String supabaseId);
+    Optional<Member> findByFirebaseUid(String firebaseUid);
 
     boolean existsByEmail(String email);
 
