@@ -128,3 +128,4 @@ package-lock.json
 # Portfolio & Sensitive Reports
 TROUBLE_SHOOTING.md
 
+.vercel
