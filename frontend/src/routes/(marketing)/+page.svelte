@@ -37,7 +37,7 @@
     isMobileMenuOpen = !isMobileMenuOpen;
   };
 
-  const CURRENT_VERSION = "1.4.5";
+  const CURRENT_VERSION = "1.7.1";
   let hasNewUpdate = $state(false);
 
   onMount(() => {
@@ -459,16 +459,17 @@
           class="relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/50 shadow-[0_0_100px_-20px_rgba(255,193,7,0.2)] transition-all duration-700"
         >
           <video
-            src="/videos/hero-bg.mp4"
             poster="/og-image.png"
             autoplay
             muted
             loop
             playsinline
-            preload="auto"
+            preload="metadata"
             aria-label="Cubrain App Background Animation"
             class="w-full aspect-video object-cover"
           >
+            <source src="/videos/hero-bg.webm" type="video/webm" />
+            <source src="/videos/hero-bg.mp4" type="video/mp4" />
           </video>
 
           <!-- Glossy Overlay -->

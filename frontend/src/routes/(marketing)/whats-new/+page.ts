@@ -57,24 +57,7 @@ export async function load() {
     });
   });
 
-  const teasers: Teaser[] = [
-    {
-      id: "lucidify",
-      badge: "Released",
-      title: "Lucidify: Visualizing your dreams",
-      description:
-        "Turn your subconscious memories into cinematic AI videos. Powered by Gemini 3 & Google Veo.",
-      cta: "Explore Now →",
-      href: "https://lucidify-dream.vercel.app/",
-      bgImage: "/images/purple-dream.gif",
-      theme: {
-        badge: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-        title: "from-violet-300 to-fuchsia-300",
-        hover:
-          "hover:border-violet-500/30 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)]",
-      },
-    },
-  ];
+  const teasers: Teaser[] = [];
 
   return {
     posts: allPosts,

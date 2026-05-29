@@ -3,6 +3,20 @@
 🟢 On track | Ambition posted an update on Nov 30, 2025
 
 
+## **🧠 V2-pre (The "Tablet & Freehand Rescue" Update) - [NEW]**
+
+> **"기존 PDFBox 전처리 보정 엔진을 재활용하여 태블릿 필기 구출 및 결제 전환 차단 방벽 구축"**
+
+* **Core Feature:**
+  * **Ink Annotation (`PDAnnotationInk`) 지원**: 애플펜슬/S펜으로 그린 자유 곡선 필기 궤적의 Bounding Box를 자동 계산하여 감지.
+  * **On-demand Image Crop & Flattening**: 자체 구현된 PDFBox 좌표 엔진을 활용해 필기가 감지된 영역의 배경 텍스트와 펜슬 드로잉이 결합된 영역을 실시간 이미지 버퍼로 크롭.
+  * **3계층 컨텍스트 파이프라인 연동**: 크롭된 이미지와 함께, 기존의 물리 좌표 패딩 기술을 재활용해 주변 Paragraph 컨텍스트 텍스트를 동시에 주입하여 Gemini Vision의 오독 방지.
+  * **Gemini Vision 연동**: 텍스트 분석에 실패했던 펜슬 필기 및 손그림 영역을 Gemini Vision API로 전송해 시각 정보 및 손글씨(HTR) 분석 후 문제 자동 생성.
+* **Goal**: 기존 PDFBox 좌표 보정 & 3계층 컨텍스트 파이프라인 인프라를 재활용하여 태블릿 학습 유저들의 "No Trace found" 에러 이탈을 즉각 차단하고 결제 전환율 극대화.
+* **Target**: iPad/Galaxy Tab으로 필기하며 복습하는 대학생 및 전문직 수험생.
+
+---
+
 ## **🧠 V2 (The "Deep Dive & Dopamine" Solution) - Updated**
 
 > **"화려한 이펙트로 재미를(Dopamine), 소크라테스 AI로 통찰을(Deep Dive)."**
@@ -71,15 +85,15 @@
 
 ---
 
-## **⚡ V3 (The "Quiz & Multi-Modal" Update)**
+## **⚡ V3 (The "Quiz & Smart SRS" Update)**
 
-> **"텍스트를 넘어, 모든 자료를 정복하세요."**
+> **"텍스트를 넘어, 고도화된 문제 풀이와 장기 기억 학습 체계로 진입"**
 
 * **Core Feature:**
-  * **Hard Mode (Quiz):** 객관식(Multiple Choice) 및 주관식 입력(Type-in) 문제 생성.
-  * **Multi-Modal Ingestion:** PDF 내의 도표/다이어그램/이미지를 인식하여 문제 생성 (Gemini Vision 활용).
-  * **\[Go/No-Go\] 🧠 Smart SRS Algorithm (1-3-7-14-30):** 사용자 요청(10건 이상) 시 자체 복습 알고리즘 도입 검토.
-    * **Condition:** 설정 메뉴의 "스마트 복습 주기 켜기" 스위치를 눌렀을 때 -> **"Coming Soon! 10명이 요청하면 개발합니다."** 모달 띄우기.
-    * **Implementation:** 요청 달성 시, V2에서 구축한 푸시 인프라에 `1-3-7...` 날짜 계산 로직만 태우면 끝.
-* **Goal:** 텍스트 위주의 학습 한계를 돌파.
-* **Target:** 의대생(해부학), 공대생(회로도) 등 이미지 학습 필수 유저.
+  * **Hard Mode (Quiz)**: 객관식(Multiple Choice) 및 주관식 입력(Type-in) 문제 생성.
+  * **Smart Ingestion Scaling**: OpenDataLoader PDF 연동을 통해 PDF 내의 정형 도표/다이어그램/수식(LaTeX)의 좌표 구조 및 텍스트 맥락을 자동 매핑하여 카드 정밀도 고도화.
+  * **\[Go/No-Go\] 🧠 Smart SRS Algorithm (1-3-7-14-30)**: 사용자 요청(10건 이상) 시 자체 복습 알고리즘 도입 검토.
+    * **Condition**: 설정 메뉴의 "스마트 복습 주기 켜기" 스위치를 눌렀을 때 -> **"Coming Soon! 10명이 요청하면 개발합니다."** 모달 띄우기.
+    * **Implementation**: 요청 달성 시, V2에서 구축한 푸시 인프라에 `1-3-7...` 날짜 계산 로직만 태우면 끝.
+* **Goal**: 인쇄된 도표 구조의 자동 매핑과 정교한 퀴즈를 결합한 완전 학습 달성.
+* **Target**: 의대생(해부학), 공대생(회로도) 등 정밀 학습 필수 유저.
