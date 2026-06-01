@@ -10,7 +10,7 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
-
+  
   let { children } = $props();
 
   if (browser && !IS_DEV_MODE) {
@@ -20,6 +20,28 @@
 
   onMount(() => {
     fetchUser();
+  });
+
+  // Clarity Cookie-less user identification logic using sessionStorage
+  $effect(() => {
+    if (!browser || typeof window === "undefined" || !window.clarity) return;
+
+    const currentUser = user.current;
+    if (currentUser) {
+      let userSessionId = sessionStorage.getItem("clarity_user_session_id");
+      if (!userSessionId) {
+        userSessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+        sessionStorage.setItem("clarity_user_session_id", userSessionId);
+      }
+      window.clarity("identify", currentUser.email || `user_${currentUser.id}`, userSessionId);
+    } else {
+      let guestSessionId = sessionStorage.getItem("clarity_guest_session_id");
+      if (!guestSessionId) {
+        guestSessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+        sessionStorage.setItem("clarity_guest_session_id", guestSessionId);
+      }
+      window.clarity("identify", "guest", guestSessionId);
+    }
   });
 
   // SEO Configuration
