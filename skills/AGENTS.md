@@ -2,6 +2,22 @@
 
 ♻️ _This markdown file can be re-used anytime you wanna build a new app_
 
+## 0. 🛠️ SDD Pipeline & Skills Integration
+
+When creating a new app or upgrading existing services, always bind the `cubrain/skills` configuration using a symbolic link at the project root to ensure compliance with current standards (e.g., supply chain security).
+
+* **Command for Git Bash**:
+  ```bash
+  alias link-skills='ln -sf /c/Users/sdok1/projects/cubrain/skills ./skills'
+  link-skills
+  ```
+* **Command for PowerShell**:
+  ```powershell
+  New-Item -ItemType SymbolicLink -Path "skills" -Value "C:\Users\sdok1\projects\cubrain\skills"
+  ```
+
+---
+
 ## 1. 🧠 Cognitive Protocol (Mandatory MCP Usage)
 
 **Rule: Think Before You Code.**
