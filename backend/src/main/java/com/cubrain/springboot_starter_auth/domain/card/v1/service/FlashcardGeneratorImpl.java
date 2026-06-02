@@ -9,7 +9,10 @@ import com.cubrain.springboot_starter_auth.domain.user.UserTier;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.Content;
+import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
@@ -196,13 +199,24 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
     private List<FlashcardResponseDto> generateCardsForPage(int pageIndex, List<AnnotationResultDto> annotations,
             String targetLanguage, UserTier userTier) {
         try {
-            // Simplify annotations to save tokens
-            List<Map<String, String>> simplifiedAnnotations = annotations.stream()
-                    .map(a -> Map.of(
-                            "type", a.type(),
-                            "text", a.text(),
-                            "context", a.context()))
-                    .toList();
+            List<Map<String, String>> simplifiedAnnotations = new ArrayList<>();
+            List<ImageContent> imageContents = new ArrayList<>();
+            int inkImageCount = 0;
+
+            for (AnnotationResultDto a : annotations) {
+                Map<String, String> simplified = new java.util.HashMap<>();
+                simplified.put("type", a.type());
+                simplified.put("text", a.text());
+                simplified.put("context", a.context());
+
+                if ("Ink".equalsIgnoreCase(a.type()) && a.base64Image() != null && !a.base64Image().isEmpty()) {
+                    inkImageCount++;
+                    String imageRef = "Image " + inkImageCount;
+                    simplified.put("imageReference", imageRef);
+                    imageContents.add(ImageContent.from(a.base64Image(), "image/png"));
+                }
+                simplifiedAnnotations.add(simplified);
+            }
 
             String annotationsJson = objectMapper.writeValueAsString(simplifiedAnnotations);
 
@@ -216,33 +230,49 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                     "Synthesize these annotations into 1-2 high-quality flashcards that capture the most critical concepts. Quality over quantity.";
             };
 
-            UserMessage userMessage = UserMessage
-                    .from("""
-                            **Page Context (Page %d):**
-                            The user has marked several parts of this page for study.
+            StringBuilder inkInstructions = new StringBuilder();
+            if (!imageContents.isEmpty()) {
+                inkInstructions.append("6. For annotations of type 'Ink', we have attached cropped page image(s) containing the drawing/handwriting overlaid on the background text. Refer to `imageReference` (e.g. 'Image 1') to find the matching image. Perform handwriting recognition (HTR) on the drawing and synthesize it with the background text and surrounding context to generate flashcards. Translate math formulas, drawings, or diagram elements if appropriate.\n");
+            }
 
-                            **Annotations (JSON):**
-                            %s
+            String userPromptText = """
+                    **Page Context (Page %d):**
+                    The user has marked several parts of this page for study.
 
-                            **Target Language:** %s
+                    **Annotations (JSON):**
+                    %s
 
-                            **Instructions:**
-                            1. Analyze the annotations within their provided contexts.
-                            2. %s
-                            3. **Minimum Information Principle**: Each card MUST be atomic. Test only ONE specific fact or concept per card. Avoid broad "Describe..." or "List all..." questions.
-                            4. Logic:
-                               - 'Highlight' -> Conceptual questions (Why, How, Significance).
-                               - 'Underline' -> Factual questions (What, Who, When, Definitions).
-                            5. **Conciseness**: Answers must be extremely direct. Maximum 2 sentences or 30 words. Use bold text for key terms.
-                            6. Return a **JSON ARRAY** of objects.
+                    **Target Language:** %s
 
-                            **Output Format:**
-                            Strictly return ONLY the JSON Array:
-                            [
-                              { "question": "...", "answer": "..." }
-                            ]
-                            """
-                            .formatted(pageIndex, annotationsJson, targetLanguage, tierInstruction));
+                    **Instructions:**
+                    1. Analyze the annotations within their provided contexts.
+                    2. %s
+                    3. **Minimum Information Principle**: Each card MUST be atomic. Test only ONE specific fact or concept per card. Avoid broad "Describe..." or "List all..." questions.
+                    4. Logic:
+                       - 'Highlight' -> Conceptual questions (Why, How, Significance).
+                       - 'Underline' -> Factual questions (What, Who, When, Definitions).
+                       - 'Ink' -> Identify visual contents (handwriting, drawings, formulas) in the attached images alongside surrounding context text, and create conceptual or factual questions as appropriate.
+                    5. **Conciseness**: Answers must be extremely direct. Maximum 2 sentences or 30 words. Use bold text for key terms.
+                    %s
+                    Return a **JSON ARRAY** of objects.
+
+                    **Output Format:**
+                    Strictly return ONLY the JSON Array:
+                    [
+                      { "question": "...", "answer": "..." }
+                    ]
+                    """
+                    .formatted(pageIndex, annotationsJson, targetLanguage, tierInstruction, inkInstructions.toString());
+
+            UserMessage userMessage;
+            if (imageContents.isEmpty()) {
+                userMessage = UserMessage.from(userPromptText);
+            } else {
+                List<Content> messageContents = new ArrayList<>();
+                messageContents.add(TextContent.from(userPromptText));
+                messageContents.addAll(imageContents);
+                userMessage = UserMessage.from(messageContents);
+            }
 
             Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
             String responseText = response.content().text();
