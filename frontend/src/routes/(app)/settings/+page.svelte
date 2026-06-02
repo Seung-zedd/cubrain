@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { user, logout } from "$lib/stores/user.svelte";
-  import { supabase } from "$lib/supabaseClient";
+  import { auth } from "$lib/firebaseClient";
+  import { onAuthStateChanged } from "firebase/auth";
   import { goto } from "$app/navigation";
   import { enhance } from "$app/forms";
   import User from "@lucide/svelte/icons/user";
@@ -19,7 +20,7 @@
   import type { PageData } from "./$types";
 
   let { data, form } = $props<{ data: PageData; form: any }>();
-  let supabaseUser: any = $state(null);
+  let firebaseUser: any = $state(null);
   let copied = $state(false);
   let showConfirmModal = $state(false);
   let deleteForm = $state<HTMLFormElement | null>(null);
@@ -41,12 +42,12 @@
     });
   });
 
-  onMount(async () => {
-    if (supabase) {
-      const {
-        data: { user: sUser },
-      } = await supabase.auth.getUser();
-      supabaseUser = sUser;
+  onMount(() => {
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        firebaseUser = user;
+      });
+      return unsubscribe;
     }
   });
 
@@ -167,10 +168,10 @@
             <code
               class="px-3 py-1.5 rounded-lg bg-black/50 border border-white/5 text-zinc-500 font-mono text-sm"
             >
-              {supabaseUser?.id || "Loading..."}
+              {firebaseUser?.uid || "Loading..."}
             </code>
             <button
-              onclick={() => copyToClipboard(supabaseUser?.id || "")}
+              onclick={() => copyToClipboard(firebaseUser?.uid || "")}
               class="p-1.5 rounded-md hover:bg-white/10 text-zinc-500 transition-colors relative"
               title="Copy UID"
             >

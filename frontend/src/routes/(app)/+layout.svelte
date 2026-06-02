@@ -4,7 +4,7 @@
   import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
   import Menu from "@lucide/svelte/icons/menu";
   import PanelLeft from "@lucide/svelte/icons/panel-left";
-  import { fade, fly } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import { cn } from "$lib/utils";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
 

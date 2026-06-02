@@ -21,6 +21,7 @@
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import Play from "@lucide/svelte/icons/play";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
   import { cn } from "$lib/utils";
 
   let showLoginModal = $state(false);
@@ -36,7 +37,7 @@
     isMobileMenuOpen = !isMobileMenuOpen;
   };
 
-  const CURRENT_VERSION = "1.4.5";
+  const CURRENT_VERSION = "1.7.1";
   let hasNewUpdate = $state(false);
 
   onMount(() => {
@@ -156,11 +157,17 @@
           {/if}
         </a>
         <a
+          href="/help"
+          class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
+          >Help</a
+        >
+        <a
           href="/library"
           class="text-lg font-medium text-white/80 hover:text-[#FFD700] transition-colors"
           >Library</a
         >
       </div>
+      <div class="h-6 w-px bg-white/10 hidden lg:block"></div>
 
       {#if user.current}
         <a
@@ -316,10 +323,22 @@
                 </div>
                 <span class="font-medium">My Library</span>
               </a>
+              <a
+                href="/help"
+                onclick={toggleMobileMenu}
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
+              >
+                <div
+                  class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors"
+                >
+                  <HelpCircle
+                    class="w-4 h-4 text-zinc-500 group-hover:text-[#FFD700]"
+                  />
+                </div>
+                <span class="font-medium">Help Center</span>
+              </a>
             </div>
           </div>
-
-
         </div>
 
         <!-- Sidebar Footer -->
@@ -435,16 +454,17 @@
           class="relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/50 shadow-[0_0_100px_-20px_rgba(255,193,7,0.2)] transition-all duration-700"
         >
           <video
-            src="/videos/hero-bg.mp4"
             poster="/og-image.png"
             autoplay
             muted
             loop
             playsinline
-            preload="auto"
+            preload="metadata"
             aria-label="Cubrain App Background Animation"
             class="w-full aspect-video object-cover"
           >
+            <source src="/videos/hero-bg.webm" type="video/webm" />
+            <source src="/videos/hero-bg.mp4" type="video/mp4" />
           </video>
 
           <!-- Glossy Overlay -->

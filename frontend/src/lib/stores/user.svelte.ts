@@ -1,4 +1,5 @@
-import { supabase } from "$lib/supabaseClient";
+import { auth } from "$lib/firebaseClient";
+import { onIdTokenChanged } from "firebase/auth";
 import { authFetch } from "$lib/api";
 import { IS_DEV_MODE } from "$lib/utils/env";
 
@@ -36,13 +37,10 @@ export async function fetchGuestUsage() {
 
 export async function fetchUser() {
   try {
-    if (!supabase) return;
+    if (!auth) return;
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
       user.current = null;
       return;
     }
@@ -57,10 +55,9 @@ export async function fetchUser() {
       }
     } else {
       // Fallback: Use session data if backend is unreachable or returns error
-      // This allows local frontend development without a running backend
       user.current = {
         id: 0,
-        email: session.user.email || "",
+        email: currentUser.email || "",
         role: "USER",
         tier: "FREE_USER",
         dailyUploadCount: 0,
@@ -74,24 +71,18 @@ export async function fetchUser() {
       console.error("fetchUser error:", err);
     }
     // Even on network error, try to keep the user "logged in" with session data
-    if (supabase) {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        user.current = {
-          id: 0,
-          email: session.user.email || "",
-          role: "USER",
-          tier: "FREE_USER",
-          dailyUploadCount: 0,
-          endsAt: null,
-          customerPortalUrl: null,
-          subscriptionStatus: null,
-        };
-      } else {
-        user.current = null;
-      }
+    const currentUser = auth?.currentUser;
+    if (currentUser) {
+      user.current = {
+        id: 0,
+        email: currentUser.email || "",
+        role: "USER",
+        tier: "FREE_USER",
+        dailyUploadCount: 0,
+        endsAt: null,
+        customerPortalUrl: null,
+        subscriptionStatus: null,
+      };
     } else {
       user.current = null;
     }
@@ -99,10 +90,21 @@ export async function fetchUser() {
 }
 
 // Initialize auth listener
-if (typeof window !== "undefined" && supabase) {
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (IS_DEV_MODE) {
-      console.log(`[Auth] Event: ${event}`);
+if (typeof window !== "undefined" && auth) {
+  onIdTokenChanged(auth, async (currentUser) => {
+    let token = null;
+    let expires_in = null;
+
+    if (currentUser) {
+      token = await currentUser.getIdToken();
+      expires_in = 3600; // default Firebase token lifetime (1 hour)
+      if (IS_DEV_MODE) {
+        console.log(`[Auth] User signed in or token refreshed: ${currentUser.email}`);
+      }
+    } else {
+      if (IS_DEV_MODE) {
+        console.log(`[Auth] User signed out`);
+      }
     }
 
     // Sync session to HttpOnly cookie via server route
@@ -111,8 +113,8 @@ if (typeof window !== "undefined" && supabase) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          access_token: session?.access_token || null,
-          expires_in: session?.expires_in || null,
+          access_token: token,
+          expires_in: expires_in,
         }),
       });
     } catch (e) {
@@ -121,26 +123,14 @@ if (typeof window !== "undefined" && supabase) {
       }
     }
 
-    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-      fetchUser();
+    if (currentUser) {
+      await fetchUser();
 
-      // Clean up the URL hash if it contains auth tokens (Supabase OAuth flow)
-      if (
-        typeof window !== "undefined" &&
-        window.location.hash.includes("access_token")
-      ) {
-        window.history.replaceState(
-          null,
-          "",
-          window.location.pathname + window.location.search,
-        );
-
-        // If we just signed in via OAuth, ensure we are on the library
-        if (window.location.pathname === "/") {
-          window.location.href = "/library";
-        }
+      // If we just signed in and we are on the landing page, go to /library
+      if (typeof window !== "undefined" && window.location.pathname === "/") {
+        window.location.href = "/library";
       }
-    } else if (event === "SIGNED_OUT") {
+    } else {
       user.current = null;
       fetchGuestUsage();
 
@@ -160,12 +150,12 @@ if (typeof window !== "undefined" && supabase) {
 }
 
 export async function logout() {
-  if (!supabase) {
+  if (!auth) {
     user.current = null;
     return;
   }
   try {
-    await supabase.auth.signOut();
+    await auth.signOut();
   } catch (e) {
     if (IS_DEV_MODE) {
       console.error("Failed to logout", e);

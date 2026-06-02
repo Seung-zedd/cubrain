@@ -33,8 +33,8 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
-    private String supabaseId;
+    @Column(name = "firebase_uid", unique = true)
+    private String firebaseUid;
 
     @Builder.Default
     @Column(nullable = false)
@@ -70,8 +70,8 @@ public class Member extends BaseEntity {
         return tier == UserTier.PRO_USER && (endsAt == null || endsAt.isAfter(OffsetDateTime.now()));
     }
 
-    public void updateSupabaseId(String supabaseId) {
-        this.supabaseId = supabaseId;
+    public void updateFirebaseUid(String firebaseUid) {
+        this.firebaseUid = firebaseUid;
     }
 
     public void updateTier(UserTier tier) {

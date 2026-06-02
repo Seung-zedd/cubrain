@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { authFetch } from "$lib/api";
-  import { supabase } from "$lib/supabaseClient";
+  import { auth } from "$lib/firebaseClient";
   import {
     user,
     fetchUser,
@@ -111,6 +111,7 @@
   let { data } = $props<{ data: PageData }>();
 
   $effect(() => {
+    // 1. Initial load from server-side streamed result
     data.streamed.recentJob.then((res: RecentJobResult) => {
       if (res && res.status === "COMPLETED" && Array.isArray(res.results)) {
         generatedCards = res.results;
@@ -120,6 +121,22 @@
         }
       }
     });
+
+    // 2. Client-side fallback for OAuth landing/state sync
+    if (user.current && !showResults && !isGenerating) {
+      authFetch("/api/v1/pdf/recent").then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "COMPLETED" && Array.isArray(data.results)) {
+            generatedCards = data.results;
+            showResults = true;
+            if (data.metadata) {
+              jobMetadata = data.metadata;
+            }
+          }
+        }
+      });
+    }
   });
 
   onMount(async () => {
@@ -215,58 +232,79 @@
 
         // 3. Subscribe to SSE for this specific job
         const jobResult = await new Promise<GeneratedFlashcard[]>(
-          (resolve, reject) => {
-            // Get token from Supabase session
-            supabase?.auth.getSession().then(({ data: { session } }) => {
-              const token = session?.access_token;
+          async (resolve, reject) => {
+            let token: string | undefined;
+            if (auth && auth.currentUser) {
+              try {
+                token = await auth.currentUser.getIdToken();
+              } catch (e) {
+                console.error("Failed to get ID token", e);
+              }
+            }
 
-              unsubscribe = subscribeToJob(
-                jobId!,
-                {
-                  onInit: (data) => {
-                    jobStatus = data.status;
-                    jobProgress = data.progress;
-                    if (data.metadata) {
-                      jobMetadata = { ...jobMetadata, ...data.metadata };
-                    }
-                  },
-                  onProgress: (data) => {
-                    jobStatus = data.status;
-                    jobProgress = data.progress;
-                  },
-                  onComplete: async (data) => {
+            unsubscribe = subscribeToJob(
+              jobId!,
+              {
+                onInit: (data) => {
+                  jobStatus = data.status;
+                  jobProgress = data.progress;
+                  if (data.metadata) {
+                    jobMetadata = { ...jobMetadata, ...data.metadata };
+                  }
+
+                  // Check if job is already in a terminal state
+                  if (data.status === "COMPLETED") {
                     if (unsubscribe) {
                       unsubscribe();
                       unsubscribe = null;
                     }
-                    // Refresh usage count after each successful job
-                    if (user.current) await fetchUser();
-                    else await fetchGuestUsage();
-
-                    if (data.metadata) {
-                      jobMetadata = { ...jobMetadata, ...data.metadata };
-                    }
-
                     const results =
                       (data.results as GeneratedFlashcard[]) ?? [];
                     resolve(results);
-                  },
-                  onError: (error: unknown) => {
-                    const err = error as Error;
+                  } else if (data.status === "FAILED") {
                     if (unsubscribe) {
                       unsubscribe();
                       unsubscribe = null;
                     }
-                    reject(
-                      new Error(
-                        err.message || `Generation failed for ${file.name}`,
-                      ),
-                    );
-                  },
+                    reject(new Error(data.message || "Job failed"));
+                  }
                 },
-                token,
-              );
-            });
+                onProgress: (data) => {
+                  jobStatus = data.status;
+                  jobProgress = data.progress;
+                },
+                onComplete: async (data) => {
+                  if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                  }
+                  // Refresh usage count after each successful job
+                  if (user.current) await fetchUser();
+                  else await fetchGuestUsage();
+
+                  if (data.metadata) {
+                    jobMetadata = { ...jobMetadata, ...data.metadata };
+                  }
+
+                  const results =
+                    (data.results as GeneratedFlashcard[]) ?? [];
+                  resolve(results);
+                },
+                onError: (error: unknown) => {
+                  const err = error as Error;
+                  if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                  }
+                  reject(
+                    new Error(
+                      err.message || `Generation failed for ${file.name}`,
+                    ),
+                  );
+                },
+              },
+              token,
+            );
           },
         );
 

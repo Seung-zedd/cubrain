@@ -4,6 +4,7 @@
   import CloudUpload from "@lucide/svelte/icons/cloud-upload";
   import Library from "@lucide/svelte/icons/library";
   import Settings from "@lucide/svelte/icons/settings";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
   import LogOut from "@lucide/svelte/icons/log-out";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import CreditCard from "@lucide/svelte/icons/credit-card";
@@ -37,6 +38,7 @@
 
   const navItems = [
     { href: "/upload", label: "Upload PDF", icon: CloudUpload },
+    { href: "/help-center", label: "Help Center", icon: HelpCircle },
     { href: "/library", label: "My Library", icon: Library },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
@@ -65,7 +67,7 @@
 <aside
   class={cn(
     "flex h-full w-full flex-col bg-zinc-900 relative overflow-hidden",
-    className
+    className,
   )}
 >
   <!-- Brand Logo -->
@@ -77,7 +79,7 @@
 
   <!-- Navigation -->
   <nav class="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
-    {#each navItems as item}
+    {#each navItems as item (item.href)}
       {@const isActive = item.href.includes("?")
         ? page.url.search === new URL("http://dummy" + item.href).search
         : page.url.pathname === item.href && page.url.search === ""}
@@ -88,7 +90,7 @@
           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
           isActive
             ? "bg-amber-500/10 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
-            : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100"
+            : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100",
         )}
       >
         <item.icon
@@ -154,7 +156,7 @@
             "h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-lg transition-all duration-300",
             user.current
               ? "bg-linear-to-br from-amber-400 to-amber-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-              : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black"
+              : "bg-linear-to-br from-zinc-700 to-zinc-800 text-zinc-400 group-hover:from-amber-500 group-hover:to-amber-700 group-hover:text-black",
           )}
         >
           {user.current

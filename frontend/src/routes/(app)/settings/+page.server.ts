@@ -1,18 +1,10 @@
 import { fail, redirect, isRedirect, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
-import { createClient } from "@supabase/supabase-js";
 import { API_BASE_URL } from "$lib/config/config";
-
 import { env } from "$env/dynamic/private";
 
-const SUPABASE_URL =
-  env.SUPABASE_URL ||
-  env.VITE_PUBLIC_SUPABASE_URL ||
-  "https://nsnbzlzttvvxdlhsuskt.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
-
 export const load = async ({ fetch, cookies }: RequestEvent) => {
-  const token = cookies.get("sb-access-token");
+  const token = cookies.get("fb-access-token");
 
   const fetchProfile = async () => {
     if (!token) return null;
@@ -39,10 +31,11 @@ export const load = async ({ fetch, cookies }: RequestEvent) => {
 
 export const actions: Actions = {
   deleteAccount: async ({ cookies, fetch, request }) => {
-    const token = cookies.get("sb-access-token");
+    const token = cookies.get("fb-access-token");
+    const firebaseApiKey = env.VITE_PUBLIC_FIREBASE_API_KEY || "AIzaSyBuL8dKtGo9XFcMbtwFMayLk5Y0nPTSOKc";
 
-    if (!SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+    if (!firebaseApiKey) {
+      console.error("Missing VITE_PUBLIC_FIREBASE_API_KEY");
       return fail(500, { error: "Server configuration error" });
     }
 
@@ -65,7 +58,6 @@ export const actions: Actions = {
       const userData = await response.json();
 
       // Block deletion if Active Pro User
-      // BLOCK if status is ACTIVE, ON_TRIAL, or PAST_DUE
       const blockedStatuses = ["ACTIVE", "ON_TRIAL", "PAST_DUE"];
       if (
         userData.tier === "PRO_USER" &&
@@ -77,29 +69,35 @@ export const actions: Actions = {
         });
       }
 
-      // 2. Initialize Supabase Admin
-      const supabaseAdmin = createClient(
-        SUPABASE_URL,
-        SUPABASE_SERVICE_ROLE_KEY as string,
+      // 2. Delete User from Firebase Auth via REST API
+      const firebaseDeleteResponse = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${firebaseApiKey}`,
         {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        },
+          body: JSON.stringify({
+            idToken: token,
+          }),
+        }
       );
 
-      // 3. Get User ID from Supabase Auth
-      const {
-        data: { user },
-        error: userError,
-      } = await supabaseAdmin.auth.getUser(token);
-
-      if (userError || !user) {
-        return fail(401, { error: "Could not identify user" });
+      if (!firebaseDeleteResponse.ok) {
+        const errorData = await firebaseDeleteResponse.json().catch(() => ({}));
+        const errorCode = errorData.error?.message;
+        console.error("Firebase deletion error:", errorCode || "Unknown error");
+        if (errorCode === "CREDENTIAL_TOO_OLD_RECENT_LOGIN_REQUIRED") {
+          return fail(400, {
+            error: "Please sign in again before deleting your account for security reasons.",
+          });
+        }
+        return fail(500, {
+          error: "Failed to delete auth account",
+        });
       }
 
-      // 4. Delete User from Backend DB via API
+      // 3. Delete User from Backend DB via API
       const backendDeleteResponse = await fetch(
         `${API_BASE_URL}/api/v1/auth/me`,
         {
@@ -120,19 +118,7 @@ export const actions: Actions = {
         });
       }
 
-      // 5. Delete User from Supabase Auth
-      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
-        user.id,
-      );
-
-      if (deleteError) {
-        console.error("Supabase deletion error:", deleteError);
-        return fail(500, {
-          error: deleteError.message || "Failed to delete auth account",
-        });
-      }
-
-      // 6. Post-Deletion: Clear cookies and redirect
+      // 4. Post-Deletion: Clear cookies and redirect
       const host = request.headers.get("host") || "";
       const domain = host.includes("cubrain.app") ? ".cubrain.app" : undefined;
 
@@ -143,8 +129,7 @@ export const actions: Actions = {
         domain: domain,
       };
 
-      cookies.delete("sb-access-token", cookieOptions);
-      cookies.delete("sb-refresh-token", cookieOptions);
+      cookies.delete("fb-access-token", cookieOptions);
 
       throw redirect(303, "/?deleted=true");
     } catch (err) {

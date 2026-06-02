@@ -29,6 +29,14 @@ const config = {
       name: Date.now().toString(),
       pollInterval: 60000, // Poll every minute
     },
+    prerender: {
+      handleHttpError: ({ path, message }) => {
+        if (path === "/videos/hero-bg.webm") {
+          return;
+        }
+        throw new Error(message);
+      },
+    },
   },
 };
 

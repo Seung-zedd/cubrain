@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Auth management APIs (Supabase)")
+@Tag(name = "Authentication", description = "Auth management APIs (Firebase)")
 public class AuthController {
 
     private final AuthService authService;
@@ -34,12 +34,12 @@ public class AuthController {
         }
 
         String email = jwt.getClaimAsString("email");
-        String supabaseId = jwt.getSubject(); // 'sub' claim
+        String firebaseUid = jwt.getSubject(); // 'sub' claim
 
-        log.info("[Auth] getMe called for: {} (sub: {})", email, supabaseId);
+        log.info("[Auth] getMe called for: {} (sub: {})", email, firebaseUid);
 
-        // syncUser handles JIT provisioning and updating supabaseId
-        UserResponseDto user = authService.syncUser(email, supabaseId);
+        // syncUser handles JIT provisioning and updating firebaseUid
+        UserResponseDto user = authService.syncUser(email, firebaseUid);
         return ResponseEntity.ok(user);
     }
 
@@ -75,10 +75,10 @@ public class AuthController {
         }
 
         String email = jwt.getClaimAsString("email");
-        String supabaseId = jwt.getSubject();
-        log.info("[Auth] deleteMe called for: {} (sub: {})", email, supabaseId);
+        String firebaseUid = jwt.getSubject();
+        log.info("[Auth] deleteMe called for: {} (sub: {})", email, firebaseUid);
 
-        authService.deleteMember(email, supabaseId);
+        authService.deleteMember(email, firebaseUid);
         return ResponseEntity.noContent().build();
     }
 }

@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
       const host = request.headers.get("host") || "";
       const domain = host.includes("cubrain.app") ? ".cubrain.app" : undefined;
 
-      cookies.set("sb-access-token", access_token, {
+      cookies.set("fb-access-token", access_token, {
         path: "/",
         httpOnly: true,
         secure: !host.includes("localhost"),
@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
       const host = request.headers.get("host") || "";
       const domain = host.includes("cubrain.app") ? ".cubrain.app" : undefined;
 
-      cookies.delete("sb-access-token", {
+      cookies.delete("fb-access-token", {
         path: "/",
         domain: domain,
       });
