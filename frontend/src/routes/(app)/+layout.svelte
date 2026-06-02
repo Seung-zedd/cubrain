@@ -7,7 +7,6 @@
   import { fade, fly } from "svelte/transition";
   import { cn } from "$lib/utils";
   import LoginModal from "$lib/components/auth/LoginModal.svelte";
-  import LanguageSwitcher from "$lib/components/layout/LanguageSwitcher.svelte";
 
   let { children } = $props();
   let isSidebarOpen = $state(false); // Default closed to avoid flash on mobile
@@ -125,10 +124,6 @@
         {/if}
 
         <div class="flex-1"></div>
-
-        <div class="flex items-center gap-4">
-          <LanguageSwitcher />
-        </div>
       </header>
     {/if}
 

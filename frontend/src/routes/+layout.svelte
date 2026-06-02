@@ -1,9 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { i18n } from "$lib/i18n";
-  import { availableLanguageTags } from "$lib/paraglide/runtime";
   import "../app.css";
-  import { browser, building } from "$app/environment";
+  import { browser } from "$app/environment";
   import { IS_DEV_MODE } from "$lib/utils/env";
   import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
@@ -12,7 +10,6 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
-  import { ParaglideJS } from "@inlang/paraglide-sveltekit";
 
   let { children } = $props();
 
@@ -24,15 +21,6 @@
   onMount(() => {
     fetchUser();
   });
-
-  function getCanonicalPath(path: string) {
-    const segments = path.split("/");
-    const firstSegment = segments[1];
-    if (availableLanguageTags.includes(firstSegment as any)) {
-      return "/" + segments.slice(2).join("/");
-    }
-    return path;
-  }
 
   // SEO Configuration
   const title = "Cubrain - Study Smarter with AI Flashcards";
@@ -69,21 +57,8 @@
   <meta property="twitter:image" content={imageUrl} />
 </svelte:head>
 
-<ParaglideJS {i18n}>
-  {#if IS_LAUNCH_SALE && !isStudyMode && !isPro}
-    <LaunchBanner />
-  {/if}
+{#if IS_LAUNCH_SALE && !isStudyMode && !isPro}
+  <LaunchBanner />
+{/if}
 
-  {@render children()}
-</ParaglideJS>
-
-<div style="display:none">
-  {#each availableLanguageTags as locale}
-    <a
-      href={i18n.resolveRoute(
-        getCanonicalPath(page.url.pathname) + (building ? "" : page.url.search),
-        locale,
-      )}>{locale}</a
-    >
-  {/each}
-</div>
+{@render children()}
