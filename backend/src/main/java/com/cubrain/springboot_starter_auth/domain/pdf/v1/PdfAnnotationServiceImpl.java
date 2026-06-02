@@ -72,8 +72,9 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                         boolean isHighlightOrUnderline = PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
                                 PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType);
                         boolean isInk = "Ink".equals(subType);
+                        boolean isFreeText = "FreeText".equals(subType);
 
-                        if (isHighlightOrUnderline || isInk) {
+                        if (isHighlightOrUnderline || isInk || isFreeText) {
                             processedAnnotations.add(annotation);
                             PDRectangle rect = annotation.getRectangle();
                             if (rect == null) {
@@ -131,8 +132,15 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                     }
 
                     boolean isInk = "Ink".equals(subType);
+                    boolean isFreeText = "FreeText".equals(subType);
                     String extractedText = "";
-                    if (!isInk) {
+                    if (isFreeText) {
+                        extractedText = annotation.getContents();
+                        if (extractedText == null) {
+                            extractedText = "";
+                        }
+                        extractedText = extractedText.trim();
+                    } else if (!isInk) {
                         extractedText = stripper.getTextForRegion("annotation_" + (j + 1)).trim();
                     } else {
                         extractedText = "[Ink Drawing]";
@@ -160,7 +168,7 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                         }
                     }
 
-                    if (isInk || (!extractedText.isEmpty() && extractedText.length() > minTextLength)) {
+                    if (isInk || isFreeText || (!extractedText.isEmpty() && extractedText.length() > minTextLength)) {
                         results.add(AnnotationResultDto.of(
                                 i + 1,
                                 subType,

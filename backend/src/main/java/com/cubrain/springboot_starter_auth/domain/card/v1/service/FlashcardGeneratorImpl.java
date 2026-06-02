@@ -252,6 +252,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                        - 'Highlight' -> Conceptual questions (Why, How, Significance).
                        - 'Underline' -> Factual questions (What, Who, When, Definitions).
                        - 'Ink' -> Identify visual contents (handwriting, drawings, formulas) in the attached images alongside surrounding context text, and create conceptual or factual questions as appropriate.
+                       - 'FreeText' -> User's typed study note or summary. Generate questions that test the concept in the note in relation to the surrounding context (e.g. definition, translation, or application of the note).
                     5. **Conciseness**: Answers must be extremely direct. Maximum 2 sentences or 30 words. Use bold text for key terms.
                     %s
                     Return a **JSON ARRAY** of objects.
