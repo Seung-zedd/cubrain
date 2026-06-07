@@ -78,7 +78,7 @@
     };
   });
 
-  const heroSlides = $derived([
+  const heroSlides = [
     {
       h: 'Stop <span class="text-[#FFD700]">soul-crushing</span> typing.',
       s: "Turn highlights into flashcards instantly.",
@@ -91,7 +91,7 @@
       h: 'Tired of <span class="text-[#FFD700]">random, low-quality</span> AI cards?',
       s: "Generate precise flashcards strictly from highlights.",
     },
-  ]);
+  ];
 
   let currentSlide = $state(0);
 
@@ -339,11 +339,6 @@
               </a>
             </div>
           </div>
-
-          <!-- Language Section -->
-          <div>
-            <!-- Removed Language Switching -->
-          </div>
         </div>
 
         <!-- Sidebar Footer -->
@@ -496,8 +491,7 @@
             Why <span class="text-[#FFD700]">Cubrain</span>?
           </h2>
           <p class="text-white/60 max-w-2xl mx-auto text-xl leading-relaxed">
-            Experience the next generation of study tools designed for
-            efficiency and retention.
+            Experience the next generation of study tools designed for efficiency and retention.
           </p>
         </div>
 
@@ -521,8 +515,7 @@
             </div>
             <h3 class="text-2xl font-bold mb-3 text-white">Instant Capture</h3>
             <p class="text-white/60 leading-relaxed">
-              Upload your PDFs and instantly turn them into flashcards. No
-              context switching required.
+              Upload your PDFs and instantly turn them into flashcards. No context switching required.
             </p>
           </div>
 
@@ -542,8 +535,7 @@
             </div>
             <h3 class="text-2xl font-bold mb-3 text-white">Smart Study</h3>
             <p class="text-white/60 leading-relaxed">
-              Practice directly in your browser with our built-in flashcard
-              player. Track your progress and master concepts faster.
+              Practice directly in your browser with our built-in flashcard player. Track your progress and master concepts faster.
             </p>
           </div>
 
@@ -563,8 +555,7 @@
             </div>
             <h3 class="text-2xl font-bold mb-3 text-white">Easy Export</h3>
             <p class="text-white/60 leading-relaxed">
-              Export your generated flashcards to .csv format instantly.
-              Perfectly formatted for Anki and other major study tools.
+              Export your generated flashcards to .csv format instantly. Perfectly formatted for Anki and other major study tools.
             </p>
           </div>
         </div>

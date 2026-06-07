@@ -23,6 +23,7 @@ declare global {
     };
     createLemonSqueezy?: () => void;
     hj?: (command: string, ...args: unknown[]) => void;
+    clarity?: (...args: any[]) => void;
   }
 }
 

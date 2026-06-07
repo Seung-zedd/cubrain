@@ -124,8 +124,6 @@
         {/if}
 
         <div class="flex-1"></div>
-
-        <div class="flex items-center gap-4"></div>
       </header>
     {/if}
 

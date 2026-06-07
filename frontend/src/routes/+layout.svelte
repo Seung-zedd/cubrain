@@ -10,7 +10,7 @@
   import { fetchUser, user } from "$lib/stores/user.svelte";
   import LaunchBanner from "$lib/components/layout/LaunchBanner.svelte";
   import { IS_LAUNCH_SALE } from "$lib/config/config";
-  
+
   let { children } = $props();
 
   if (browser && !IS_DEV_MODE) {
@@ -43,7 +43,6 @@
       window.clarity("identify", "guest", guestSessionId);
     }
   });
-
   // SEO Configuration
   const title = "Cubrain - Study Smarter with AI Flashcards";
 

@@ -6,13 +6,17 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationTextMarkup;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
@@ -49,6 +53,7 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
                 }
             }
 
+            PDFRenderer pdfRenderer = null;
             int pagesToProcess = Math.min(pageCount, maxPages);
             for (int i = 0; i < pagesToProcess; i++) {
                 PDPage page = document.getPage(i);
@@ -59,84 +64,126 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
 
                 float pageHeight = page.getCropBox().getHeight();
 
-                List<PDAnnotationTextMarkup> markups = new ArrayList<>();
+                List<PDAnnotation> processedAnnotations = new ArrayList<>();
 
                 for (PDAnnotation annotation : annotations) {
                     try {
-                        if (annotation instanceof PDAnnotationTextMarkup markup) {
-                            String subType = markup.getSubtype();
-                            if (PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
-                                    PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
+                        String subType = annotation.getSubtype();
+                        boolean isHighlightOrUnderline = PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT.equals(subType) ||
+                                PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType);
+                        boolean isInk = "Ink".equals(subType);
+                        boolean isFreeText = "FreeText".equals(subType);
 
-                                markups.add(markup);
-                                PDRectangle rect = markup.getRectangle();
-
-                                float x = rect.getLowerLeftX();
-                                float y = rect.getLowerLeftY();
-                                float w = rect.getWidth();
-                                float h = rect.getHeight();
-
-                                float expansion = 2.0f;
-                                x -= expansion;
-                                y -= expansion;
-                                w += (expansion * 2);
-                                h += (expansion * 2);
-
-                                if (PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE.equals(subType)) {
-                                    h += 15.0f;
-                                    y -= 2.0f;
-                                    h += 2.0f;
-                                }
-
-                                float awtY = pageHeight - (y + h);
-
-                                stripper.addRegion("annotation_" + markups.size(),
-                                        new java.awt.geom.Rectangle2D.Float(x, awtY, w, h));
-
-                                float padding = 150f;
-                                PDRectangle pageRect = page.getCropBox();
-                                float cX = pageRect.getLowerLeftX();
-                                float cW = pageRect.getWidth();
-
-                                float pdfContextBottomY = rect.getLowerLeftY() - padding;
-                                float contextHeight = rect.getHeight() + (padding * 2);
-
-                                float awtContextY = pageHeight - (pdfContextBottomY + contextHeight);
-
-                                stripper.addRegion("context_" + markups.size(),
-                                        new java.awt.geom.Rectangle2D.Float(cX, awtContextY, cW, contextHeight));
+                        if (isHighlightOrUnderline || isInk || isFreeText) {
+                            processedAnnotations.add(annotation);
+                            PDRectangle rect = annotation.getRectangle();
+                            if (rect == null) {
+                                continue;
                             }
+
+                            float x = rect.getLowerLeftX();
+                            float y = rect.getLowerLeftY();
+                            float w = rect.getWidth();
+                            float h = rect.getHeight();
+
+                            if (isHighlightOrUnderline) {
+                                java.awt.geom.Rectangle2D.Float annotRegion = PdfCoordinateUtils.calculateAnnotationRegion(
+                                        x, y, w, h, pageHeight, subType);
+                                stripper.addRegion("annotation_" + processedAnnotations.size(), annotRegion);
+                            }
+
+                            // Context extraction using coordinate padding
+                            float padding = 150f;
+                            PDRectangle pageRect = page.getCropBox();
+                            java.awt.geom.Rectangle2D.Float contextRegion = PdfCoordinateUtils.calculateContextRegion(
+                                    rect, pageRect, pageHeight, padding);
+                            stripper.addRegion("context_" + processedAnnotations.size(), contextRegion);
                         }
                     } catch (Exception e) {
                         log.warn("Skipping malformed annotation on page {}", i + 1, e);
                     }
                 }
 
-                if (!markups.isEmpty()) {
+                if (!processedAnnotations.isEmpty()) {
                     stripper.extractRegions(page);
                 }
 
-                for (int j = 0; j < markups.size(); j++) {
-                    PDAnnotationTextMarkup markup = markups.get(j);
-                    PDRectangle rect = markup.getRectangle();
+                // Render page to image on-demand if there are Ink annotations
+                boolean hasInk = processedAnnotations.stream().anyMatch(a -> "Ink".equals(a.getSubtype()));
+                BufferedImage pageImage = null;
+                if (hasInk) {
+                    if (pdfRenderer == null) {
+                        pdfRenderer = new PDFRenderer(document);
+                    }
+                    try {
+                        // Render at 2.0f scale (144 DPI) for clarity in vision analysis
+                        pageImage = pdfRenderer.renderImage(i, 2.0f);
+                    } catch (Exception e) {
+                        log.error("Failed to render page {} to image for Ink annotation cropping", i + 1, e);
+                    }
+                }
 
-                    String extractedText = stripper.getTextForRegion("annotation_" + (j + 1)).trim();
+                for (int j = 0; j < processedAnnotations.size(); j++) {
+                    PDAnnotation annotation = processedAnnotations.get(j);
+                    String subType = annotation.getSubtype();
+                    PDRectangle rect = annotation.getRectangle();
+                    if (rect == null) {
+                        continue;
+                    }
+
+                    boolean isInk = "Ink".equals(subType);
+                    boolean isFreeText = "FreeText".equals(subType);
+                    String extractedText = "";
+                    if (isFreeText) {
+                        extractedText = annotation.getContents();
+                        if (extractedText == null) {
+                            extractedText = "";
+                        }
+                        extractedText = extractedText.trim();
+                    } else if (!isInk) {
+                        extractedText = stripper.getTextForRegion("annotation_" + (j + 1)).trim();
+                    } else {
+                        extractedText = "[Ink Drawing]";
+                    }
+
                     String contextText = stripper.getTextForRegion("context_" + (j + 1)).trim();
+                    String base64Image = null;
 
-                    if (!extractedText.isEmpty() && extractedText.length() > minTextLength) {
+                    if (isInk && pageImage != null) {
+                        try {
+                            float scale = 2.0f;
+                            float cropPadding = 5.0f;
+                            int imgWidth = pageImage.getWidth();
+                            int imgHeight = pageImage.getHeight();
+
+                            PdfCoordinateUtils.PixelBounds pb = PdfCoordinateUtils.calculatePixelBounds(
+                                    rect, pageHeight, scale, cropPadding, imgWidth, imgHeight);
+
+                            BufferedImage cropped = pageImage.getSubimage(pb.x(), pb.y(), pb.width(), pb.height());
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            javax.imageio.ImageIO.write(cropped, "png", baos);
+                            base64Image = Base64.getEncoder().encodeToString(baos.toByteArray());
+                        } catch (Exception e) {
+                            log.error("Failed to crop image for Ink annotation on page {}", i + 1, e);
+                        }
+                    }
+
+                    if (isInk || isFreeText || (!extractedText.isEmpty() && extractedText.length() > minTextLength)) {
                         results.add(AnnotationResultDto.of(
                                 i + 1,
-                                markup.getSubtype(),
+                                subType,
                                 extractedText,
                                 contextText,
                                 rect.getLowerLeftX(),
                                 rect.getLowerLeftY(),
                                 rect.getWidth(),
-                                rect.getHeight()));
+                                rect.getHeight(),
+                                base64Image));
 
-                        log.info("🔍 Found [{}]: Page {}, Text: \"{}\"", markup.getSubtype(), i + 1, extractedText);
+                        log.info("🔍 Found [{}]: Page {}, Text: \"{}\", HasImage: {}",
+                                subType, i + 1, extractedText, base64Image != null);
                     } else {
-                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", markup.getSubtype(), i + 1,
+                        log.info("⚠️ Skipped [{}]: Page {}, Text: \"{}\" (Length: {})", subType, i + 1,
                                 extractedText, extractedText.length());
                     }
                 }
@@ -144,6 +191,7 @@ public class PdfAnnotationServiceImpl implements PdfAnnotationService {
 
             results.sort(Comparator
                     .comparingInt(AnnotationResultDto::pageIndex)
+                    .thenComparing(a -> "Ink".equals(a.type()))
                     .thenComparing((a, b) -> Float.compare(b.y(), a.y()))
                     .thenComparingDouble(AnnotationResultDto::x));
 

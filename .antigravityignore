@@ -1,0 +1,45 @@
+# .antigravityignore
+
+# 🏗️ Build & Cache Folders
+node_modules/
+dist/
+build/
+out/
+.next/
+.gradle/
+.idea/
+.vscode/
+.vercel/
+.git/
+.github/
+.agent/
+.claude/
+
+# 🎬 Media & Binary Files
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+*.zip
+*.tar
+*.gz
+*.ico
+*.svg
+
+# 🔒 Lock Files (Massive Context Consumers)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+gradle-lockfile
+
+# 📂 PDF Study Material Directories
+pdf/
+backend/test_multi_page.pdf
+
+# 💻 Frontend Specific Builds (Only sync API integrations when needed)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
