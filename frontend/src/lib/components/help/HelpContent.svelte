@@ -9,12 +9,6 @@
 
   const faqs = [
     {
-      question:
-        "Why aren't flashcards generated when I highlight using an iPad or Galaxy Tab?",
-      answer:
-        'Currently, Cubrain (V1) is highly optimized for extracting <b>standard digital text highlight metadata</b>, providing the fastest and most accurate conversion. Freehand highlights drawn directly with an Apple Pencil or S-Pen are typically rendered as images within the PDF, which limits our parser\'s ability to recognize them in the current version. <div class="mt-4 bg-amber-400/10 border border-amber-400/20 p-4 rounded-xl text-amber-400 leading-relaxed"><strong class="font-bold">💡 Tip:</strong> Use the standard \'Text Highlight\' tool provided by your PDF viewer for perfect extraction! Full handwriting and freehand stroke recognition will be officially supported in our upcoming <strong class="font-bold">V3 update</strong>, which will introduce Multi-Modal AI Vision technology. Stay tuned!</div>',
-    },
-    {
       question: "What languages do you support for PDF documents?",
       answer:
         "We offer <b>full multilingual</b> support! Cubrain automatically adapts to the language of your uploaded PDF. It intelligently identifies core keywords within the document and seamlessly converts them into natural active recall questions and answer sets in that exact same language.",
