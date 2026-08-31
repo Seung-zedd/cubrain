@@ -343,7 +343,7 @@ To protect the project from supply chain attacks and unauthorized access, agents
 ### 28.1 Zero-Trust Interaction
 
 - **No Secrets to AI**: NEVER request OR read real API keys, passwords, or secrets from the user or `.env` files if they are meant for production. If you encounter them, immediately suggest rotation if they've been leaked to the chat.
-- **Blind CLI Updates**: When guiding a user to add environment variables via CLI (Vercel, Railway), never include the secret value in the command string. Use the interactive prompt method to ensure values are not saved in terminal history (`.bash_history`).
+- **Blind CLI Updates**: When guiding a user to add environment variables via CLI (Vercel, Railway), the ONLY forbidden place for the secret is the command line itself (`--value`, `echo VALUE | ...`, positional args) — it would persist in terminal history (`.bash_history`) and CI logs. The REAL value MUST still be entered: run the command (e.g. `vercel env add NAME production --sensitive`), then paste the raw value at the interactive prompt — the part after `=` in `.env`, WITHOUT surrounding quotes, and never the variable's KEY name.
 
 ### 28.2 Deployment Configuration
 
