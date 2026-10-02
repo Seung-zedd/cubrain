@@ -100,5 +100,82 @@
 
 ---
 
+## 5. Gemini 모델 접근 제한(404 NOT_FOUND)으로 인한 운영 장애 복구 (Commit abc5abf)
+
+###### Why: 무엇을 해결하고 싶었나요?
+
+- **문제 정의**: 2026-10-02, 운영 환경(Railway)에서 PDF 업로드 시 플래시카드가 한 장도 생성되지 않는 장애가 발생했습니다. PDF 파싱, 주석 추출, 사용량 제한 처리는 정상이었고, Gemini 호출 시점에서만 다음 오류가 반복되었습니다.
+  ```
+  RuntimeException: NOT_FOUND (code 404)
+  This model models/gemini-2.5-flash is no longer available to new users.
+  Please update your code to use models/gemini-3.8-flash ...
+  ```
+- **원인 은폐 문제**: 사용자에게 최종적으로 남는 오류는 `"Failed to generate any flashcards... This might be due to API timeouts or rate limits."`였습니다. 언어 감지와 페이지별 생성 단계가 모두 예외를 삼키고 빈 결과로 대체했기 때문에, 실제 원인(모델 404)이 로그 상단에서 "타임아웃/레이트리밋"이라는 잘못된 추정으로 가려져 있었습니다.
+- **위험 요소**: 서비스의 핵심 기능(카드 생성)이 100% 실패하는 상태였습니다. 또한 원인을 오판하면 API Key 교체나 PDF 파이프라인 수정처럼 장애와 무관한 변경을 운영에 반영할 위험이 있었습니다.
+
+###### What: 그래서 무엇을 만들었나요?
+
+- **가설 설정**: 오류 메시지가 인증 실패(401/403)가 아닌 모델 `NOT_FOUND`(404)였으므로, credential이나 PDF ingestion이 아니라 **"사용 중인 모델/API 호환성"**을 1순위 원인으로 설정했습니다. 해결 전략은 변경 범위가 작은 순서로 정했습니다.
+  1. A안: LangChain4j 구조를 유지한 채 지원되는 모델명만 교체
+  2. B안: 필요 시 LangChain4j 의존성만 최소 업그레이드
+  3. C안: generateContent가 막힌 경우에만 Interactions API로 마이그레이션
+- **기술적 근거 (공식 문서 기준)**:
+  - Gemini API Deprecations 문서: `gemini-2.5-flash`는 종료일이 공지되지 않았지만 *"limiting access to the 2.5 models to users who have actively used them in the past"* 정책으로, 이전 사용 이력이 없는 프로젝트에서는 404가 반환됩니다.
+  - `gemini-3.8-flash`는 GA 모델이며, 공식 가이드에 `v1beta/models/gemini-3.8-flash:generateContent` REST 예제가 있습니다.
+  - Interactions API 문서: generateContent는 *"considered legacy… remains fully supported"* 상태이고 종료 일정이 없으므로, C안은 불필요하다고 판단했습니다.
+  - LangChain4j 0.35.0 소스를 직접 확인한 결과, 모델명을 URL 경로에 그대로 넣고 응답의 미지원 필드(`thoughtSignature` 등)는 Gson이 무시했습니다. 다만 `candidateCount=1`, `topK=64` 등을 항상 강제로 전송하는데, Gemini 3 마이그레이션 문서는 이를 "제거 권장"으로만 표기하고 에러 여부는 명시하지 않았습니다. 최신 LangChain4j 1.20.2도 `candidateCount(1)`을 하드코딩해 전송한다는 점을 간접 근거로 삼아 A안을 선택했습니다.
+
+###### How: 이 목표를 어떻게 해결했나요?
+
+1) **호출 경로와 설정 위치 파악**: 모델명이 Java 코드가 아니라 `application-{prod,dev,local}.yml`에 하드코딩되어 있었고, `AiConfig`가 이를 읽어 `GoogleAiGeminiChatModel`을 생성하는 구조임을 확인했습니다. 언어 감지, 페이지별 카드 생성, 데모 생성이 모두 같은 Chat 모델 Bean을 사용합니다.
+
+2) **모델명 교체 + 환경변수 분리 (A안)**: 의존성은 바꾸지 않고 설정만 변경했습니다. 이후 모델 교체는 코드 수정 없이 Railway 변수로 가능하도록 했습니다.
+   ```yaml
+   model-name: ${GEMINI_MODEL:gemini-3.8-flash}
+   temperature: 1.0   # Gemini 3.x는 기본값 1.0 유지 권장 (0.7 → 1.0)
+   ```
+
+3) **업스트림 원인 로깅 개선**: 재시도, 페이지 그룹핑, JSON 파싱, 사용량 환불 등 기존 동작은 그대로 두고, 실패 지점마다 원인 분류 라벨과 원문 메시지를 남기도록 했습니다. 최종 오류에도 마지막 업스트림 예외를 cause로 연결했습니다. 클라이언트 응답은 기존처럼 body 없는 500이므로 내부 정보는 노출되지 않습니다.
+   - 분류: `MODEL_NOT_FOUND` / `AUTHENTICATION` / `RATE_LIMIT` / `TIMEOUT` / `MALFORMED_RESPONSE` / `INVALID_REQUEST` / `UNKNOWN`
+   ```
+   Failed to process page 2 or parse AI response [MODEL_NOT_FOUND]: NOT_FOUND (code 404) ...
+   ```
+
+4) **테스트 분리**: 실제 API를 호출하지 않는 단위 테스트와, 환경변수가 있을 때만 실행되는 실 API 검증 테스트를 분리했습니다.
+   - 오프라인(가짜 ChatModel 사용): 언어 감지 후 페이지 생성, ```` ```json ```` 펜스 파싱, 429는 재시도 후 성공, 404는 재시도 없이 원인 전파, 비정상 응답 분류
+   - 실 API: `GEMINI_API_KEY_IT` 환경변수가 있을 때만 실행됩니다. 키는 코드와 파일에 남기지 않습니다.
+   ```bash
+   GEMINI_API_KEY_IT=<key> ./gradlew :backend:test --tests '*GeminiLiveIntegrationTest'
+   ```
+
+5) **2차 장애의 즉시 분리**: 배포 직후 404는 사라졌지만 새로운 오류가 발생했습니다. 3)에서 추가한 라벨 덕분에 로그 한 줄만으로 모델 문제가 아닌 credential 문제임을 바로 판별할 수 있었습니다.
+   ```
+   [AUTHENTICATION]: PERMISSION_DENIED (code 403) Your project has been denied access.
+   ```
+   코드는 수정하지 않았습니다. 원인은 운영 환경에 설정된 API Key 값이 복구된 프로젝트의 키와 일치하지 않은 것이었고, 키 값을 바로잡은 뒤 정상화되었습니다.
+
+###### Result: 어떤 결과를 얻었나요?
+
+- **장애 복구**: 카드 생성 성공률이 0%에서 정상으로 회복되었습니다. 복구 후 첫 요청(44페이지 PDF, 2·3페이지에 Ink·FreeText 주석)에서 플래시카드 4장이 생성되었습니다.
+- **최소 변경**: 의존성 변경 0건, Railway 필수 환경변수 변경 0건으로 복구했습니다. 운영 코드는 `FlashcardGeneratorImpl` 1개 파일(+51/−7줄)과 yml 설정 3개만 수정했습니다.
+- **테스트 보강**: 테스트 16개 → 25개(실행 24개 통과, 실 API 테스트 1개는 환경변수가 없으면 skip)로 늘어났고, 기존 테스트 16개는 모두 그대로 통과했습니다.
+- **진단 시간 단축**: 2차 장애(403)는 원인 라벨 덕분에 로그 한 줄로 credential 문제로 분리되어, 코드 변경 없이 해결되었습니다.
+- **회고 및 예방**:
+  - 모델명을 `GEMINI_MODEL` 환경변수로 분리해, 다음 모델 지원 중단 시 Railway 변수 변경만으로 대응할 수 있게 했습니다.
+  - "예외를 삼키고 추정 메시지로 대체"하는 패턴이 원인 은폐의 근본 원인이었습니다. fallback은 유지하되 원인을 반드시 로그와 cause chain에 남기는 것을 원칙으로 삼았습니다.
+
+- **증상**: PDF 업로드 시 카드 0장, 작업 실패와 사용량 환불이 반복되었습니다. 로그에는 `NOT_FOUND (code 404) This model models/gemini-2.5-flash is no longer available to new users.`가 남았고, 최종 오류 메시지는 "API timeouts or rate limits"로 잘못 안내되었습니다.
+- **원인**: Google이 `gemini-2.5-flash` 접근을 기존 사용 이력이 있는 프로젝트로 제한했고, 해당 프로젝트가 신규 사용자로 판정되어 404가 반환되었습니다. 여기에 예외를 삼키는 fallback 구조가 원인을 가렸습니다.
+- **해결**: 모델을 `${GEMINI_MODEL:gemini-3.8-flash}`로 교체하고 temperature를 1.0으로 맞췄습니다. LangChain4j 0.35.0과 generateContent는 유지했습니다. 실패 원인 분류 로깅을 추가했습니다.
+- **재현 조건**:
+  - 현재 모델이 deprecation이나 접근 제한 대상이 되는 경우 → `[MODEL_NOT_FOUND]` → Railway `GEMINI_MODEL` 변경으로 대응합니다.
+  - LangChain4j 0.35.0이 강제로 보내는 파라미터(`candidateCount`, `topK` 등)를 이후 모델이 거부하는 경우 → `[INVALID_REQUEST]`(400) → LangChain4j 1.x 업그레이드(B안)가 필요합니다.
+  - thinking 토큰이 `maxOutputTokens=8192`를 소진해 본문이 비는 경우 → `[MALFORMED_RESPONSE]` + `Unrecognized token 'No'`
+  - API Key나 프로젝트 상태 문제 → `[AUTHENTICATION]` → 코드가 아니라 콘솔과 환경변수를 확인합니다.
+  - 참고: `text-embedding-004`는 2026-01-14에 종료되었습니다. 현재는 호출하는 코드가 없지만, RAG 경로를 활성화하면 같은 유형의 404가 발생합니다(대체 모델은 DB `vector(768)`과 차원 일치 필요).
+- **참조**: [Gemini API Models](https://ai.google.dev/gemini-api/docs/models), [Deprecations](https://ai.google.dev/gemini-api/docs/deprecations), [What's new in Gemini 3.8 Flash (Migration checklist)](https://ai.google.dev/gemini-api/docs/generate-content/latest-model), [Interactions API](https://ai.google.dev/gemini-api/docs/interactions), LangChain4j `langchain4j-google-ai-gemini` 0.35.0 / 1.20.2 소스(Maven Central)
+
+---
+
 > [!IMPORTANT]
 > 본 리포트는 단순 UI 수정을 제외한 아키텍처 설계, 동시성 제어, 보안 정책 등 **백엔드 및 시스템 로직 핵심 트러블슈팅**에 집중하여 작성되었습니다. 모든 기술적 의사결정은 `context7` 기반의 검증된 라이브러리 가이드라인을 준수하였습니다.
