@@ -20,11 +20,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -146,6 +148,8 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             }
 
             List<FlashcardResponseDto> allFlashcards = new ArrayList<>();
+            // Keep the last page failure so the final error reports the real upstream cause
+            AtomicReference<Exception> lastPageFailure = new AtomicReference<>();
 
             // 1. Group annotations by pageIndex to process them contextually
             Map<Integer, List<AnnotationResultDto>> groupedByPage = annotations.stream()
@@ -165,7 +169,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                         pageIndex, pageAnnotations.size(), i + 1, totalPagesWithAnnotations);
 
                 List<FlashcardResponseDto> pageCards = generateCardsForPage(pageIndex, pageAnnotations, targetLanguage,
-                        userTier);
+                        userTier, lastPageFailure);
                 allFlashcards.addAll(pageCards);
 
                 if (jobId != null) {
@@ -184,8 +188,12 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             }
 
             if (allFlashcards.isEmpty() && !annotations.isEmpty()) {
+                Exception cause = lastPageFailure.get();
+                String reason = cause != null
+                        ? "Last upstream error [" + classifyFailure(cause) + "]: " + cause.getMessage()
+                        : "No upstream error was recorded (the model returned no cards).";
                 throw new RuntimeException(
-                        "Failed to generate any flashcards from the provided annotations. This might be due to API timeouts or rate limits.");
+                        "Failed to generate any flashcards from the provided annotations. " + reason, cause);
             }
 
             return allFlashcards;
@@ -197,7 +205,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
     }
 
     private List<FlashcardResponseDto> generateCardsForPage(int pageIndex, List<AnnotationResultDto> annotations,
-            String targetLanguage, UserTier userTier) {
+            String targetLanguage, UserTier userTier, AtomicReference<Exception> lastFailure) {
         try {
             List<Map<String, String>> simplifiedAnnotations = new ArrayList<>();
             List<ImageContent> imageContents = new ArrayList<>();
@@ -289,7 +297,9 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
                     .map(card -> FlashcardResponseDto.of(card.question(), card.answer(), pageIndex))
                     .toList();
         } catch (Exception e) {
-            log.error("Failed to process page {} or parse AI response", pageIndex, e);
+            lastFailure.set(e);
+            log.error("Failed to process page {} or parse AI response [{}]: {}", pageIndex, classifyFailure(e),
+                    e.getMessage(), e);
             return new ArrayList<>();
         }
     }
@@ -321,7 +331,7 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             Response<AiMessage> response = generateWithRetry(systemMessage, userMessage);
             return response.content().text().trim();
         } catch (Exception e) {
-            log.warn("Language detection failed, falling back to auto-detect", e);
+            log.warn("Language detection failed [{}], falling back to auto-detect", classifyFailure(e), e);
             return "the SAME language as the Target Text";
         }
     }
@@ -354,5 +364,36 @@ public class FlashcardGeneratorImpl implements FlashcardGenerator {
             }
         }
         return chatModel.generate(systemMessage, userMessage);
+    }
+
+    /**
+     * Labels an LLM call failure for logs only (no behavior change). LangChain4j 0.35 surfaces Gemini errors as
+     * "STATUS (code N) message", so the status/code text is the most reliable signal.
+     */
+    static String classifyFailure(Throwable e) {
+        if (e instanceof com.fasterxml.jackson.core.JsonProcessingException) {
+            return "MALFORMED_RESPONSE";
+        }
+        String msg = String.valueOf(e.getMessage());
+        if (msg.contains("NOT_FOUND") || msg.contains("code 404")) {
+            return "MODEL_NOT_FOUND";
+        }
+        if (msg.contains("UNAUTHENTICATED") || msg.contains("PERMISSION_DENIED") || msg.contains("API key")
+                || msg.contains("code 401") || msg.contains("code 403")) {
+            return "AUTHENTICATION";
+        }
+        if (msg.contains("429") || msg.contains("RESOURCE_EXHAUSTED")) {
+            return "RATE_LIMIT";
+        }
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            if (t instanceof InterruptedIOException
+                    || (t.getMessage() != null && t.getMessage().toLowerCase().contains("timeout"))) {
+                return "TIMEOUT";
+            }
+        }
+        if (msg.contains("INVALID_ARGUMENT") || msg.contains("code 400")) {
+            return "INVALID_REQUEST";
+        }
+        return "UNKNOWN";
     }
 }

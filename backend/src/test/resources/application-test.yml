@@ -33,8 +33,8 @@ langchain4j:
   google-ai-gemini:
     chat-model:
       api-key: "test-api-key"
-      model-name: "gemini-2.5-flash"
-      temperature: 0.7
+      model-name: "gemini-3.8-flash"
+      temperature: 1.0
     embedding-model:
       api-key: "test-api-key"
       model-name: "text-embedding-004"
