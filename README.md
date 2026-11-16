@@ -3,7 +3,7 @@
 > **"공부한 흔적만 넣으세요. 정리는 AI가 합니다."**
 > <br/>
 
-[🌐 서비스 바로가기 (cubrain.app)](https://cubrain.vercel.app)
+[🌐 서비스 바로가기 (cubrain.vercel.app)](https://cubrain.vercel.app)
 
   <p align="center">
     <img src="https://img.shields.io/badge/Java 21-007396?style=flat-square&logo=Java&logoColor=white"/>
