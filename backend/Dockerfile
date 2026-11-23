@@ -17,8 +17,8 @@ COPY src ./src
 RUN gradle bootJar -x test --no-daemon
 
 # 🚀 STAGE 2: RUN
-# Use Eclipse Temurin JRE 21 (Lightweight Alpine version)
-FROM eclipse-temurin:21-jre-alpine
+# Use Eclipse Temurin JRE 21.0.13.1+2 (includes the fix for CVE-2026-114938, Base64 heap overflow)
+FROM eclipse-temurin:21.0.13.1_2-jre-alpine
 WORKDIR /app
 
 # Copy the JAR from the builder stage
