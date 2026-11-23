@@ -7,7 +7,7 @@ export const API_BASE_URL = envUrl
   ? envUrl
   : IS_DEV_MODE
     ? "https://api-dev.cubrain.app"
-    : "https://api.cubrain.app";
+    : "https://cubrain-production.up.railway.app";
 
 // 2. Add Launch Switch
 // Toggle this to FALSE when the first 100 spots are filled.
