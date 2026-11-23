@@ -10,7 +10,7 @@
     children?: any;
   }>();
 
-  const imageUrl = "https://cubrain.app/og-image.png";
+  const imageUrl = "https://cubrain.vercel.app/og-image.png";
   let fromApp = $state(false);
 
   $effect(() => {

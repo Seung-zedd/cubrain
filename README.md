@@ -99,4 +99,4 @@ _👈Cubrain의 모든 API 엔드포인트와 데이터 구조는 위 링크에�
 
 <br/>
 
-👉 **[Cubrain 라이브 서비스에서 테스트하기](https://cubrain.app)**
+👉 **[Cubrain 라이브 서비스에서 테스트하기](https://cubrain.vercel.app)**

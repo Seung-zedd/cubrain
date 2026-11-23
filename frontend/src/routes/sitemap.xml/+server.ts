@@ -1,7 +1,7 @@
 export const prerender = true;
 
 export async function GET() {
-  const site = "https://cubrain.app";
+  const site = "https://cubrain.vercel.app";
 
   // Static pages
   const staticPages = ["", "/pricing", "/whats-new", "/privacy", "/terms"];

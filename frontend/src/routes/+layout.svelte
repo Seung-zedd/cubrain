@@ -48,8 +48,8 @@
 
   const description =
     "Stop drowning in PDFs. Turn your study materials into AI-generated quizzes and flashcards instantly.";
-  const url = "https://cubrain.app";
-  const imageUrl = "https://cubrain.app/og-image.png";
+  const url = "https://cubrain.vercel.app";
+  const imageUrl = "https://cubrain.vercel.app/og-image.png";
   let isStudyMode = $derived(page.url.pathname.startsWith("/study"));
   let isPro = $derived(user.current?.tier === "PRO_USER");
 </script>

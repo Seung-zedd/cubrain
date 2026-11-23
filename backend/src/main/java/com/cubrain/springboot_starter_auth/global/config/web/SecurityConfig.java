@@ -44,6 +44,10 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Slf4j
 public class SecurityConfig {
 
+    // Pre-auth input limits (Firebase ID tokens are typically 1000~1500 chars)
+    private static final int MAX_TOKEN_LENGTH = 4096;
+    private static final int MAX_HEADER_LENGTH = 512;
+
     private final FirebaseUserSyncFilter firebaseUserSyncFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
@@ -116,7 +120,14 @@ public class SecurityConfig {
 
         return token -> {
             try {
+                // Reject oversized pre-auth input before any Base64 decoding
+                if (token == null || token.length() > MAX_TOKEN_LENGTH) {
+                    throw new RuntimeException("Token too large");
+                }
                 String header = token.split("\\.")[0];
+                if (header.length() > MAX_HEADER_LENGTH) {
+                    throw new RuntimeException("Token header too large");
+                }
                 String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
 
                 if (decodedHeader.contains("HS256") && finalSym != null) {
